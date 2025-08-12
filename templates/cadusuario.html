@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Usuário{% endblock %}
+
+{% block content %}
+<div class="container col-md-6 col-lg-5 mt-5">
+  <h1 class="mb-4">Cadastrar Usuário</h1>
+
+  {% if empresa %}
+  <div class="mb-4 p-3 border rounded bg-light">
+    <h5 class="mb-1">Empresa</h5>
+    <p class="mb-0"><strong>CNPJ:</strong> {{ empresa.cnpj|formata_cnpj }}</p>
+    <p class="mb-0"><strong>Nome:</strong> {{ empresa.nome }}</p>
+  </div>
+  {% endif %}
+
+  <form method="post" action="/cadusuarios/cadastrar">
+    <input type="hidden" name="cnpj" value="{{ empresa.cnpj }}" />
+
+    <div class="mb-3">
+      <label for="vendedor" class="form-label">Vendedor</label>
+      <select class="form-select {% if errors.get('vendedor_id') %}is-invalid{% endif %}" id="vendedor" name="vendedor_id" required>
+        <option value="">-- Escolha um vendedor --</option>
+        {% for v in vendedores %}
+          <option value="{{ v.id }}" {% if form_data.vendedor_id == v.id %}selected{% endif %}>{{ v.nome }}</option>
+        {% endfor %}
+      </select>
+      {% if errors.get("vendedor_id") %}
+        <div class="invalid-feedback">{{ errors.get("vendedor_id") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="usuario" class="form-label">Usuário</label>
+      <input type="text" class="form-control {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required />
+      {% if errors.get("usuario") %}
+        <div class="invalid-feedback">{{ errors.get("usuario") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="senha" class="form-label">Senha</label>
+      <input type="password" class="form-control {% if errors.get('senha') %}is-invalid{% endif %}" id="senha" name="senha" required />
+      {% if errors.get("senha") %}
+        <div class="invalid-feedback">{{ errors.get("senha") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmar_senha" class="form-label">Confirmar Senha</label>
+      <input type="password" class="form-control {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required />
+      {% if errors.get("confirmar_senha") %}
+        <div class="invalid-feedback">{{ errors.get("confirmar_senha") }}</div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Cadastrar</button>
+  </form>
+</div>
+{% endblock %}
