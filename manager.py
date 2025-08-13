@@ -1,6 +1,6 @@
+import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from routes import parameter_router
 from routes.cadusers import cadusers_router
 from routes.produto import products_router
@@ -9,16 +9,16 @@ from routes.sicronizeimage import imagem_router
 from routes.vendedor import vendedor_router
 from routes.cliente import cliente_router
 from routes.formaparameto import condicao_pagamento_router
+from fastapi.middleware.wsgi import WSGIMiddleware
+from markupsafe import escape
 from funtions import templates
-
 
 
 app = FastAPI()
 
 # Rota arquivos estáticos
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 # Registrando os routers
@@ -31,11 +31,3 @@ app.include_router(cliente_router, prefix="/clientes" ,tags=["Cliente"])
 app.include_router(condicao_pagamento_router, prefix="/condicoespagamento", tags=["Condicao"])
 app.include_router(cadusers_router, prefix="/cadusuarios", tags=["Cadusuario"])
 app.include_router(cadusers_router)
-
-
-
-
-
-
-
-
