@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes import parameter_router
+from routes import parameter_router, sincronizaruser_router
 from routes.cadusers import cadusers_router
 from routes.produto import products_router
 from routes.empresa import empresa_router
@@ -38,4 +38,5 @@ app.include_router(vendedor_router, prefix="/vendedores", tags=["Vendedor"])
 app.include_router(cliente_router, prefix="/clientes" ,tags=["Cliente"])
 app.include_router(condicao_pagamento_router, prefix="/condicoespagamento", tags=["Condicao"])
 app.include_router(cadusers_router, prefix="/cadusuarios", tags=["Cadusuario"])
+app.include_router(sincronizaruser_router, prefix="/sincronizausers", tags=["users"])
 app.include_router(cadusers_router)

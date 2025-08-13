@@ -6,8 +6,9 @@ from .vendedor import vendedor_router
 from .cliente import cliente_router
 from .formaparameto import condicao_pagamento_router
 from .cadusers import cadusers_router
+from .cadusers import sincronizaruser_router
 
 __all__ = [
             "empresa_router", "products_router", "imagem_router", "parameter_router", "vendedor_router",
-            "cliente_router","condicao_pagamento_router", "cadusers_router",
+            "cliente_router","condicao_pagamento_router", "cadusers_router","sincronizaruser_router",
            ]
