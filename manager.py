@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes import parameter_router
 from routes.cadusers import cadusers_router
@@ -9,12 +10,19 @@ from routes.sicronizeimage import imagem_router
 from routes.vendedor import vendedor_router
 from routes.cliente import cliente_router
 from routes.formaparameto import condicao_pagamento_router
-from fastapi.middleware.wsgi import WSGIMiddleware
-from markupsafe import escape
+# from fastapi.middleware.wsgi import WSGIMiddleware
+# from markupsafe import escape
 from funtions import templates
 
-
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Rota arquivos estáticos
 static_dir = os.path.join(os.path.dirname(__file__), "static")
