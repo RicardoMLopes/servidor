@@ -26,3 +26,6 @@ async def buscar_empresa(db: Session = Depends(get_empresa_db)):
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")
 
+
+
+

@@ -128,4 +128,18 @@ def ConsultaEmpresaPorCNPJ(db, cnpj: str):
         return None
 
 
+def Consultausers(db):
+    try:
+        sql = text("""
+            SELECT * 
+            FROM cadusers 
+            WHERE situacaoregistro <> "E"        
+        """)
+        resultado = db.execute(sql).mappings().all()
+        return resultado
+    except Exception as e:
+        traceback.print_exc()
+        return None
+
+
 
