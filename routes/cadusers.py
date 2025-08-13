@@ -157,7 +157,7 @@ async def sincronizar_usuarios( db: Session = Depends(get_empresa_db)):
                 "senha": u.senha,
                 "novasenha": u.novasenha,
                 "situacaoregistro": u.situacaoregistro,
-                "totem": u.totem,
+                "token": u.token,
                 "dataregistro": u.dataregistro.isoformat() if u.dataregistro else None
             })
 
