@@ -9,7 +9,7 @@ products_router = APIRouter()
 
 
 # requisição da lista de produtos
-@products_router.get("/")
+@products_router.get("")
 async def sincronizar_produto(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaProduto(db)

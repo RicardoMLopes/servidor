@@ -8,7 +8,7 @@ import traceback
 empresa_router = APIRouter()
 
 # requisição do cadastro de empresa
-@empresa_router.get("/")
+@empresa_router.get("")
 async def buscar_empresa(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaEmpresa(db)

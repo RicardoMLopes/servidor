@@ -8,7 +8,7 @@ from typing import List
 
 parameter_router = APIRouter()
 
-@parameter_router.get("/")
+@parameter_router.get("")
 async def listar_parameter(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaParametro(db)

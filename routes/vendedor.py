@@ -7,7 +7,7 @@ import traceback
 
 vendedor_router = APIRouter()
 
-@vendedor_router.get("/")
+@vendedor_router.get("")
 async def listar_vendedores(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaVendedor(db)

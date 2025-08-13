@@ -8,7 +8,7 @@ import traceback
 
 rota_cliente_router = APIRouter()
 
-@rota_cliente_router.get("/")
+@rota_cliente_router.get("")
 async def listar_rotas_cliente(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaRotaCliente(db)

@@ -8,7 +8,7 @@ import traceback
 
 condicao_pagamento_router = APIRouter()
 
-@condicao_pagamento_router.get("/")
+@condicao_pagamento_router.get("")
 async def listar_condicoes_pagamento(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaCondicoesPagamento(db)

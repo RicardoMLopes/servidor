@@ -7,7 +7,7 @@ import traceback
 
 cliente_router = APIRouter()
 
-@cliente_router.get("/")
+@cliente_router.get("")
 async def listar_clientes(db: Session = Depends(get_empresa_db)):
     try:
         resultado = ConsultaCliente(db)
