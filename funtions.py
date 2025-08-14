@@ -1,17 +1,35 @@
 import hashlib
 import re
 import time
-from passlib.context import CryptContext
 from connection import DB_CHAVE
 from fastapi.templating import Jinja2Templates
 
 
+
+
 templates = Jinja2Templates(directory="templates")
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+# Salt fixo, deve ser o mesmo que no app
+SALT = DB_CHAVE
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """
+    Gera hash determinístico da senha com SHA-256 + salt fixo.
+    """
+    return hashlib.sha256((SALT + password).encode('utf-8')).hexdigest()
+
+
+def verificar_senha(password_digitada: str, hash_armazenado: str) -> bool:
+    """
+    Valida se a senha digitada corresponde ao hash armazenado.
+    """
+    if not hash_armazenado:
+        return False
+    hash_digitado = hash_password(password_digitada)
+    return hash_digitado == hash_armazenado
+
 
 
 def gerar_token_cnpj(cnpj: str, chave_secreta: str) -> str:

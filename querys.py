@@ -93,7 +93,7 @@ def inserir_usuario(db, empresa_id: int, vendedor_id: str, usuario: str, senha_h
         sql_insert = text("""
             INSERT INTO cadusers 
             (empresa, codigovendedor, usuario, senha, novasenha, token, situacaoregistro, dataregistro)
-            VALUES (:empresa, :codigovendedor, :usuario, :senha, :novasenha, :token, 'ativo', NOW())
+            VALUES (:empresa, :codigovendedor, :usuario, :senha, :novasenha, :token, 'I', NOW())
         """)
         db.execute(sql_insert, {
             "empresa": empresa_id,
