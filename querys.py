@@ -271,7 +271,7 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
                 "valorTotal": item.get("valorTotal", 0),
                 "quantidade": item.get("quantidade", 0),
                 "cd_cliente": item.get("codigocliente", nota.get("codigocliente", "")),
-                "dataRegistro": converter_data_mysql(item.get("dataRegistro", nota.get("dataRegistro"))),
+                "dataRegistro": item.get("dataRegistro", nota.get("dataRegistro")),
                 "situacaoRegistro": item.get("situacaoRegistro", "I")
             })
 
