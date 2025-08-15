@@ -1,7 +1,7 @@
 from sqlalchemy import text
 import traceback
-
-from funtions import formata_cnpj
+from typing import Dict, Any
+from funtions import formata_cnpj, converter_data_mysql
 
 
 # consulta da empresa
@@ -80,7 +80,7 @@ def ConsultaCondicoesPagamento(db):
 def ConsultaVendedores(db):
     try:
         resultado = db.execute(
-            text('SELECT codigo, nome FROM cadvendedor WHERE situacaoregistro <> "E"')
+            text('SELECT codigo, nome FROM cadvendedor WHERE situacaoregistro <> "E" ')
         ).mappings().all()
        # print(resultado)
         return resultado
@@ -133,13 +133,150 @@ def Consultausers(db):
         sql = text("""
             SELECT * 
             FROM cadusers 
-            WHERE situacaoregistro <> "E"        
+            WHERE situacaoregistro <> 'E'        
         """)
         resultado = db.execute(sql).mappings().all()
         return resultado
     except Exception as e:
         traceback.print_exc()
         return None
+
+
+def ConsultaUsuarioPorUsername(db, usuario):
+    try:
+        sql = text("""
+            SELECT * 
+            FROM cadusers 
+            WHERE situacaoregistro <> 'E'  AND usuario = :usuario       
+        """)
+        resultado = db.execute(sql, {"usuario": usuario}).mappings().all()
+        return resultado
+    except Exception as e:
+        traceback.print_exc()
+        return None
+
+def atualizar_senha_usuario(db, usuario, hash):
+    try:
+        sql = text("""
+            UPDATE cadusers SET  novasenha = :novasenha 
+            WHERE situacaoregistro <> 'E'  AND usuario = :usuario       
+        """)
+        resultado = db.execute(sql, {"usuario": usuario, "novasenha":hash}).mappings().all()
+        return resultado
+    except Exception as e:
+        traceback.print_exc()
+        return None
+
+# Recuperar o usuário
+def ConsultaUsuarioPorVendedor(db, vendedor):
+    try:
+        print("Vendedor recebido na função:", repr(vendedor))
+        sql = text("""
+            SELECT usuario 
+            FROM cadusers 
+            WHERE situacaoregistro <> 'E' AND codigovendedor = :vendedor       
+        """)
+        resultado = db.execute(sql, {"vendedor": vendedor}).mappings().all()
+        print("Resultado da query:", resultado)
+        return resultado
+    except Exception as e:
+        traceback.print_exc()
+        return None
+
+def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
+    nota["codigo"] = proximo_codigo(db, nota["empresa"])
+
+    """
+    Insere uma nota (movnota) e seus itens (movnotaitem) no banco MySQL.
+    Recebe os campos conforme enviados pelo app (SQLite) e faz o mapeamento.
+    """
+    try:
+        # 1️⃣ Inserir cabeçalho (movnota)
+        sql_insert_nota = text("""
+            INSERT INTO movnota
+            (empresa, codigo, cd_condPagamento, cd_vendedor, cd_cliente,
+             nome_cliente, cd_pedido, valorDesconto, valorDespesas, valorFrete,
+             valorTotal, pesoTotal, observacao, status, dataLancamento, situacaoRegistro, dataRegistro)
+            VALUES
+            (:empresa, :codigo, :cd_condPagamento, :cd_vendedor, :cd_cliente,
+             :nome_cliente, :cd_pedido, :valorDesconto, :valorDespesas, :valorFrete,
+             :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento, :situacaoRegistro, :dataRegistro)
+        """)
+
+        # Garantir que 'codigo' existe (chave primária da movnota)
+        if "codigo" not in nota or not nota["codigo"]:
+            # Pega próximo código
+            result = db.execute(text("SELECT IFNULL(MAX(codigo),0)+1 as prox FROM movnota WHERE empresa=:empresa"), {"empresa": nota["empresa"]}).fetchone()
+            # Atenção: MySQL retorna tupla, usamos índice 0
+            nota["codigo"] = result[0] if result else 1
+
+        db.execute(sql_insert_nota, {
+            "empresa": nota["empresa"],
+            "codigo": nota["codigo"],
+            "cd_condPagamento": nota.get("codigocondPagamento", ""),
+            "cd_vendedor": nota.get("codigovendedor", ""),
+            "cd_cliente": nota.get("codigocliente", ""),
+            "nome_cliente": nota.get("nomecliente", ""),
+            "cd_pedido": nota.get("codigopedido", 0),
+            "valorDesconto": nota.get("valorDesconto", 0),
+            "valorDespesas": nota.get("valorDespesas", 0),
+            "valorFrete": nota.get("valorFrete", 0),
+            "valorTotal": nota.get("valorTotal", 0),
+            "pesoTotal": nota.get("pesoTotal", 0),
+            "observacao": nota.get("observacao", ""),
+            "status": nota.get("status", "P"),
+            "dataLancamento": nota.get("dataLancamento"),
+            "situacaoRegistro": nota.get("situacaoRegistro", "I"),
+            "dataRegistro": nota.get("dataRegistro")
+        })
+
+        # 2️⃣ Inserir itens (movnotaitem)
+        sql_insert_item = text("""
+            INSERT INTO movnotaitem
+            (empresa, cd_pedido, cd_vendedor, cd_produto, nome_produto,
+             valorUnitario, valorunitariovenda, valorDesconto, valoracrescimo, valorTotal,
+             quantidade, cd_cliente, dataRegistro, situacaoRegistro)
+            VALUES
+            (:empresa, :cd_pedido, :cd_vendedor, :cd_produto, :nome_produto,
+             :valorUnitario, :valorunitariovenda, :valorDesconto, :valoracrescimo, :valorTotal,
+             :quantidade, :cd_cliente, :dataRegistro, :situacaoRegistro)
+        """)
+
+        for item in nota.get("itens", []):
+            db.execute(sql_insert_item, {
+                "empresa": item.get("empresa", nota["empresa"]),
+                "cd_pedido": nota["codigo"],  # Relaciona ao cabecalho
+                "cd_vendedor": item.get("codigovendedor", nota.get("codigovendedor", "")),
+                "cd_produto": item.get("codigoproduto", ""),
+                "nome_produto": item.get("descricaoproduto", ""),
+                "valorUnitario": item.get("valorUnitario", 0),
+                "valorunitariovenda": item.get("valorunitariovenda", 0),
+                "valorDesconto": item.get("valorDesconto", 0),
+                "valoracrescimo": item.get("valoracrescimo", 0),
+                "valorTotal": item.get("valorTotal", 0),
+                "quantidade": item.get("quantidade", 0),
+                "cd_cliente": item.get("codigocliente", nota.get("codigocliente", "")),
+                "dataRegistro": converter_data_mysql(item.get("dataRegistro", nota.get("dataRegistro"))),
+                "situacaoRegistro": item.get("situacaoRegistro", "I")
+            })
+
+        db.commit()
+        return True
+
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao inserir pedido {nota.get('numerodocumento', nota.get('codigo'))}: {e}")
+        traceback.print_exc()
+        return False
+
+def proximo_codigo(db, empresa: int) -> int:
+    result = db.execute(
+        text("SELECT COALESCE(MAX(codigo),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
+        {"empresa": empresa}
+    ).mappings().fetchone()  # <--- adiciona .mappings()
+
+    return result["prox"] if result else 1
+
 
 
 

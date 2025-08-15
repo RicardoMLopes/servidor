@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Recuperar/Alterar Senha{% endblock %}
+
+{% block content %}
+<div class="container col-md-6 col-lg-5 mt-5">
+  <h1 class="mb-4">Recuperar/Alterar Senha</h1>
+
+  {% if empresa %}
+  <div class="mb-4 p-3 border rounded bg-light">
+    <h5 class="mb-1">Empresa</h5>
+    <p class="mb-0"><strong>CNPJ:</strong> {{ empresa.cnpj|formata_cnpj }}</p>
+    <p class="mb-0"><strong>Nome:</strong> {{ empresa.nome }}</p>
+  </div>
+  {% endif %}
+
+  <form method="post" action="/recuperar-senha">
+    <input type="hidden" name="cnpj" value="{{ empresa.cnpj }}" />
+
+    <div class="mb-3">
+      <label for="vendedor" class="form-label">Vendedor</label>
+      <select class="form-select {% if errors.get('vendedor_id') %}is-invalid{% endif %}" id="vendedor" name="vendedor_id" required>
+        <option value="">-- Escolha um vendedor --</option>
+        {% for v in vendedores %}
+          <option value="{{ v.id }}">{{ v.nome }}</option>
+        {% endfor %}
+      </select>
+      {% if errors.get("vendedor_id") %}
+        <div class="invalid-feedback">{{ errors.get("vendedor_id") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="usuario" class="form-label">Usuário</label>
+      <input type="text" class="form-control {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required />
+      {% if errors.get("usuario") %}
+        <div class="invalid-feedback">{{ errors.get("usuario") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="senha_atual" class="form-label">Senha Atual</label>
+      <input type="password" class="form-control {% if errors.get('senha_atual') %}is-invalid{% endif %}" id="senha_atual" name="senha_atual" required />
+      {% if errors.get("senha_atual") %}
+        <div class="invalid-feedback">{{ errors.get("senha_atual") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="nova_senha" class="form-label">Nova Senha</label>
+      <input type="password" class="form-control {% if errors.get('nova_senha') %}is-invalid{% endif %}" id="nova_senha" name="nova_senha" required />
+      {% if errors.get("nova_senha") %}
+        <div class="invalid-feedback">{{ errors.get("nova_senha") }}</div>
+      {% endif %}
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+      <input type="password" class="form-control {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required />
+      {% if errors.get("confirmar_senha") %}
+        <div class="invalid-feedback">{{ errors.get("confirmar_senha") }}</div>
+      {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Atualizar Senha</button>
+  </form>
+</div>
+
+<script>
+const vendedorSelect = document.getElementById('vendedor');
+const usuarioInput = document.getElementById('usuario');
+const cnpjEmpresa = "{{ empresa.cnpj }}";
+
+vendedorSelect.addEventListener('change', async function() {
+  const vendedorId = this.value;
+  if (!vendedorId) {
+    usuarioInput.value = '';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/buscar-usuario-vendedor/?cnpj=${cnpjEmpresa}&vendedor_id=${vendedorId}`);
+    const data = await response.json();
+    usuarioInput.value = data.usuario || '';
+  } catch (error) {
+    console.error("Erro ao buscar usuário do vendedor:", error);
+    usuarioInput.value = '';
+  }
+});
+</script>
+
+{% endblock %}
