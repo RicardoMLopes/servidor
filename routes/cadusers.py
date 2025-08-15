@@ -8,7 +8,7 @@ from starlette.responses import JSONResponse
 from dependencies import get_empresa_session, get_nome_banco_por_token, get_empresa_db
 from model.cadusers import criar_tabela_cadusers_se_nao_existir
 from querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_usuario, Consultausers, \
-    ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor
+    ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor, Consultar_vendedor_user
 from funtions import gerar_token_cnpj, hash_password, gerar_token_usuario, verificar_senha
 from funtions import templates
 from connection import  DB_CHAVE
@@ -50,7 +50,7 @@ def buscar_vendedores(request: Request, cnpj: str = Form(...)):
 
         empresa = empresa_raw[0]  # pega o primeiro registro (dict)
 
-        vendedores_raw = ConsultaVendedores(db)
+        vendedores_raw = Consultar_vendedor_user(db)
         vendedores = [{"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw]
 
     # Preencher form_data com cnpj para o campo readonly no form

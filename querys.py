@@ -77,6 +77,23 @@ def ConsultaCondicoesPagamento(db):
     return resultado
 
 
+
+def Consultar_vendedor_user(db):
+    try:
+        resultado = db.execute(
+            text('''
+                SELECT v.codigo, v.nome
+                FROM cadvendedor v
+                WHERE v.situacaoregistro <> "E"
+                  AND v.codigo NOT IN (SELECT u.codigovendedor FROM cadusers u)
+            ''')
+        ).mappings().all()
+        return resultado
+    except Exception as e:
+        traceback.print_exc()
+        return []
+
+
 def ConsultaVendedores(db):
     try:
         resultado = db.execute(
@@ -184,14 +201,19 @@ def ConsultaUsuarioPorVendedor(db, vendedor):
         return None
 
 def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
-    nota["codigo"] = proximo_codigo(db, nota["empresa"])
-
     """
     Insere uma nota (movnota) e seus itens (movnotaitem) no banco MySQL.
-    Recebe os campos conforme enviados pelo app (SQLite) e faz o mapeamento.
+    Toda a operação é feita em uma transação única.
     """
     try:
-        # 1️⃣ Inserir cabeçalho (movnota)
+        # Inicia transação
+        db.execute(text("START TRANSACTION"))
+
+        # Gera código para a nota
+        if "codigo" not in nota or not nota["codigo"]:
+            nota["codigo"] = proximo_codigo(db, nota["empresa"])
+
+        # 1️⃣ Inserir cabeçalho
         sql_insert_nota = text("""
             INSERT INTO movnota
             (empresa, codigo, cd_condPagamento, cd_vendedor, cd_cliente,
@@ -202,13 +224,6 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
              :nome_cliente, :cd_pedido, :valorDesconto, :valorDespesas, :valorFrete,
              :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento, :situacaoRegistro, :dataRegistro)
         """)
-
-        # Garantir que 'codigo' existe (chave primária da movnota)
-        if "codigo" not in nota or not nota["codigo"]:
-            # Pega próximo código
-            result = db.execute(text("SELECT IFNULL(MAX(codigo),0)+1 as prox FROM movnota WHERE empresa=:empresa"), {"empresa": nota["empresa"]}).fetchone()
-            # Atenção: MySQL retorna tupla, usamos índice 0
-            nota["codigo"] = result[0] if result else 1
 
         db.execute(sql_insert_nota, {
             "empresa": nota["empresa"],
@@ -230,7 +245,7 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
             "dataRegistro": nota.get("dataRegistro")
         })
 
-        # 2️⃣ Inserir itens (movnotaitem)
+        # 2️⃣ Inserir itens
         sql_insert_item = text("""
             INSERT INTO movnotaitem
             (empresa, cd_pedido, cd_vendedor, cd_produto, nome_produto,
@@ -245,7 +260,7 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
         for item in nota.get("itens", []):
             db.execute(sql_insert_item, {
                 "empresa": item.get("empresa", nota["empresa"]),
-                "cd_pedido": nota["codigo"],  # Relaciona ao cabecalho
+                "cd_pedido": nota["codigo"],
                 "cd_vendedor": item.get("codigovendedor", nota.get("codigovendedor", "")),
                 "cd_produto": item.get("codigoproduto", ""),
                 "nome_produto": item.get("descricaoproduto", ""),
@@ -260,22 +275,24 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
                 "situacaoRegistro": item.get("situacaoRegistro", "I")
             })
 
+        # Finaliza transação
         db.commit()
         return True
 
     except Exception as e:
         db.rollback()
-        print(f"Erro ao inserir pedido {nota.get('numerodocumento', nota.get('codigo'))}: {e}")
+        print(f"❌ Erro ao inserir pedido {nota.get('numerodocumento', nota.get('codigo'))}: {e}")
         traceback.print_exc()
         return False
+
 
 def proximo_codigo(db, empresa: int) -> int:
     result = db.execute(
         text("SELECT COALESCE(MAX(codigo),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
         {"empresa": empresa}
-    ).mappings().fetchone()  # <--- adiciona .mappings()
-
+    ).mappings().fetchone()
     return result["prox"] if result else 1
+
 
 
 
