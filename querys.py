@@ -70,7 +70,7 @@ def ConsultaVendedor(db):
 def ConsultaCondicoesPagamento(db):
     try:
         resultado = db.execute(
-            text("SELECT * FROM CadCondicaoPagamento  ")
+            text("SELECT * FROM cadcondicaopagamento  ")
         ).fetchall()
     except Exception as e:
         traceback.print_exc()
