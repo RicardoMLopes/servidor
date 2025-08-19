@@ -210,29 +210,33 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
         db.execute(text("START TRANSACTION"))
 
         # Gera código para a nota
-        if "codigo" not in nota or not nota["codigo"]:
-            nota["codigo"] = proximo_codigo(db, nota["empresa"])
+        print("Entrou na rotina de inserção")
+        if "numerodocumento" in nota or nota["numerodocumento"]:
+            print("Chamada do proximo numero")
+            nota["numerodocumento"] = proximo_codigo(db, nota["empresa"])
+        else:
+            print("Não entrou na rotina proximo numero")
 
         # 1️⃣ Inserir cabeçalho
         sql_insert_nota = text("""
             INSERT INTO movnota
-            (empresa, codigo, cd_condPagamento, cd_vendedor, cd_cliente,
-             nome_cliente, cd_pedido, valorDesconto, valorDespesas, valorFrete,
+            (empresa, numerodocumento, codigocondPagamento, codigovendedor, codigocliente,
+             nomecliente, idpedido, valorDesconto, valorDespesas, valorFrete,
              valorTotal, pesoTotal, observacao, status, dataLancamento, situacaoRegistro, dataRegistro)
             VALUES
-            (:empresa, :codigo, :cd_condPagamento, :cd_vendedor, :cd_cliente,
-             :nome_cliente, :cd_pedido, :valorDesconto, :valorDespesas, :valorFrete,
+            (:empresa, :numerodocumento, :codigocondPagamento, :codigovendedor, :codigocliente,
+             :nomecliente, :idpedido, :valorDesconto, :valorDespesas, :valorFrete,
              :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento, :situacaoRegistro, :dataRegistro)
         """)
 
         db.execute(sql_insert_nota, {
             "empresa": nota["empresa"],
-            "codigo": nota["codigo"],
-            "cd_condPagamento": nota.get("codigocondPagamento", ""),
-            "cd_vendedor": nota.get("codigovendedor", ""),
-            "cd_cliente": nota.get("codigocliente", ""),
-            "nome_cliente": nota.get("nomecliente", ""),
-            "cd_pedido": nota.get("codigopedido", 0),
+            "numerodocumento": nota["numerodocumento"],
+            "codigocondPagamento": nota.get("codigocondPagamento", ""),
+            "codigovendedor": nota.get("codigovendedor", ""),
+            "codigocliente": nota.get("codigocliente", ""),
+            "nomecliente": nota.get("nomecliente", ""),
+            "idpedido": nota.get("idpedido", 0),
             "valorDesconto": nota.get("valorDesconto", 0),
             "valorDespesas": nota.get("valorDespesas", 0),
             "valorFrete": nota.get("valorFrete", 0),
@@ -248,29 +252,30 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
         # 2️⃣ Inserir itens
         sql_insert_item = text("""
             INSERT INTO movnotaitem
-            (empresa, cd_pedido, cd_vendedor, cd_produto, nome_produto,
+            (empresa, numerodocumento, codigovendedor, codigoproduto, idpedido, descricaoproduto,
              valorUnitario, valorunitariovenda, valorDesconto, valoracrescimo, valorTotal,
-             quantidade, cd_cliente, dataRegistro, situacaoRegistro)
+             quantidade, codigocliente, dataRegistro, situacaoRegistro)
             VALUES
-            (:empresa, :cd_pedido, :cd_vendedor, :cd_produto, :nome_produto,
+            (:empresa, :numerodocumento, :codigovendedor, :codigoproduto, :idpedido, :descricaoproduto,
              :valorUnitario, :valorunitariovenda, :valorDesconto, :valoracrescimo, :valorTotal,
-             :quantidade, :cd_cliente, :dataRegistro, :situacaoRegistro)
+             :quantidade, :codigocliente, :dataRegistro, :situacaoRegistro)
         """)
 
         for item in nota.get("itens", []):
             db.execute(sql_insert_item, {
                 "empresa": item.get("empresa", nota["empresa"]),
-                "cd_pedido": nota["codigo"],
-                "cd_vendedor": item.get("codigovendedor", nota.get("codigovendedor", "")),
-                "cd_produto": item.get("codigoproduto", ""),
-                "nome_produto": item.get("descricaoproduto", ""),
+                "numerodocumento": nota["numerodocumento"],
+                "codigovendedor": item.get("codigovendedor", nota.get("codigovendedor", "")),
+                "codigoproduto": item.get("codigoproduto", ""),
+                "idpedido": item.get("idpedido", ""),
+                "descricaoproduto": item.get("descricaoproduto", ""),
                 "valorUnitario": item.get("valorUnitario", 0),
                 "valorunitariovenda": item.get("valorunitariovenda", 0),
                 "valorDesconto": item.get("valorDesconto", 0),
                 "valoracrescimo": item.get("valoracrescimo", 0),
                 "valorTotal": item.get("valorTotal", 0),
                 "quantidade": item.get("quantidade", 0),
-                "cd_cliente": item.get("codigocliente", nota.get("codigocliente", "")),
+                "codigocliente": item.get("codigocliente", nota.get("codigocliente", "")),
                 "dataRegistro": item.get("dataRegistro", nota.get("dataRegistro")),
                 "situacaoRegistro": item.get("situacaoRegistro", "I")
             })
@@ -288,9 +293,10 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
 
 def proximo_codigo(db, empresa: int) -> int:
     result = db.execute(
-        text("SELECT COALESCE(MAX(codigo),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
+        text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
         {"empresa": empresa}
     ).mappings().fetchone()
+    print("Resultado proximo nro: ", result)
     return result["prox"] if result else 1
 
 
