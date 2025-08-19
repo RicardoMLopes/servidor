@@ -8,7 +8,8 @@ from starlette.responses import JSONResponse
 from dependencies import get_empresa_session, get_nome_banco_por_token, get_empresa_db
 from model.cadusers import criar_tabela_cadusers_se_nao_existir
 from querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_usuario, Consultausers, \
-    ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor, Consultar_vendedor_user
+    ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor, Consultar_vendedor_user, \
+    usuario_existe
 from funtions import gerar_token_cnpj, hash_password, gerar_token_usuario, verificar_senha
 from funtions import templates
 from connection import  DB_CHAVE
@@ -110,6 +111,17 @@ async def cadastrar_usuario(
         vendedores = [{"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw]
 
         if errors:
+            return templates.TemplateResponse("cadusuario.html", {
+                "request": request,
+                "empresa": empresa,
+                "empresa_nome": empresa.get("nome") if empresa else "",
+                "vendedores": vendedores,
+                "errors": errors,
+                "form_data": form_data
+            })
+
+        if usuario_existe(db, usuario):
+            errors["usuario"] = "Este nome de usuário já está em uso. Tente outro diferente."
             return templates.TemplateResponse("cadusuario.html", {
                 "request": request,
                 "empresa": empresa,

@@ -158,6 +158,12 @@ def Consultausers(db):
         traceback.print_exc()
         return None
 
+def usuario_existe(db, usuario):
+    resultado = db.execute(
+        text("SELECT COUNT(*) FROM cadusers WHERE usuario = :usuario and situacaoregistro <> 'E' "),
+        {"usuario": usuario}
+    ).scalar()
+    return resultado > 0
 
 def ConsultaUsuarioPorUsername(db, usuario):
     try:
