@@ -1,7 +1,7 @@
 from sqlalchemy import text
 import traceback
 from typing import Dict, Any
-from funtions import formata_cnpj, converter_data_mysql, limpar_texto_mysql_generico
+from funtions import formata_cnpj, converter_data_mysql, limpar_texto_mysql_auto
 
 
 # consulta da empresa
@@ -248,7 +248,7 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
             "valorFrete": nota.get("valorFrete", 0),
             "valorTotal": nota.get("valorTotal", 0),
             "pesoTotal": nota.get("pesoTotal", 0),
-            "observacao": limpar_texto_mysql_generico(nota.get("observacao", "")),
+            "observacao": limpar_texto_mysql_auto(nota.get("observacao", "")),
             "status": nota.get("status", "P"),
             "dataLancamento": nota.get("dataLancamento"),
             "situacaoRegistro": nota.get("situacaoRegistro", "I"),

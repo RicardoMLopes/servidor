@@ -86,10 +86,9 @@ def converter_data_mysql(data: Optional[Union[str, datetime]]) -> Optional[str]:
         return None
 
 
-
-def limpar_texto_mysql_generico(texto: str) -> str:
+def limpar_texto_mysql_auto(texto: str) -> str:
     """
-    Limpa o texto para gravação segura no MySQL UTF8/UTF8MB4.
+    Limpa automaticamente o texto para gravação segura no MySQL UTF8/UTF8MB4.
     Remove:
       - Emojis
       - Símbolos de controle
@@ -98,17 +97,22 @@ def limpar_texto_mysql_generico(texto: str) -> str:
       - Letras (com ou sem acento)
       - Números
       - Espaços
-      - Pontuação comum: _ - . , ; : @
+      - Pontuação básica segura: _ - . , ; : @ ! ? ' " / \ ( ) []
     """
-    # Normaliza o texto para NFKC
+    # Normaliza texto
     texto = unicodedata.normalize("NFKC", texto)
 
     # Remove caracteres de controle e símbolos não imprimíveis
     texto = "".join(c for c in texto if unicodedata.category(c)[0] != "C")
 
-    # Remove emojis e outros símbolos fora do padrão UTF8MB4 básico
-    # Mantém letras, números, espaços e pontuação básica
-    texto = re.sub(r"[^a-zA-Z0-9\sáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ_\-.,;:@]", "", texto)
+    # Regex que mantém letras (incluindo Unicode), números, espaços e pontuação segura
+    # Unicode letters \p{L}, numbers \p{N}, pontuação comum
+    try:
+        import regex  # regex suporta \p{L} e \p{N}
+        texto = regex.sub(r"[^\p{L}\p{N}\s_\-.,;:@!?'\"/\\()\[\]]+", "", texto)
+    except ImportError:
+        # fallback simples usando re (menos preciso)
+        texto = re.sub(r"[^a-zA-Z0-9\sáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ_\-.,;:@!?'\"/\\()\[\]]+", "", texto)
 
     # Remove espaços duplicados
     texto = re.sub(r"\s+", " ", texto).strip()
