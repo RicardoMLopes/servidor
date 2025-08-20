@@ -87,36 +87,24 @@ def converter_data_mysql(data: Optional[Union[str, datetime]]) -> Optional[str]:
 
 
 def limpar_texto_mysql_auto(texto: str) -> str:
-    """
-    Limpa automaticamente o texto para gravação segura no MySQL UTF8/UTF8MB4.
-    Remove:
-      - Emojis
-      - Símbolos de controle
-      - Caracteres inválidos de Unicode
-    Mantém:
-      - Letras (com ou sem acento)
-      - Números
-      - Espaços
-      - Pontuação básica segura: _ - . , ; : @ ! ? ' " / \ ( ) []
-    """
-    # Normaliza texto
+    if not texto:
+        return ""
+
+        # Normaliza texto
     texto = unicodedata.normalize("NFKC", texto)
 
-    # Remove caracteres de controle e símbolos não imprimíveis
+    # Remove caracteres de controle e não imprimíveis
     texto = "".join(c for c in texto if unicodedata.category(c)[0] != "C")
 
-    # Regex que mantém letras (incluindo Unicode), números, espaços e pontuação segura
-    # Unicode letters \p{L}, numbers \p{N}, pontuação comum
-    try:
-        import regex  # regex suporta \p{L} e \p{N}
-        texto = regex.sub(r"[^\p{L}\p{N}\s_\-.,;:@!?'\"/\\()\[\]]+", "", texto)
-    except ImportError:
-        # fallback simples usando re (menos preciso)
-        texto = re.sub(r"[^a-zA-Z0-9\sáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ_\-.,;:@!?'\"/\\()\[\]]+", "", texto)
+    # Remove aspas simples e duplas
+    texto = texto.replace("'", "").replace('"', "")
+
+    # Mantém apenas letras, números, espaços e pontuação segura
+    texto = re.sub(r"[^a-zA-Z0-9\sáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ_\-.,;:@!?/\\()\[\]]+", "", texto)
 
     # Remove espaços duplicados
-    texto = re.sub(r"\s+", " ", texto).strip()
-
+    texto = " ".join(texto.split())
+    print(texto)
     return texto
 
 
