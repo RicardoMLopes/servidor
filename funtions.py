@@ -1,4 +1,5 @@
 import hashlib
+import unicodedata
 import re
 import time
 from connection import DB_CHAVE
@@ -32,8 +33,6 @@ def verificar_senha(password_digitada: str, hash_armazenado: str) -> bool:
     hash_digitado = hash_password(password_digitada)
     return hash_digitado == hash_armazenado
 
-
-
 def gerar_token_cnpj(cnpj: str, chave_secreta: str) -> str:
     # Remove tudo que não for dígito do CNPJ
     cnpj_limpo = re.sub(r'\D', '', cnpj)
@@ -56,9 +55,6 @@ def gerar_token_usuario(usuario: str, codigovendedor: str, codigo_empresa: str) 
     raw_string = f"{usuario}{codigovendedor}{codigo_empresa}{DB_CHAVE}{timestamp}"
     token = hashlib.sha256(raw_string.encode('utf-8')).hexdigest()
     return token
-
-
-
 
 
 def converter_data_mysql(data: Optional[Union[str, datetime]]) -> Optional[str]:
@@ -90,4 +86,38 @@ def converter_data_mysql(data: Optional[Union[str, datetime]]) -> Optional[str]:
         return None
 
 
+
+def limpar_texto_mysql_generico(texto: str) -> str:
+    """
+    Limpa o texto para gravação segura no MySQL UTF8/UTF8MB4.
+    Remove:
+      - Emojis
+      - Símbolos de controle
+      - Caracteres inválidos de Unicode
+    Mantém:
+      - Letras (com ou sem acento)
+      - Números
+      - Espaços
+      - Pontuação comum: _ - . , ; : @
+    """
+    # Normaliza o texto para NFKC
+    texto = unicodedata.normalize("NFKC", texto)
+
+    # Remove caracteres de controle e símbolos não imprimíveis
+    texto = "".join(c for c in texto if unicodedata.category(c)[0] != "C")
+
+    # Remove emojis e outros símbolos fora do padrão UTF8MB4 básico
+    # Mantém letras, números, espaços e pontuação básica
+    texto = re.sub(r"[^a-zA-Z0-9\sáàãâéêíóôõúüçÁÀÃÂÉÊÍÓÔÕÚÜÇ_\-.,;:@]", "", texto)
+
+    # Remove espaços duplicados
+    texto = re.sub(r"\s+", " ", texto).strip()
+
+    return texto
+
+
+
 templates.env.filters["formata_cnpj"] = formata_cnpj
+
+
+
