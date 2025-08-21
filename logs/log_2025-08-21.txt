@@ -1,0 +1,265 @@
+[2025-08-21 17:26:05] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:26:07] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:26:07] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:26:09] 🖨️ Gerando catálogo para RM
+[2025-08-21 17:26:10] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-08-21 17:26:10] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:26:12] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:26:12] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:26:14] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:26:14] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:26:16] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:26:16] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:26:18] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:26:18] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:26:20] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-08-21 17:26:21] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-08-21 17:26:21] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:26:24] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:28:19] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:28:21] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:28:21] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:28:23] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:28:23] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:28:25] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:28:25] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:28:27] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:28:27] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:28:29] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:28:29] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:28:31] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:28:31] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:28:33] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:28:33] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:28:35] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:31:00] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:31:02] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:31:02] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:31:04] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:31:04] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:31:06] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:31:06] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:31:08] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:31:08] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:31:10] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:31:10] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:31:12] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:31:12] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:31:14] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:31:14] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:31:16] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:33:25] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:33:28] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:33:28] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:33:30] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:33:30] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:33:32] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:33:32] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:33:34] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:33:34] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:33:36] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:33:36] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:33:38] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:33:38] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:33:40] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:33:40] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:33:42] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:34:42] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:34:44] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:34:45] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:34:47] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:34:47] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:34:49] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:34:49] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:34:51] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:34:52] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:34:54] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:34:54] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:34:56] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:34:56] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:34:58] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:34:58] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:35:00] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:36:10] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:36:12] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:36:13] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:36:15] 🖨️ Gerando catálogo para RM
+[2025-08-21 17:36:16] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-08-21 17:36:16] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:36:18] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:36:18] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:36:20] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:36:20] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:36:23] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:36:23] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:36:25] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:36:25] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:36:27] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:36:27] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:36:29] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:38:02] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:38:05] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:38:08] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:38:10] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:38:10] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:38:12] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:38:14] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:38:16] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:38:20] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:38:22] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:38:25] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:38:27] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:38:29] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:38:32] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:38:32] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:38:34] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:42:25] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:42:27] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:42:30] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:42:32] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-21 17:42:32] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:42:34] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:42:37] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:42:39] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:42:42] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:42:44] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:42:47] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:42:49] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:42:52] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:42:54] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:42:54] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:42:56] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-21 17:43:32] 
+🔹 Verificando catálogo para Testes
+[2025-08-21 17:43:34] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel02'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:43:37] 
+🔹 Verificando catálogo para RM
+[2025-08-21 17:43:39] 🖨️ Gerando catálogo para RM
+[2025-08-21 17:43:40] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-08-21 17:43:40] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-21 17:43:42] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel06'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:43:45] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-21 17:43:47] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel10'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:43:51] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-21 17:43:53] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel12'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:43:56] 
+🔹 Verificando catálogo para INOVALAR
+[2025-08-21 17:43:58] ❌ Erro ao gerar catálogo para INOVALAR: (pymysql.err.InternalError) (1049, "Unknown database 'pedidomovel15'")
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-21 17:44:00] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-21 17:44:02] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-21 17:44:02] 
+🔹 Verificando catálogo para JAM TESTE
+[2025-08-21 17:44:04] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE

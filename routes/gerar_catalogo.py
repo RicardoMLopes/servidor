@@ -8,7 +8,7 @@ from funtions import limpa_cnpj
 from querys import ConsultaEmpresa
 
 os.makedirs("static", exist_ok=True)
-EXTENSOES_VALIDAS = [".jpg", ".jpeg", ".png", ".webp"]
+EXTENSOES_VALIDAS = [".JPEG",".PNG",".JPG",".jpg", ".jpeg", ".png", ".webp"]
 
 def sanitizar_codigo(codigo: str) -> str:
     if not codigo:
