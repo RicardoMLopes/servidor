@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from dependencies import get_empresa_db
 import traceback
 
+from routes.gerar_catalogo import gerar_catalogo_pdf
+
 products_router = APIRouter()
 
 
@@ -20,6 +22,7 @@ async def sincronizar_produto(db: Session = Depends(get_empresa_db)):
                        "percentualcomissao", "situacaoRegistro", "dataRegistro", "versao", "imagens"]
 
             dados = [dict(zip(colunas, item)) for item in resultado]
+
             return dados
         else:
             raise HTTPException(status_code=404, detail="Produto não encontrado")

@@ -2,6 +2,8 @@ from sqlalchemy import text
 import traceback
 from typing import Dict, Any
 from funtions import formata_cnpj, converter_data_mysql, limpar_texto_mysql_auto
+from datetime import datetime
+
 
 
 # consulta da empresa
@@ -13,6 +15,8 @@ def ConsultaEmpresa(db):
     except Exception as e:
         traceback.print_exc()
     return resultado
+
+
 
 # consulta da lista de produtos
 def ConsultaProduto(db):
@@ -34,6 +38,41 @@ def ConsultaParametro(db):
     except Exception as e:
         traceback.print_exc()
     return resultado
+
+def ConsultaParametroporempresa(db):
+    """
+    Retorna a última data registrada na coluna datacatalogo da tabela cadparametro.
+    """
+    sql = text("SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1")
+    resultado = db.execute(sql).fetchone()
+    if resultado:
+        return {"datacatalogo": resultado[0]}
+    return None
+
+
+def AtualizarParametro(db, nome_parametro: str, datacatalogo: datetime):
+    print(datacatalogo)
+    """
+    Atualiza o valor de um parâmetro DATETIME na tabela cadparametro.
+
+    Args:
+        db (Session): sessão do banco de dados (controle ou empresa).
+        nome_parametro (str): nome do parâmetro a atualizar (ex: 'datacatalogo').
+        valor (datetime): novo valor a ser atribuído.
+    """
+    try:
+        sql = text("""
+            UPDATE cadparametro
+            SET datacatalogo = :datacatalogo  
+            WHERE empresa = 1          
+        """)
+        db.execute(sql, {"datacatalogo": datacatalogo})
+        db.commit()
+        print(f"Parâmetro '{nome_parametro}' atualizado para: {datacatalogo}")
+    except Exception as e:
+        db.rollback()
+        print(f"Erro ao atualizar parâmetro '{nome_parametro}': {e}")
+        raise e
 
 # consulta da rota de cliente
 def ConsultaRotaCliente(db):

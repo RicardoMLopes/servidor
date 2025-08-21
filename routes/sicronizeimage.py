@@ -54,7 +54,7 @@ def sincroniza_imagens(request: Request):
     imagens = [
         base_url + f"static/img/{cnpj}/{arquivo}"
         for arquivo in arquivos
-        if arquivo.lower().endswith((".png", ".jpg", ".jpeg", ".webp"))
+        if arquivo.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".pdf"))
     ]
 
     return {"imagens": imagens}

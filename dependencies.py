@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 from connection import get_controle_session, get_empresa_session
 from sqlalchemy import text
-
+from typing import List, Dict
 
 # Extrai token do header
 def get_token(request: Request) -> str:
@@ -31,6 +31,30 @@ def get_nome_banco_por_token(token: str) -> str:
 
     finally:
         db.close()
+
+
+def todos_nome_banco() -> List[Dict]:
+    try:
+        session = get_controle_session()
+        with session as db:
+            resultados = db.execute(
+                text("SELECT banco, codigo,  descricao FROM controle")
+            ).fetchall()
+
+            if not resultados:
+                raise HTTPException(status_code=403, detail="Nenhuma empresa encontrada")
+
+            # Converte para lista de dicionários
+            return [{"db_name": r[0], "cnpj": r[1], "nome": r[2]} for r in resultados]
+
+    except Exception as e:
+        db.rollback()
+        traceback.print_exc()
+        return []
+
+    finally:
+        db.close()
+
 
 
 # Dependência principal usada nas rotas

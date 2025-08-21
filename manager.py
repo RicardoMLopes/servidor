@@ -2,10 +2,12 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import asyncio
 from starlette.responses import HTMLResponse
-
+from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from routes import parameter_router, sincronizaruser_router, recuperaruser_router, pedido_router
 from routes.cadusers import cadusers_router
+from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from routes.produto import products_router
 from routes.empresa import empresa_router
 from routes.sicronizeimage import imagem_router
@@ -17,7 +19,7 @@ from routes.formaparameto import condicao_pagamento_router
 from funtions import templates
 
 app = FastAPI()
-
+gerar_catalogo_diario()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,6 +32,10 @@ app.add_middleware(
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
+@app.on_event("startup")
+async def startup_event():
+    # Gera catálogo diário assim que o app inicia
+    asyncio.create_task(gerar_catalogo_diario())
 
 # Registrando os routers
 app.include_router(imagem_router, prefix="/lista", tags=["Imagem"])
