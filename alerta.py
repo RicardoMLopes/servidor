@@ -6,8 +6,7 @@ from email.mime.multipart import MIMEMultipart
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 EMAIL_USUARIO = "ricardomachadolopes@gmail.com"
-EMAIL_SENHA = "Ta280387"
-
+EMAIL_SENHA = "vrgd vhly deji kjyt"
 
 # Lista de destinatários
 DESTINATARIOS = ["eldovane@gmail.com", "ricardomachadolopes@gmail.com"]

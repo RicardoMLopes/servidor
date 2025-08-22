@@ -50,7 +50,7 @@ def sincroniza_imagens(request: Request):
 
         for arquivo in arquivos:
             ext = os.path.splitext(arquivo)[1].lower()
-            if ext in [".pdf", ".jpg", ".jpeg", ".png", ".webp"]:
+            if ext in [".pdf", ".JPG",".jpg", ".JPEG",".jpeg", ".PNG",".png", ".webp"]:
                 caminho = os.path.join(pasta, arquivo)
                 mtime = os.path.getmtime(caminho)
                 imagens_para_baixar.append({

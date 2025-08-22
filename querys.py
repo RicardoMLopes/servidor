@@ -1,6 +1,8 @@
 from sqlalchemy import text
 import traceback
 from typing import Dict, Any
+
+from alerta import enviar_alerta
 from funtions import formata_cnpj, converter_data_mysql, limpar_texto_mysql_auto
 from datetime import datetime
 
@@ -332,6 +334,7 @@ def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
     except Exception as e:
         db.rollback()
         print(f"❌ Erro ao inserir pedido {nota.get('numerodocumento', nota.get('codigo'))}: {e}")
+        enviar_alerta(assunto='Erro inserção do pedido', mensagem= nota.get('numerodocumento', nota.get('idpedido')) )
         traceback.print_exc()
         return False
 

@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
+from alerta import enviar_alerta
 from dependencies import get_empresa_db
 from querys import inserir_pedido  # função separada que faz a inserção
 import traceback
@@ -22,4 +24,5 @@ async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
         raise e
     except Exception as e:
         traceback.print_exc()
+        enviar_alerta(assunto='Erro na sincronização do pedido', mensagem=f"Falha ao inserir pedido no banco: {e}")
         raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")

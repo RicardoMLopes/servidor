@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import asyncio
-from starlette.responses import HTMLResponse
-from routes.gerar_catalogo_diario import gerar_catalogo_diario
+# from starlette.responses import HTMLResponse
+# from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from routes import parameter_router, sincronizaruser_router, recuperaruser_router, pedido_router
 from routes.cadusers import cadusers_router
 from routes.gerar_catalogo_diario import gerar_catalogo_diario
