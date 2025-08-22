@@ -3,6 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import quote_plus
+from model.pedido import Base
 
 
 
@@ -33,6 +34,7 @@ def get_controle_session():
     print("DATABASE_URL:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
     engine = create_engine(DATABASE_URL, echo=True)
+    Base.metadata.bind = engine
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()
 
@@ -51,5 +53,6 @@ def get_empresa_session(db_name: str):
     print("🔗 Conectando no banco:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    Base.metadata.bind = engine
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()

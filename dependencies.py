@@ -18,7 +18,7 @@ def get_nome_banco_por_token(token: str) -> str:
         session = get_controle_session()
         with session as db:
             result = db.execute( text(
-                "SELECT banco FROM controle WHERE token = :token"),
+                "SELECT banco FROM controle WHERE token = :token AND situacaoregistro <> 'E' " ),
                 {"token": token}
             ).fetchone()
             if not result:
@@ -38,7 +38,7 @@ def todos_nome_banco() -> List[Dict]:
         session = get_controle_session()
         with session as db:
             resultados = db.execute(
-                text("SELECT banco, codigo,  descricao FROM controle")
+                text("SELECT banco, codigo,  descricao FROM controle WHERE situacaoregistro <> 'E' ")
             ).fetchall()
 
             if not resultados:

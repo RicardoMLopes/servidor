@@ -117,3 +117,925 @@
 [2025-08-22 07:54:42] 
 🔹 Verificando catálogo para JAM TESTE
 [2025-08-22 07:54:44] ⏱️ Ainda não passou 1 hora desde a última geração para JAM TESTE
+[2025-08-22 09:52:36] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 09:52:38] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 09:52:42] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 09:52:46] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 09:52:46] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 09:52:50] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 09:52:54] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 09:52:58] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:02] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 09:53:06] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 09:53:10] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 09:53:13] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:18] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 09:53:21] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:24] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 09:53:28] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 09:53:33] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 09:53:37] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 09:53:37] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 09:53:40] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:44] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 09:53:48] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:51] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 09:53:54] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:53:58] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 09:54:02] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:54:07] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 09:54:15] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:54:20] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 09:54:24] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 09:54:27] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 09:54:39] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:01:23] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:01:27] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:01:31] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:01:34] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:01:35] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:01:39] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:01:44] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:01:47] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:01:52] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:01:55] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:01:59] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:02:03] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:02:08] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:02:12] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:02:17] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:02:21] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:02:25] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:02:30] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:02:30] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:02:34] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:02:38] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:02:41] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:02:46] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:02:50] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:02:55] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:02:58] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:03:03] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:03:11] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:03:15] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:03:18] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:03:22] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:03:25] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:07:37] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:07:41] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:07:44] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:07:47] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:07:47] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:07:51] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:07:55] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:07:59] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:03] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:08:08] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:08:12] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:08:15] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:19] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:08:22] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:27] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:08:31] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:08:35] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:08:37] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:08:37] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:08:41] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:44] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:08:47] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:51] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:08:54] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:08:58] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:09:03] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:09:06] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:09:09] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:09:13] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:09:15] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:09:19] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:09:22] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:09:30] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:09:33] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:09:36] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:09:41] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:09:41] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:09:46] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:09:50] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:09:53] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:09:57] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:10:00] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:10:03] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:10:06] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:09] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:10:12] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:15] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:10:18] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:10:22] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:10:31] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:10:31] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:10:34] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:37] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:10:40] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:43] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:10:47] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:50] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:10:53] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:10:56] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:10:59] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:11:03] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:11:06] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:11:10] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:11:12] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:16:44] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:16:47] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:16:52] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:16:56] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:16:56] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:17:00] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:17:04] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:17:07] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:17:11] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:17:15] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:17:20] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:17:29] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:17:33] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:17:35] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:17:39] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:17:43] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:17:47] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:17:51] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:17:51] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:17:55] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:00] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:18:03] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:08] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:18:11] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:15] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:18:17] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:21] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:18:32] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:36] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:18:38] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:18:42] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:18:45] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:39:13] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:39:17] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:39:23] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:39:26] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:39:26] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:39:31] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:39:35] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:39:39] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:39:42] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:39:46] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:39:50] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:39:53] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:39:56] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:39:59] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:03] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:40:06] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:40:10] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:40:13] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:40:13] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:40:16] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:20] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:40:22] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:26] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:40:29] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:33] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:40:37] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:41] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:40:45] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:50] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:40:54] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:40:58] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:41:01] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:41:21] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:41:23] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:41:27] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:41:31] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:41:31] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:41:34] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:41:38] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:41:41] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:41:46] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:41:49] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:41:53] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:41:56] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:00] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:42:04] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:08] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:42:11] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:42:15] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:42:18] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:42:18] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:42:27] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:31] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:42:34] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:37] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:42:41] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:45] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:42:48] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:52] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:42:56] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:42:59] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:43:02] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:43:07] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:43:10] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:46:08] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:46:12] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:46:16] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:46:20] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:46:20] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:46:23] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:46:27] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:46:30] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:46:33] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:46:38] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:46:42] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:46:45] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:46:50] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:46:53] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:46:57] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:47:01] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:47:05] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:47:08] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:47:08] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:47:10] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:47:14] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:47:25] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:47:29] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:47:39] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:47:44] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:47:46] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:47:51] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:47:54] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:47:59] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:48:02] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:48:06] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:48:09] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:51:33] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:51:37] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:51:42] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:51:44] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:51:44] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:51:48] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:51:52] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:51:56] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:52:01] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:52:04] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:52:09] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:52:12] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:52:17] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:52:22] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:52:27] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:52:30] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:52:35] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:52:39] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:52:39] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:52:42] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:52:46] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:52:57] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:53:01] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:53:08] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:53:13] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:53:15] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:53:21] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:53:24] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:53:29] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:53:32] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:53:37] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:53:43] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:54:16] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:54:19] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:54:23] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:54:26] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:54:26] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 10:54:29] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 10:54:42] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 10:54:45] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:54:50] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 10:54:54] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 10:55:00] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 10:55:03] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:55:08] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 10:55:19] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:55:25] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 10:55:34] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 10:55:38] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 10:55:42] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 10:55:42] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 10:55:49] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:55:54] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 10:55:57] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:56:03] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 10:56:06] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:56:11] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 10:56:15] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:56:20] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 10:56:22] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:56:26] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 10:56:29] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 10:56:35] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 10:56:38] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:07:01] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:07:05] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:07:10] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:07:13] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:07:13] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 11:07:23] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 11:07:28] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 11:07:32] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:07:36] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 11:07:39] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 11:07:44] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 11:07:47] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:07:51] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 11:07:55] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:00] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:08:03] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:08:08] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:08:10] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:08:10] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 11:08:13] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:17] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 11:08:23] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:29] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 11:08:32] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:37] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 11:08:40] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:44] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 11:08:48] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:08:53] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 11:08:56] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:09:05] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 11:09:08] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:15:59] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:16:02] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:16:07] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:16:09] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:16:09] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 11:16:14] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 11:16:18] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 11:16:22] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:16:26] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 11:16:30] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 11:16:36] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 11:16:38] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:16:44] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 11:16:47] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:16:51] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:16:55] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:16:59] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:17:03] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:17:03] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 11:17:07] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:11] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 11:17:15] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:19] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 11:17:23] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:27] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 11:17:31] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:35] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 11:17:39] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:43] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 11:17:45] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:17:49] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 11:17:51] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:24:27] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:24:31] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:24:35] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:24:37] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:24:37] 
+🔹 Verificando catálogo para Policenter
+[2025-08-22 11:24:40] ❌ Erro ao gerar catálogo para Policenter: local variable 'resultado' referenced before assignment
+[2025-08-22 11:24:44] 
+🔹 Verificando catálogo para Siro Matriz
+[2025-08-22 11:24:51] ❌ Erro ao gerar catálogo para Siro Matriz: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:24:55] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 11:24:59] ❌ Erro ao gerar catálogo para comercial sorella: local variable 'resultado' referenced before assignment
+[2025-08-22 11:25:04] 
+🔹 Verificando catálogo para frank sorella
+[2025-08-22 11:25:07] ❌ Erro ao gerar catálogo para frank sorella: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:10] 
+🔹 Verificando catálogo para Comercial Barão
+[2025-08-22 11:25:14] ❌ Erro ao gerar catálogo para Comercial Barão: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:18] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:25:21] ❌ Erro ao gerar catálogo para Testes: local variable 'resultado' referenced before assignment
+[2025-08-22 11:25:25] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:25:29] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:25:29] 
+🔹 Verificando catálogo para FA Rocha
+[2025-08-22 11:25:33] ❌ Erro ao gerar catálogo para FA Rocha: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:37] 
+🔹 Verificando catálogo para Teste multiplas empresas
+[2025-08-22 11:25:39] ❌ Erro ao gerar catálogo para Teste multiplas empresas: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:44] 
+🔹 Verificando catálogo para PESCADOS MARCELINHA
+[2025-08-22 11:25:47] ❌ Erro ao gerar catálogo para PESCADOS MARCELINHA: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:51] 
+🔹 Verificando catálogo para ULTRA FORTE 
+[2025-08-22 11:25:54] ❌ Erro ao gerar catálogo para ULTRA FORTE : (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:25:58] 
+🔹 Verificando catálogo para Comersete
+[2025-08-22 11:26:01] ❌ Erro ao gerar catálogo para Comersete: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:26:05] 
+🔹 Verificando catálogo para Testes ibcardapio
+[2025-08-22 11:26:08] ❌ Erro ao gerar catálogo para Testes ibcardapio: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:26:11] 
+🔹 Verificando catálogo para fazenda
+[2025-08-22 11:26:14] ❌ Erro ao gerar catálogo para fazenda: (pymysql.err.InternalError) (1054, "Coluna 'datacatalogo' desconhecida em 'field list'")
+[SQL: SELECT datacatalogo FROM cadparametro ORDER BY datacatalogo DESC LIMIT 1]
+(Background on this error at: https://sqlalche.me/e/20/2j85)
+[2025-08-22 11:57:59] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 11:58:04] 🖨️ Gerando catálogo para Testes
+[2025-08-22 11:58:05] ✅ Catálogo gerado e parâmetro atualizado para Testes
+[2025-08-22 11:58:05] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 11:58:07] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 11:58:07] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 11:58:15] 🖨️ Gerando catálogo para comercial sorella
+[2025-08-22 11:58:15] ✅ Catálogo gerado e parâmetro atualizado para comercial sorella
+[2025-08-22 12:10:02] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 12:10:05] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-08-22 12:10:06] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 12:10:08] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 12:10:08] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 12:10:11] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-08-22 12:12:32] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 12:12:35] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-08-22 12:12:35] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 12:12:39] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 12:12:39] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 12:12:42] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-08-22 12:26:01] 
+🔹 Verificando catálogo para Testes
+[2025-08-22 12:26:04] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-08-22 12:26:04] 
+🔹 Verificando catálogo para JAM
+[2025-08-22 12:26:07] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-22 12:26:07] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-22 12:26:10] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella

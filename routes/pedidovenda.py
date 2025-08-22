@@ -1,12 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-
 from alerta import enviar_alerta
 from dependencies import get_empresa_db
 from querys import inserir_pedido  # função separada que faz a inserção
 import traceback
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Session
+
+
+
+
+
 
 pedido_router = APIRouter()
+
 
 @pedido_router.post("")
 async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):

@@ -14,6 +14,7 @@ from routes.sicronizeimage import imagem_router
 from routes.vendedor import vendedor_router
 from routes.cliente import cliente_router
 from routes.formaparameto import condicao_pagamento_router
+from routes.sincronizarpedido import sincronizar_pedidos
 # from fastapi.middleware.wsgi import WSGIMiddleware
 # from markupsafe import escape
 from funtions import templates
@@ -50,4 +51,5 @@ app.include_router(sincronizaruser_router, prefix="/sincronizausers", tags=["use
 app.include_router(recuperaruser_router, prefix="/recuperar-senha", tags=["Recuperar"])
 app.include_router(recuperaruser_router, prefix="/buscar-usuario-vendedor", tags=["Recuperar"])
 app.include_router(pedido_router, prefix="/pedidos", tags=["Pedido"])
+app.include_router(sincronizar_pedidos, prefix="/sincronizarpedidos",tags=["Sincronizar Pedidos"])
 app.include_router(cadusers_router)
