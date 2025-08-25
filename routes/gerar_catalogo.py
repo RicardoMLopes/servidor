@@ -4,8 +4,8 @@ from PIL import Image, ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-from funtions import limpa_cnpj
-from querys import ConsultaEmpresa
+from function.funtions import limpa_cnpj
+from database.querys import ConsultaEmpresa
 
 os.makedirs("static", exist_ok=True)
 EXTENSOES_VALIDAS = [".JPEG",".PNG",".JPG",".jpg", ".jpeg", ".png", ".webp"]

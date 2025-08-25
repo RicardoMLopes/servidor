@@ -1,7 +1,7 @@
 import traceback
-from fastapi import Request, HTTPException, Depends
+from fastapi import Request, HTTPException
 from sqlalchemy.orm import Session
-from connection import get_controle_session, get_empresa_session
+from database.connection import get_controle_session, get_empresa_session
 from sqlalchemy import text
 from typing import List, Dict
 

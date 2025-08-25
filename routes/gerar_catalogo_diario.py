@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
-from dependencies import get_controle_session, get_empresa_session, todos_nome_banco
-from querys import ConsultaEmpresa, ConsultaProduto, ConsultaParametroporempresa, AtualizarParametro
+from database.dependencies import get_controle_session, get_empresa_session, todos_nome_banco
+from database.querys import ConsultaEmpresa, ConsultaProduto, ConsultaParametroporempresa, AtualizarParametro
 from routes.gerar_catalogo import gerar_catalogo_pdf
 import os
-from alerta import enviar_alerta
+from params.alerta import enviar_alerta
 
 
 LOG_DIR = "logs"

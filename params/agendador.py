@@ -1,5 +1,5 @@
 import asyncio
-from .routes.gerar_catalogo_diario import gerar_catalogo_diario
+from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from datetime import datetime
 
 async def scheduler_por_intervalo():

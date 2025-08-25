@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
-from alerta import enviar_alerta
-from dependencies import get_empresa_db
-from querys import inserir_pedido  # função separada que faz a inserção
+from params.alerta import enviar_alerta
+from database.dependencies import get_empresa_db
+from database.querys import inserir_pedido  # função separada que faz a inserção
 import traceback
-from sqlalchemy.orm import sessionmaker, declarative_base, relationship, Session
+from sqlalchemy.orm import Session
 
 
 

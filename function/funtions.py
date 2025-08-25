@@ -2,7 +2,7 @@ import hashlib
 import unicodedata
 import re
 import time
-from connection import DB_CHAVE
+from database.connection import DB_CHAVE
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 from typing import Optional, Union

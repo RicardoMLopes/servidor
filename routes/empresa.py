@@ -1,8 +1,8 @@
 from fastapi import APIRouter
-from querys import ConsultaEmpresa
+from database.querys import ConsultaEmpresa, Insert_Empresa
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
-from dependencies import get_empresa_db
+from database.dependencies import get_empresa_db
 import traceback
 
 empresa_router = APIRouter()
@@ -25,6 +25,20 @@ async def buscar_empresa(db: Session = Depends(get_empresa_db)):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")
+
+
+@empresa_router.post("/upsert")
+async def upsert_empresa(empresa: str, db: Session = Depends(get_empresa_db)):
+    try:
+        sucesso = Insert_Empresa(db, empresa)
+        if sucesso:
+            return {"message": "Empresa inserida/atualizada com sucesso"}
+        else:
+            raise HTTPException(status_code=400, detail="Falha ao inserir/atualizar empresa")
+    except Exception as e:
+        traceback.print_exc()
+        enviar_alerta(assunto="Inserção da empresa", mensagem="Erro ao inserir/atualizar empresa: " + str(e))
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 
 
 

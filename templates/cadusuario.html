@@ -7,7 +7,6 @@
   <h1 class="mb-4 text-center">Cadastrar Usuário</h1>
 
   {% if empresa %}
-  <!-- Card da Empresa com destaque -->
   <div class="card border-0 shadow-lg mb-4" style="background-color: #f0f9ff;">
     <div class="card-body">
       <h5 class="card-title text-primary fw-bold">
@@ -19,10 +18,9 @@
   </div>
   {% endif %}
 
-  <!-- Card do Formulário -->
   <div class="card border-0 shadow-sm bg-white">
     <div class="card-body">
-      <form method="post" action="/cadusuarios/cadastrar">
+      <form method="post" action="/cadusuarios/cadastrar" id="cadastro-form">
         <input type="hidden" name="cnpj" value="{{ empresa.cnpj }}" />
 
         <!-- Vendedor -->
@@ -46,9 +44,20 @@
           <label for="usuario" class="form-label fw-semibold">
             <i class="bi bi-person-circle me-1"></i> Usuário
           </label>
-          <input type="text" class="form-control {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required />
+          <input type="text" class="form-control text-uppercase {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required />
           {% if errors.get("usuario") %}
             <div class="invalid-feedback">{{ errors.get("usuario") }}</div>
+          {% endif %}
+        </div>
+
+        <!-- E-mail -->
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">
+            <i class="bi bi-envelope me-1"></i> E-mail
+          </label>
+          <input type="email" class="form-control {% if errors.get('email') %}is-invalid{% endif %}" id="email" name="email" value="{{ form_data.email or '' }}" required />
+          {% if errors.get("email") %}
+            <div class="invalid-feedback">{{ errors.get("email") }}</div>
           {% endif %}
         </div>
 
@@ -57,7 +66,7 @@
           <label for="senha" class="form-label fw-semibold">
             <i class="bi bi-lock me-1"></i> Senha
           </label>
-          <input type="password" class="form-control {% if errors.get('senha') %}is-invalid{% endif %}" id="senha" name="senha" required />
+          <input type="password" class="form-control text-uppercase {% if errors.get('senha') %}is-invalid{% endif %}" id="senha" name="senha" required />
           {% if errors.get("senha") %}
             <div class="invalid-feedback">{{ errors.get("senha") }}</div>
           {% endif %}
@@ -68,7 +77,7 @@
           <label for="confirmar_senha" class="form-label fw-semibold">
             <i class="bi bi-lock-fill me-1"></i> Confirmar Senha
           </label>
-          <input type="password" class="form-control {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required />
+          <input type="password" class="form-control text-uppercase {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required />
           {% if errors.get("confirmar_senha") %}
             <div class="invalid-feedback">{{ errors.get("confirmar_senha") }}</div>
           {% endif %}
@@ -80,13 +89,39 @@
         </button>
 
         <!-- Link de recuperação -->
-        <div class="mt-3 text-center">
-          <a href="/recuperar-senha?cnpj={{ empresa.cnpj }}" class="text-decoration-none">
-            <i class="bi bi-question-circle me-1"></i> Esqueci minha senha
-          </a>
+        <div class="mt-4 text-center">
+          <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="/alterar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none">
+              <i class="bi bi-key me-1"></i> Alterar minha senha
+            </a>
+            <a href="/recuperar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none">
+              <i class="bi bi-unlock me-1"></i> Esqueci minha senha
+            </a>
+          </div>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<style>
+  .text-uppercase {
+    text-transform: uppercase;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('cadastro-form');
+  const usuarioInput = document.getElementById('usuario');
+  const senhaInput = document.getElementById('senha');
+  const confirmarInput = document.getElementById('confirmar_senha');
+
+  form.addEventListener('submit', () => {
+    if (usuarioInput) usuarioInput.value = usuarioInput.value.toUpperCase();
+    if (senhaInput) senhaInput.value = senhaInput.value.toUpperCase();
+    if (confirmarInput) confirmarInput.value = confirmarInput.value.toUpperCase();
+  });
+});
+</script>
 {% endblock %}

@@ -3,8 +3,8 @@ import traceback, json
 from model import pedido, schemas_pedido
 from typing import List
 from sqlalchemy.orm import Session, joinedload
-from dependencies import get_empresa_db
-from alerta import enviar_alerta
+from database.dependencies import get_empresa_db
+from params.alerta import enviar_alerta
 
 sincronizar_pedidos = APIRouter()
 

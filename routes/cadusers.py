@@ -1,23 +1,24 @@
-from fastapi import APIRouter, Form, Request, HTTPException
+from fastapi import Form, Request, HTTPException
 from fastapi.params import Depends
 from fastapi.responses import HTMLResponse
 from requests import Session
 import traceback
 from fastapi import APIRouter, Query
 from starlette.responses import JSONResponse
-from dependencies import get_empresa_session, get_nome_banco_por_token, get_empresa_db
+from database.dependencies import get_empresa_session, get_nome_banco_por_token, get_empresa_db
+from params.logger_config import logger
 from model.cadusers import criar_tabela_cadusers_se_nao_existir
-from querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_usuario, Consultausers, \
+from database.querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_usuario, Consultausers, \
     ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor, Consultar_vendedor_user, \
     usuario_existe
-from funtions import gerar_token_cnpj, hash_password, gerar_token_usuario, verificar_senha
-from funtions import templates
-from connection import  DB_CHAVE
+from function.funtions import gerar_token_cnpj, hash_password, gerar_token_usuario, verificar_senha, limpa_cnpj
+from function.funtions import templates
+from database.connection import  DB_CHAVE
 
 
 cadusers_router = APIRouter()
 sincronizaruser_router = APIRouter()
-recuperaruser_router = APIRouter()
+alterarsenha_router = APIRouter()
 
 
 # Passo 1: Tela para digitar o CNPJ
@@ -175,6 +176,7 @@ async def sincronizar_usuarios( db: Session = Depends(get_empresa_db)):
                 "usuario": u.usuario,
                 "senha": u.senha,
                 "novasenha": u.novasenha,
+                "email": u.email,
                 "situacaoregistro": u.situacaoregistro,
                 "token": u.token,
                 "dataregistro": u.dataregistro.isoformat() if u.dataregistro else None
@@ -193,21 +195,24 @@ async def sincronizar_usuarios( db: Session = Depends(get_empresa_db)):
 # ======================================================================
 # ROTINA PARA RECUPERAR SENHA OU ALTERAR A SENHA
 # ----------------------------------------------------------------------
-@recuperaruser_router.post("", response_class=HTMLResponse)
-async def recuperar_senha(
+@alterarsenha_router.post("", response_class=HTMLResponse)
+async def alterar_senha(
         request: Request,
         cnpj: str = Form(...),
         usuario: str = Form(...),
         senha_atual: str = Form(...),
         nova_senha: str = Form(...),
-        confirmar_senha: str = Form(...)
+        email: str = Form(...),
+        confirmar_senha: str = Form(...),
+        vendedor_id: str = Form(...)
+
 ):
     errors = {}
     form_data = {
         "cnpj": cnpj,
         "usuario": usuario
     }
-
+    cnpj = limpa_cnpj(cnpj)
     # Validação básica
     if nova_senha != confirmar_senha:
         errors["confirmar_senha"] = "A nova senha e a confirmação não conferem."
@@ -217,6 +222,8 @@ async def recuperar_senha(
         errors["usuario"] = "Usuário é obrigatório."
     if not cnpj:
         errors["cnpj"] = "CNPJ é obrigatório."
+    if not email:
+        errors["email"] = "E-mail é obrigatório."
 
     # Buscar empresa e abrir sessão
     token = gerar_token_cnpj(cnpj, DB_CHAVE)
@@ -237,13 +244,13 @@ async def recuperar_senha(
         else:
             user = user_raw[0]
             # Verificar senha atual
-            if not verificar_senha(senha_atual, user["senha"]):
+            if not verificar_senha(senha_atual, user["novasenha"]):
                 errors["senha_atual"] = "Senha atual incorreta."
 
         if errors:
             # Buscar lista de vendedores para o select
             vendedores = ConsultaVendedores(db)
-            return templates.TemplateResponse("recuperaruser.html", {
+            return templates.TemplateResponse("alterarpassword.html", {
                 "request": request,
                 "errors": errors,
                 "form_data": form_data,
@@ -252,13 +259,14 @@ async def recuperar_senha(
             })
 
         # Atualizar senha
+        print("nova senha: ", nova_senha)
         nova_senha_hash = hash_password(nova_senha)
         sucesso = atualizar_senha_usuario(db, usuario, nova_senha_hash)
 
         if not sucesso:
             errors["db"] = "Erro ao atualizar senha no banco."
             vendedores = ConsultaVendedores(db)
-            return templates.TemplateResponse("recuperaruser.html", {
+            return templates.TemplateResponse("alterarpassword.html", {
                 "request": request,
                 "errors": errors,
                 "form_data": form_data,
@@ -274,11 +282,12 @@ async def recuperar_senha(
 
 
 
-@recuperaruser_router.get("", response_class=HTMLResponse)
+@alterarsenha_router.get("", response_class=HTMLResponse)
 async def mostrar_form_recuperar_senha(request: Request, cnpj: str):
+    logger.warning("Entrou aqui! mostrar form recuperar senha...")
     empresa = None
     vendedores = []
-
+    cnpj = limpa_cnpj(cnpj)
     # Cria sessão baseada no token do CNPJ
     token = gerar_token_cnpj(cnpj, DB_CHAVE)
     nome_banco = get_nome_banco_por_token(token)
@@ -291,7 +300,7 @@ async def mostrar_form_recuperar_senha(request: Request, cnpj: str):
             vendedores_raw = ConsultaVendedores(db)
             vendedores = [{"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw]
 
-    return templates.TemplateResponse("recuperaruser.html", {
+    return templates.TemplateResponse("alterarpassword.html", {
         "request": request,
         "empresa": empresa,
         "vendedores": vendedores,
@@ -299,24 +308,28 @@ async def mostrar_form_recuperar_senha(request: Request, cnpj: str):
         "errors": {}
     })
 
-@recuperaruser_router.get("/", response_class=JSONResponse)
+@alterarsenha_router.get("/", response_class=JSONResponse)
 async def buscar_usuario_vendedor(cnpj: str = Query(...), vendedor_id: str = Query(...)):
-    print("Entrou na rota buscar_usuario_vendedor")
-    print("CNPJ recebido:", cnpj)
-    print("Vendedor ID recebido:", vendedor_id)
+    cnpj = limpa_cnpj(cnpj)
+    logger.warning("Entrou na função ConsultaUsuarioPorVendedor")
+
+
+    logger.warning("CNPJ recebido:", cnpj)
+    logger.warning("Vendedor ID recebido:", vendedor_id)
 
     token = gerar_token_cnpj(cnpj, DB_CHAVE)
     nome_banco = get_nome_banco_por_token(token)
     session_empresa = get_empresa_session(nome_banco)
 
     with session_empresa as db:
-        user_raw = ConsultaUsuarioPorVendedor(db, vendedor_id)
-        print("Resultado ConsultaUsuarioPorVendedor:", user_raw)
+        resultado = ConsultaUsuarioPorVendedor(db, vendedor_id)
 
-        if user_raw:
-            return {"usuario": user_raw[0]["usuario"]}
+        if resultado and len(resultado) > 0:
+            usuario = resultado[0]["usuario"]
+            email = resultado[0]["email"]
+            return {"usuario": usuario, "email": email}
         else:
-            return {"usuario": ""}
+            return {"usuario": "", "email": ""}
 
 
 

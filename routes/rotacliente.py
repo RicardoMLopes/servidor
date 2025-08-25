@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
-from dependencies import get_empresa_db
-from querys import ConsultaRotaCliente
+from database.dependencies import get_empresa_db
+from database.querys import ConsultaRotaCliente
 
 import traceback
 

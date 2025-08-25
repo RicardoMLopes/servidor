@@ -20,6 +20,7 @@ def criar_tabela_cadusers_se_nao_existir(db):
                     usuario VARCHAR(50) NOT NULL UNIQUE,
                     senha VARCHAR(255) NOT NULL,
                     novasenha VARCHAR(255),
+                    email VARCHAR(255),
                     token VARCHAR(255),
                     situacaoregistro VARCHAR(20) NOT NULL DEFAULT 'ativo',
                     dataregistro DATETIME DEFAULT NULL

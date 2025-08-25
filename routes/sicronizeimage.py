@@ -1,7 +1,7 @@
 from fastapi import Request, HTTPException, APIRouter
 from sqlalchemy.sql import text
 import os
-from dependencies import get_controle_session, get_empresa_session
+from database.dependencies import get_controle_session, get_empresa_session
 
 imagem_router = APIRouter()
 
