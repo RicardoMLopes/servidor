@@ -176,3 +176,12 @@
 🔹 Verificando catálogo para FFA Dsitribuidora
 [2025-08-25 14:59:46] 🖨️ Gerando catálogo para FFA Dsitribuidora
 [2025-08-25 14:59:47] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-08-25 19:41:01] 
+🔹 Verificando catálogo para Testes
+[2025-08-25 19:41:05] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-08-25 19:41:05] 
+🔹 Verificando catálogo para JAM
+[2025-08-25 19:41:09] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-08-25 19:41:09] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-25 19:41:12] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella

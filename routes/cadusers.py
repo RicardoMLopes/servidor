@@ -7,7 +7,8 @@ from fastapi import APIRouter, Query
 from starlette.responses import JSONResponse
 from database.dependencies import get_empresa_session, get_nome_banco_por_token, get_empresa_db
 from params.logger_config import logger
-from model.cadusers import criar_tabela_cadusers_se_nao_existir
+from model.dictionary import criar_tabela_cadusers_se_nao_existir
+from model.cadusers import colunas_cadusers
 from database.querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_usuario, Consultausers, \
     ConsultaUsuarioPorUsername, atualizar_senha_usuario, ConsultaUsuarioPorVendedor, Consultar_vendedor_user, \
     usuario_existe
@@ -41,7 +42,7 @@ def buscar_vendedores(request: Request, cnpj: str = Form(...)):
     # cria sessão empresa
     session_empresa = get_empresa_session(nome_banco)
     with session_empresa as db:
-        criar_tabela_cadusers_se_nao_existir(db)
+        criar_tabela_cadusers_se_nao_existir(db, "cadusers", colunas_cadusers)
 
         empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
         if not empresa_raw:
