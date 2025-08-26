@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-
 from params.alerta import enviar_alerta
 from database.querys import ConsultaProduto, Insert_Produto
 from fastapi import Depends, HTTPException

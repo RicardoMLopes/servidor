@@ -253,96 +253,99 @@ def ConsultaUsuarioPorVendedor(db, vendedor):
         traceback.print_exc()
         return None
 
-def inserir_pedido(db, nota: Dict[str, Any]) -> bool:
-    """
-    Insere uma nota (movnota) e seus itens (movnotaitem) no banco MySQL.
-    Toda a operação é feita em uma transação única.
-    """
+from sqlalchemy import text
+from datetime import datetime
+
+def inserir_pedido(db, nota):
     try:
-        # Inicia transação
-        db.execute(text("START TRANSACTION"))
-
-        # Gera código para a nota
         print("Entrou na rotina de inserção")
-        if "numerodocumento" in nota or nota["numerodocumento"]:
-            print("Chamada do proximo numero")
-            nota["numerodocumento"] = proximo_codigo(db, nota["empresa"])
-        else:
-            print("Não entrou na rotina proximo numero")
 
-        # 1️⃣ Inserir cabeçalho
+        # 🔹 Gera o próximo numerodocumento
+        result = db.execute(
+            text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
+            {"empresa": nota["empresa"]}
+        ).mappings().fetchone()
+        prox_numerodoc = result["prox"] if result else 1
+        print("Numerodocumento gerado:", prox_numerodoc)
+
+        # 🔹 Inserir movnota (incluindo pedido_hash)
         sql_insert_nota = text("""
             INSERT INTO movnota
             (empresa, numerodocumento, codigocondPagamento, codigovendedor, codigocliente,
              nomecliente, idpedido, valorDesconto, valorDespesas, valorFrete,
-             valorTotal, pesoTotal, observacao, status, dataLancamento, situacaoRegistro, dataRegistro)
+             valorTotal, pesoTotal, observacao, status, dataLancamento, situacaoRegistro, dataRegistro, pedido_hash)
             VALUES
             (:empresa, :numerodocumento, :codigocondPagamento, :codigovendedor, :codigocliente,
              :nomecliente, :idpedido, :valorDesconto, :valorDespesas, :valorFrete,
-             :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento, :situacaoRegistro, :dataRegistro)
+             :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento, :situacaoRegistro, :dataRegistro, :pedido_hash)
         """)
 
-        db.execute(sql_insert_nota, {
+        result_nota = db.execute(sql_insert_nota, {
             "empresa": nota["empresa"],
-            "numerodocumento": nota["numerodocumento"],
-            "codigocondPagamento": nota.get("codigocondPagamento", ""),
-            "codigovendedor": nota.get("codigovendedor", ""),
-            "codigocliente": nota.get("codigocliente", ""),
-            "nomecliente": nota.get("nomecliente", ""),
-            "idpedido": nota.get("idpedido", 0),
+            "numerodocumento": prox_numerodoc,
+            "codigocondPagamento": nota.get("codigocondPagamento"),
+            "codigovendedor": nota.get("codigovendedor"),
+            "codigocliente": nota.get("codigocliente"),
+            "nomecliente": nota.get("nomecliente"),
+            "idpedido": nota.get("idpedido"),
             "valorDesconto": nota.get("valorDesconto", 0),
             "valorDespesas": nota.get("valorDespesas", 0),
             "valorFrete": nota.get("valorFrete", 0),
             "valorTotal": nota.get("valorTotal", 0),
             "pesoTotal": nota.get("pesoTotal", 0),
-            "observacao": limpar_texto_mysql_auto(nota.get("observacao", "")),
+            "observacao": nota.get("observacao", ""),
             "status": nota.get("status", "P"),
-            "dataLancamento": nota.get("dataLancamento"),
+            "dataLancamento": datetime.now(),
             "situacaoRegistro": nota.get("situacaoRegistro", "I"),
-            "dataRegistro": nota.get("dataRegistro")
+            "dataRegistro": datetime.now(),
+            "pedido_hash": nota.get("pedido_hash")  # <- aqui grava o hash
         })
 
-        # 2️⃣ Inserir itens
-        sql_insert_item = text("""
-            INSERT INTO movnotaitem
-            (empresa, numerodocumento, codigovendedor, codigoproduto, idpedido, descricaoproduto,
-             valorUnitario, valorunitariovenda, valorDesconto, valoracrescimo, valorTotal,
-             quantidade, codigocliente, dataRegistro, situacaoRegistro)
-            VALUES
-            (:empresa, :numerodocumento, :codigovendedor, :codigoproduto, :idpedido, :descricaoproduto,
-             :valorUnitario, :valorunitariovenda, :valorDesconto, :valoracrescimo, :valorTotal,
-             :quantidade, :codigocliente, :dataRegistro, :situacaoRegistro)
-        """)
+        movnota_id = result_nota.lastrowid
+        print("movnota_id gerado:", movnota_id)
 
+        # 🔹 Inserir itens vinculando movnota_id
         for item in nota.get("itens", []):
+            sql_insert_item = text("""
+                INSERT INTO movnotaitem
+                (empresa, numerodocumento, codigovendedor, codigoproduto, idpedido, descricaoproduto,
+                 valorUnitario, valorunitariovenda, valorDesconto, valoracrescimo, valorTotal,
+                 quantidade, codigocliente, dataRegistro, situacaoRegistro, movnota_id)
+                VALUES
+                (:empresa, :numerodocumento, :codigovendedor, :codigoproduto, :idpedido, :descricaoproduto,
+                 :valorUnitario, :valorunitariovenda, :valorDesconto, :valoracrescimo, :valorTotal,
+                 :quantidade, :codigocliente, :dataRegistro, :situacaoRegistro, :movnota_id)
+            """)
             db.execute(sql_insert_item, {
-                "empresa": item.get("empresa", nota["empresa"]),
-                "numerodocumento": nota["numerodocumento"],
-                "codigovendedor": item.get("codigovendedor", nota.get("codigovendedor", "")),
-                "codigoproduto": item.get("codigoproduto", ""),
-                "idpedido": item.get("idpedido", ""),
-                "descricaoproduto": item.get("descricaoproduto", ""),
-                "valorUnitario": item.get("valorUnitario", 0),
-                "valorunitariovenda": item.get("valorunitariovenda", 0),
+                "empresa": item["empresa"],
+                "numerodocumento": prox_numerodoc,
+                "codigovendedor": item.get("codigovendedor"),
+                "codigoproduto": item.get("codigoproduto"),
+                "idpedido": item.get("idpedido"),
+                "descricaoproduto": item.get("descricaoproduto"),
+                "valorUnitario": item.get("valorUnitario"),
+                "valorunitariovenda": item.get("valorunitariovenda"),
                 "valorDesconto": item.get("valorDesconto", 0),
                 "valoracrescimo": item.get("valoracrescimo", 0),
-                "valorTotal": item.get("valorTotal", 0),
-                "quantidade": item.get("quantidade", 0),
-                "codigocliente": item.get("codigocliente", nota.get("codigocliente", "")),
-                "dataRegistro": item.get("dataRegistro", nota.get("dataRegistro")),
-                "situacaoRegistro": item.get("situacaoRegistro", "I")
+                "valorTotal": item.get("valorTotal"),
+                "quantidade": item.get("quantidade"),
+                "codigocliente": item.get("codigocliente"),
+                "dataRegistro": datetime.now(),
+                "situacaoRegistro": item.get("situacaoRegistro", "I"),
+                "movnota_id": movnota_id
             })
 
-        # Finaliza transação
         db.commit()
-        return True
+        print("Pedido inserido com sucesso:", prox_numerodoc)
+        return prox_numerodoc
 
     except Exception as e:
         db.rollback()
-        print(f"❌ Erro ao inserir pedido {nota.get('numerodocumento', nota.get('codigo'))}: {e}")
-        enviar_alerta(assunto='Erro inserção do pedido', mensagem= nota.get('numerodocumento', nota.get('idpedido')) )
-        traceback.print_exc()
-        return False
+        print(f"❌ Erro ao inserir pedido {nota.get('idpedido')}: {e}")
+        return None
+
+
+
 
 
 def proximo_codigo(db, empresa: int) -> int:

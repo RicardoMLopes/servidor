@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from params.alerta import enviar_alerta
 from database.dependencies import get_empresa_db
 from model.schemas_cliente import ClienteCreate

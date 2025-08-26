@@ -13,9 +13,9 @@ def listar_pedidos(request: Request, db: Session = Depends(get_empresa_db)):
     try:
         # Carrega pedidos com itens
         pedidos = db.query(pedido.MovNota)\
-                    .options(joinedload(pedido.MovNota.itens))\
-                    .filter(pedido.MovNota.status == "P")\
-                    .all()
+            .options(joinedload(pedido.MovNota.itens))\
+            .filter(pedido.MovNota.status == "P")\
+            .all()
 
         print(f"Pedidos encontrados: {len(pedidos)}")
         for p in pedidos:
@@ -33,7 +33,10 @@ def listar_pedidos(request: Request, db: Session = Depends(get_empresa_db)):
 
         # Serializa pedidos em JSON para envio por e-mail
         try:
-            pedidos_json = json.dumps([schemas_pedido.PedidoSchema.from_orm(p).dict() for p in pedidos], indent=2)
+            pedidos_json = json.dumps(
+                [schemas_pedido.PedidoSchema.from_orm(p).dict() for p in pedidos],
+                indent=2
+            )
         except Exception as ex:
             pedidos_json = f"Erro ao gerar JSON: {ex}"
 
@@ -43,5 +46,4 @@ def listar_pedidos(request: Request, db: Session = Depends(get_empresa_db)):
             mensagem=f'Erro: {str(e)}',
             anexo={'nome_arquivo': 'pedidos_erro.json', 'conteudo': pedidos_json}
         )
-
         raise HTTPException(status_code=500, detail=f"Erro ao listar pedidos: {str(e)}")
