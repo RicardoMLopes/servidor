@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from params.alerta import enviar_alerta
+from typing import List
 from database.dependencies import get_empresa_db
 from model.schemas_cliente import ClienteCreate
 from database.querys import ConsultaCliente, Insert_Cliente
@@ -33,20 +34,18 @@ async def listar_clientes(db: Session = Depends(get_empresa_db)):
 
 
 @cliente_router.post("/")
-async def atualizar_cliente(cliente: str, db: Session = Depends(get_empresa_db)):
+async def atualizar_clientes(clientes: List[ClienteCreate], db: Session = Depends(get_empresa_db)):
+    """
+    Insere ou atualiza uma lista de clientes.
+    Recebe JSON no body: [ {cliente1}, {cliente2}, ... ]
+    """
     try:
-        sucesso = Insert_Cliente(db, cliente)
-        if not sucesso:
-            raise HTTPException(status_code=400, detail="Erro ao inserir/atualizar cliente.")
-
-        return {"mensagem": "Cliente inserido/atualizado com sucesso."}
-
-    except HTTPException:
-        raise
+        for cliente in clientes:
+            sucesso = Insert_Cliente(db, cliente)
+            if not sucesso:
+                raise HTTPException(status_code=400, detail=f"Erro ao inserir/atualizar cliente {cliente.codigo}.")
+        return {"mensagem": "Clientes inseridos/atualizados com sucesso."}
     except Exception as e:
+        enviar_alerta(assunto="Inserção de clientes", mensagem="Erro ao inserir/atualizar clientes: " + str(e))
         traceback.print_exc()
-        enviar_alerta(assunto="Inserção de clientes", mensagem="Erro ao inserir/atualizar cliente: " + str(e))
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")

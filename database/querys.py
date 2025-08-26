@@ -3,7 +3,7 @@ import traceback
 from typing import Dict, Any
 
 from params.alerta import enviar_alerta
-from function.funtions import formata_cnpj, limpar_texto_mysql_auto
+from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
 from datetime import datetime
 
 from params.logger_config import logger
@@ -359,14 +359,17 @@ def proximo_codigo(db, empresa: int) -> int:
 
 def Insert_Cliente(db, cliente):
     try:
+        cliente_dict = cliente.dict()
+        cliente_dict['dataRegistro'] = converter_data_mysql(cliente.dataRegistro)
+
         # Verifica se já existe cliente com mesmo código e empresa
-        sql_select = "SELECT 1 FROM cadclientes WHERE empresa = :empresa AND codigo = :codigo"
-        existe = db.execute(sql_select, {"empresa": cliente.empresa, "codigo": cliente.codigo}).fetchone()
+        sql_select = text("SELECT 1 FROM cadcliente WHERE empresa = :empresa AND codigo = :codigo")
+        existe = db.execute(sql_select, {"empresa": cliente_dict['empresa'], "codigo": cliente_dict['codigo']}).fetchone()
 
         if existe:
             # Atualiza registro existente
-            sql_update = """
-            UPDATE cadclientes SET
+            sql_update = text("""
+            UPDATE cadcliente SET
                 codigovendedor = :codigovendedor,
                 nome = :nome,
                 contato = :contato,
@@ -385,12 +388,12 @@ def Insert_Cliente(db, cliente):
                 dataRegistro = :dataRegistro,
                 versao = :versao
             WHERE empresa = :empresa AND codigo = :codigo
-            """
-            db.execute(sql_update, cliente.dict())
+            """)
+            db.execute(sql_update, cliente_dict)  # usar cliente_dict, não cliente.dict()
         else:
             # Insere novo cliente
-            sql_insert = """
-            INSERT INTO cadclientes (
+            sql_insert = text("""
+            INSERT INTO cadcliente (
                 empresa, codigo, codigovendedor, nome, contato, cpfCnpj,
                 rua, numero, bairro, cidade, estado, telefone,
                 limiteCredito, observacao, restricao, reajuste,
@@ -401,8 +404,8 @@ def Insert_Cliente(db, cliente):
                 :limiteCredito, :observacao, :restricao, :reajuste,
                 :situacaoRegistro, :dataRegistro, :versao
             )
-            """
-            db.execute(sql_insert, cliente.dict())
+            """)
+            db.execute(sql_insert, cliente_dict)  # também usar cliente_dict
 
         db.commit()
         return True
@@ -411,7 +414,6 @@ def Insert_Cliente(db, cliente):
         print(f"Erro ao inserir/atualizar cliente: {e}")
         db.rollback()
         return False
-
 
 def Insert_Produto(db, produto):
     try:
