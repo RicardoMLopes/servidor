@@ -1,4 +1,9 @@
+from datetime import datetime
+from typing import Optional
+import pytz
 from fastapi import APIRouter
+from fastapi import Query
+
 from params.alerta import enviar_alerta
 from database.querys import ConsultaProduto, Insert_Produto
 from fastapi import Depends, HTTPException
@@ -9,27 +14,61 @@ import traceback
 products_router = APIRouter()
 
 
-# requisição da lista de produtos
 @products_router.get("")
-async def sincronizar_produto(db: Session = Depends(get_empresa_db)):
+async def listar_produtos(
+    last_sync: Optional[str] = Query(
+        None,
+        description="Data/hora da última sincronização (ISO 8601)"
+    ),
+    db: Session = Depends(get_empresa_db)
+):
     try:
-        resultado = ConsultaProduto(db)
-        if resultado:
-            colunas = ["empresa", "codigo", "descricao", "unidademedida", "codigobarra",
-                       "agrupamento", "marca", "modelo", "tamanho", "cor", "peso",
-                       "precoVenda", "casasdecimais", "percentualdesconto", "estoque", "reajustacondicaopagamento",
-                       "percentualcomissao", "situacaoRegistro", "dataRegistro", "versao", "imagens"]
+        filtro_data: Optional[datetime] = None
+        if last_sync:
+            try:
+                filtro_data = datetime.fromisoformat(last_sync)
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Formato inválido de last_sync. Use ISO 8601 (ex: 2025-08-27T10:15:00)"
+                )
 
-            dados = [dict(zip(colunas, item)) for item in resultado]
+        # Consulta produtos no banco, filtrando por data se last_sync informado
+        resultado = ConsultaProduto(db, filtro_data)
 
-            return dados
-        else:
-            raise HTTPException(status_code=404, detail="Produto não encontrado")
+        # Define as colunas do retorno
+        colunas = [
+            "empresa", "codigo", "descricao", "unidadeMedida", "codigobarra",
+            "agrupamento", "marca", "modelo", "tamanho", "cor", "peso",
+            "precovenda", "casasdecimais", "percentualdesconto", "estoque",
+            "reajustacondicaopagamento", "percentualComissao", "situacaoregistro",
+            "dataRegistro", "versao", "imagens"
+        ]
+
+        dados = []
+        for item in resultado:
+            if len(item) != len(colunas):
+                dados.append({col: item[i] if i < len(item) else None for i, col in enumerate(colunas)})
+            else:
+                dados.append(dict(zip(colunas, item)))
+
+        # Usa pytz para pegar hora de São Paulo
+        tz_sp = pytz.timezone("America/Sao_Paulo")
+        last_sync_servidor = datetime.now(tz_sp)
+
+        return {
+            "produtos": dados,
+            "last_sync": last_sync_servidor
+        }
+
     except HTTPException as e:
         raise e
     except Exception as e:
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
+        )
 
 
 @products_router.post("/")

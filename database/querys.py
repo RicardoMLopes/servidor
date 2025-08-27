@@ -1,6 +1,6 @@
 from sqlalchemy import text
 import traceback
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from params.alerta import enviar_alerta
 from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
@@ -21,15 +21,29 @@ def ConsultaEmpresa(db):
 
 
 
-# consulta da lista de produtos
-def ConsultaProduto(db):
+def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
+    """
+    Consulta produtos na tabela cadproduto.
+    Se filtro_data for fornecido (datetime), retorna apenas produtos
+    com dataRegistro > filtro_data.
+    """
     try:
-        resultado = db.execute(
-            text("SELECT * FROM cadproduto  ")
-        ).fetchall()
+        sql = "SELECT * FROM cadproduto"
+        params = {}
+
+        if filtro_data:
+            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
+            sql += " WHERE dataRegistro > :filtro_data"
+            params["filtro_data"] = filtro_str
+
+
+        resultado = db.execute(text(sql), params).fetchall()
+       # logger.warning("Resultado: %s", resultado)
+        return resultado
+
     except Exception as e:
         traceback.print_exc()
-    return resultado
+        return []
 
 
 # consulta da parâmetros
@@ -88,35 +102,72 @@ def ConsultaRotaCliente(db):
     return resultado
 
 # consulta de clientes
-def ConsultaCliente(db):
+def ConsultaCliente(db, filtro_data: Optional[datetime] = None):
+    """
+    Consulta clientes na tabela cadcliente.
+    Se filtro_data for fornecido (datetime), retorna apenas clientes
+    com dataRegistro > filtro_data.
+    """
     try:
-        resultado = db.execute(
-            text("SELECT * FROM cadcliente  ")
-        ).fetchall()
+        sql = "SELECT * FROM cadcliente"
+        params = {}
+
+        if filtro_data:
+            # Formata datetime para string compatível com SQL
+            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
+            sql += " WHERE dataRegistro > :filtro_data"
+            params["filtro_data"] = filtro_str
+
+        resultado = db.execute(text(sql), params).fetchall()
+        return resultado
+
     except Exception as e:
         traceback.print_exc()
-    return resultado
+        return []
 
 
 # consulta de vendedores
-def ConsultaVendedor(db):
+def ConsultaVendedor(db, filtro_data: Optional[datetime] = None):
+    """
+    Consulta vendedores na tabela cadvendedor.
+    Se filtro_data for fornecido, retorna apenas vendedores com dataRegistro > filtro_data.
+    """
     try:
-        resultado = db.execute(
-            text("SELECT * FROM cadvendedor  ")
-        ).fetchall()
+        sql = "SELECT * FROM cadvendedor"
+        params = {}
+
+        if filtro_data:
+            # Formata datetime para string compatível com SQL
+            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
+            sql += " WHERE dataRegistro > :filtro_data"
+            params["filtro_data"] = filtro_str
+
+        resultado = db.execute(text(sql), params).fetchall()
+        return resultado
     except Exception as e:
         traceback.print_exc()
-    return resultado
+        return []
+
+
+
 
 # consulta de forma de pagamento
-def ConsultaCondicoesPagamento(db):
+def ConsultaCondicoesPagamento(db, filtro_data: Optional[datetime] = None):
     try:
-        resultado = db.execute(
-            text("SELECT * FROM cadcondicaopagamento  ")
-        ).fetchall()
+        sql = "SELECT * FROM cadcondicaopagamento"
+        params = {}
+
+        if filtro_data:
+            # Formata datetime para string compatível com SQL
+            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
+            sql += " WHERE dataRegistro > :filtro_data"
+            params["filtro_data"] = filtro_str
+
+        resultado = db.execute(text(sql), params).fetchall()
+        return resultado
     except Exception as e:
         traceback.print_exc()
-    return resultado
+        return []
 
 
 
