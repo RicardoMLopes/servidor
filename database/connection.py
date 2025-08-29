@@ -48,7 +48,7 @@ def get_empresa_session(db_name: str):
         raise ValueError(f"Variáveis de ambiente ausentes: {', '.join(missing_vars)}")
 
     DATABASE_URL = (
-        f"mysql+pymysql://{db_name}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}?charset=utf8"
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}?charset=utf8"
     )
     print("🔗 Conectando no banco:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 

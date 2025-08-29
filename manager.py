@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 import asyncio
 # from starlette.responses import HTMLResponse
 # from routes.gerar_catalogo_diario import gerar_catalogo_diario
-from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router
+from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router, email_router
 from routes.cadusers import cadusers_router
 from routes.recuperar_password import recuperaruser_router
 from routes.gerar_catalogo_diario import gerar_catalogo_diario
@@ -56,4 +56,5 @@ app.include_router(recuperaruser_router, prefix="/esqueci-senha", tags=["Recuper
 app.include_router(alterarsenha_router, prefix="/buscar-usuario-vendedor", tags=["Recuperar"])
 app.include_router(pedido_router, prefix="/pedidos", tags=["Pedido"])
 app.include_router(sincronizar_pedidos, prefix="/sincronizarpedidos",tags=["Sincronizar Pedidos"])
+app.include_router(email_router, prefix="/enviar-email", tags=["Email"])
 app.include_router(cadusers_router)

@@ -10,9 +10,11 @@ from .cadusers import sincronizaruser_router, alterarsenha_router
 from .pedidovenda import pedido_router
 from .sincronizarpedido import sincronizar_pedidos
 from .recuperar_password import recuperaruser_router
+from  .email import email_router
 
 __all__ = [
             "empresa_router", "products_router", "imagem_router", "parameter_router", "vendedor_router",
             "cliente_router", "condicao_pagamento_router", "cadusers_router", "sincronizaruser_router",
             "alterarsenha_router", "recuperaruser_router", "pedido_router", "sincronizar_pedidos",
+            "email_router",
            ]
