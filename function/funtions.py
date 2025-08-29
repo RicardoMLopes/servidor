@@ -6,6 +6,8 @@ from database.connection import DB_CHAVE
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
 from typing import Optional, Union
+from PIL import Image
+
 
 
 
@@ -107,6 +109,23 @@ def limpar_texto_mysql_auto(texto: str) -> str:
     print(texto)
     return texto
 
+
+def processar_imagem(arquivo_origem, arquivo_destino, largura=800, altura=800, qualidade=85):
+    """
+    Converte imagem para JPG, redimensiona e salva com qualidade definida.
+    """
+    with Image.open(arquivo_origem) as img:
+        # Converter para RGB (para garantir compatibilidade com JPG)
+        img = img.convert("RGB")
+
+        # Redimensionar mantendo proporção
+        img.thumbnail((largura, altura))
+
+        # Criar diretório destino se não existir
+        os.makedirs(os.path.dirname(arquivo_destino), exist_ok=True)
+
+        # Salvar em JPG com qualidade definida
+        img.save(arquivo_destino, "JPEG", quality=qualidade, optimize=True)
 
 
 templates.env.filters["formata_cnpj"] = formata_cnpj

@@ -44,3 +44,209 @@
 [2025-08-29 09:33:50] 
 🔹 Verificando catálogo para FFA Dsitribuidora
 [2025-08-29 09:33:52] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:02:33] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:02:35] 🖨️ Gerando catálogo para RM
+[2025-08-29 15:02:37] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-08-29 15:02:37] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:02:39] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-08-29 15:02:40] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-08-29 15:12:24] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:12:26] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:12:26] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:12:28] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:12:48] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:12:50] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:12:50] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:12:52] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:14:02] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:14:05] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:14:05] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:14:07] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:15:22] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:15:24] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:15:24] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:15:26] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:19:18] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:19:20] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:19:20] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:19:22] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:19:51] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:19:53] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:19:53] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:19:55] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:22:59] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:23:01] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:23:01] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:23:03] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:24:11] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:24:13] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:24:13] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:24:15] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:26:04] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:26:06] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:26:06] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:26:08] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:29:01] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:29:03] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:29:03] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:29:05] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:30:26] 
+🔹 Verificando catálogo para RM
+[2025-08-29 15:30:28] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-08-29 15:30:28] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-08-29 15:30:30] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-08-29 15:36:02] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:36:05] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:36:09] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:36:11] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:36:16] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:36:19] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:36:38] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:36:41] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:36:45] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:36:48] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:36:51] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:36:55] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:39:02] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:39:05] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:39:11] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:39:14] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:39:18] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:39:21] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:40:04] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:40:06] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:40:12] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:40:15] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:40:20] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:40:24] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:42:46] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:42:49] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:42:56] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:42:58] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:43:05] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:43:15] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:49:55] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:49:59] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:50:06] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:50:09] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:50:16] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:50:22] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:55:47] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:55:56] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:56:02] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:56:04] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:56:14] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:56:17] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:56:47] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:56:49] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:56:55] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:56:57] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:57:06] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:57:09] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:58:34] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 15:58:37] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:58:44] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 15:58:47] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 15:58:54] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 15:58:58] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 16:04:30] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 16:04:34] ❌ Erro ao gerar catálogo para Testes: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel02'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 16:04:41] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 16:04:44] ❌ Erro ao gerar catálogo para JAM: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 16:04:51] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 16:05:02] ❌ Erro ao gerar catálogo para comercial sorella: (pymysql.err.OperationalError) (1044, "Acesso negado para o usuário 'pedidosmovel07'@'%' ao banco de dados 'pedidosmovel06'")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+[2025-08-29 16:05:51] 
+🔹 Verificando catálogo para Testes
+[2025-08-29 16:05:56] 🖨️ Gerando catálogo para Testes
+[2025-08-29 16:05:57] ✅ Catálogo gerado e parâmetro atualizado para Testes
+[2025-08-29 16:05:57] 
+🔹 Verificando catálogo para JAM
+[2025-08-29 16:06:00] 🖨️ Gerando catálogo para JAM
+[2025-08-29 16:06:01] ✅ Catálogo gerado e parâmetro atualizado para JAM
+[2025-08-29 16:06:01] 
+🔹 Verificando catálogo para comercial sorella
+[2025-08-29 16:06:06] 🖨️ Gerando catálogo para comercial sorella
+[2025-08-29 16:06:07] ✅ Catálogo gerado e parâmetro atualizado para comercial sorella

@@ -1,3 +1,4 @@
+import logging
 import traceback
 from fastapi import Request, HTTPException
 from sqlalchemy.orm import Session
@@ -21,6 +22,7 @@ def get_nome_banco_por_token(token: str) -> str:
                 "SELECT banco FROM controle WHERE token = :token AND situacaoregistro <> 'E' " ),
                 {"token": token}
             ).fetchone()
+            logging.warning("resultaod do banco", result)
             if not result:
                 raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
             return result[0]

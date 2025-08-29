@@ -5,7 +5,8 @@ from fastapi.staticfiles import StaticFiles
 import asyncio
 # from starlette.responses import HTMLResponse
 # from routes.gerar_catalogo_diario import gerar_catalogo_diario
-from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router, email_router
+from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router, email_router, \
+    home_router
 from routes.cadusers import cadusers_router
 from routes.recuperar_password import recuperaruser_router
 from routes.gerar_catalogo_diario import gerar_catalogo_diario
@@ -39,6 +40,14 @@ async def startup_event():
     asyncio.create_task(gerar_catalogo_diario())
 
 # Registrando os routers
+app.include_router(home_router, prefix="", tags=["home"])
+app.include_router(home_router, prefix="/image", tags=["admin"])
+app.include_router(home_router, prefix="/cadusers", tags=["admin"])
+app.include_router(home_router, prefix="/alterar-senha", tags=["admin"])
+app.include_router(home_router, prefix="/cadastrar-usuario", tags=["admin"])
+app.include_router(home_router, prefix="/relatorios", tags=["admin"])
+
+
 app.include_router(imagem_router, prefix="/lista", tags=["Imagem"])
 app.include_router(empresa_router, prefix="/empresa", tags=["Empresa"])
 app.include_router(products_router, prefix="/produtos", tags=["Produtos"])

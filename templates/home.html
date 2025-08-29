@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<h1 class="mb-4">Painel Administrativo</h1>
+
+<div class="row">
+    <!-- Upload -->
+    <div class="col-md-6 mb-4" id="upload">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>📷 Upload de Imagem</h5>
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <input class="form-control mb-2" type="file" name="file">
+                    <button class="btn btn-primary">Enviar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alterar Senha -->
+    <div class="col-md-6 mb-4" id="senha">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>🔑 Alterar Senha</h5>
+                <form action="/alterar-senha" method="post">
+                    <input class="form-control mb-2" type="password" name="senha_atual" placeholder="Senha atual">
+                    <input class="form-control mb-2" type="password" name="nova_senha" placeholder="Nova senha">
+                    <input class="form-control mb-2" type="password" name="confirmar" placeholder="Confirmar senha">
+                    <button class="btn btn-warning">Alterar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cadastrar Usuário -->
+    <div class="col-md-6 mb-4" id="usuario">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>👤 Cadastrar Usuário</h5>
+                <form action="/cadastrar-usuario" method="post">
+                    <input class="form-control mb-2" type="text" name="nome" placeholder="Nome">
+                    <input class="form-control mb-2" type="email" name="email" placeholder="Email">
+                    <input class="form-control mb-2" type="password" name="senha" placeholder="Senha">
+                    <button class="btn btn-success">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Relatórios -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5>📊 Relatórios de Vendas</h5>
+                <a href="/relatorios" class="btn btn-info">Acessar Relatórios</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
