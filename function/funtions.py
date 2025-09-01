@@ -1,6 +1,7 @@
 import hashlib
 import unicodedata
 import re
+import os
 import time
 from database.connection import DB_CHAVE
 from fastapi.templating import Jinja2Templates
@@ -13,7 +14,7 @@ from PIL import Image
 
 
 templates = Jinja2Templates(directory="templates")
-
+templates.env.globals['now'] = datetime.now
 
 
 # Salt fixo, deve ser o mesmo que no app

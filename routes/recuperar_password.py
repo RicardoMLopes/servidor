@@ -1,3 +1,4 @@
+from params.logger_config import logger
 import secrets
 from datetime import datetime
 from fastapi import APIRouter, Form, Request
@@ -71,7 +72,8 @@ async def esqueci_senha(request: Request, cnpj: str = Form(...), usuario: str = 
             })
 
         # Gera senha temporária
-        nova_senha = secrets.token_urlsafe(8)
+        nova_senha = secrets.token_urlsafe(8).upper()
+        logger.warning(f"Nova senha temporária gerada para {usuario}: {nova_senha}")
         nova_senha_hash = hash_password(nova_senha)
         dataatual = datetime.now()
 

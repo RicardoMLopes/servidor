@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- Topo -->
+    <div class="text-center mb-5">
+        <h1 class="fw-bold">Bem-vindo{% if empresa_nome %} à {{ empresa_nome }}{% endif %}</h1>
+        <p class="text-muted">CNPJ: <strong>{{ empresa_cnpj or "Não disponível" }}</strong></p>
+    </div>
+
+    <!-- Cards (mantendo o layout original) -->
+    <div class="row g-4">
+
+            {% include 'cards/pedidovendas_card.html' %}
+
+
+            {% include 'cards/upload_card.html' %}
+
+            {% include 'cards/cadusers_card.html' %}
+
+    </div>
+
+    <!-- Token -->
+    <div class="mt-5 text-center">
+        <div class="alert alert-info" role="alert">
+            Token da empresa: <strong>{{ empresa_token or "Não disponível" }}</strong>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+console.log("Dashboard carregado para a empresa: {{ empresa_cnpj or 'N/D' }}");
+</script>
+{% endblock %}

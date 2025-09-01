@@ -232,6 +232,7 @@ def ConsultaEmpresaPorCNPJ(db, cnpj: str):
             WHERE cnpj = :cnpj        
         """)
         resultado = db.execute(sql, {"cnpj": Format_CNPJ}).mappings().all()
+      # logger.warning("Exibe Resultado da EMPRESA: %s", resultado)
         return resultado
     except Exception as e:
         traceback.print_exc()
@@ -289,9 +290,9 @@ def atualizar_senha_usuario(db, usuario, hash):
 
 # Recuperar o usuário
 def ConsultaUsuarioPorVendedor(db, vendedor):
-    logger.warning("Monstra o vendedor: ", vendedor)
+  #  logger.warning("Monstra o vendedor: ", vendedor)
     try:
-        logger.warning("Vendedor recebido na função:", repr(vendedor))
+  #      logger.warning("Vendedor recebido na função:", repr(vendedor))
         sql = text("""
             SELECT usuario, email 
             FROM cadusers 

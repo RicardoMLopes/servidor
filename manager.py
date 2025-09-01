@@ -21,6 +21,7 @@ from routes.sincronizarpedido import sincronizar_pedidos
 # from markupsafe import escape
 
 app = FastAPI()
+
 gerar_catalogo_diario()
 app.add_middleware(
     CORSMiddleware,
@@ -41,11 +42,16 @@ async def startup_event():
 
 # Registrando os routers
 app.include_router(home_router, prefix="", tags=["home"])
-app.include_router(home_router, prefix="/image", tags=["admin"])
-app.include_router(home_router, prefix="/cadusers", tags=["admin"])
-app.include_router(home_router, prefix="/alterar-senha", tags=["admin"])
-app.include_router(home_router, prefix="/cadastrar-usuario", tags=["admin"])
-app.include_router(home_router, prefix="/relatorios", tags=["admin"])
+app.include_router(home_router, prefix="/identificar-empresa", tags=["home"])
+app.include_router(home_router, prefix="/dashboard", tags=["home"])
+app.include_router(home_router, prefix="/cadastrar-users", tags=["home"])
+
+app.include_router(home_router, prefix="/image", tags=["Imagem"])
+# app.include_router(home_router, prefix="/cadusers", tags=["admin"])
+# app.include_router(home_router, prefix="/alterar-senha", tags=["admin"])
+# app.include_router(home_router, prefix="/cadastrar-usuario", tags=["admin"])
+app.include_router(home_router, prefix="/relatorios", tags=["Relatórios"])
+
 
 
 app.include_router(imagem_router, prefix="/lista", tags=["Imagem"])

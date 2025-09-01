@@ -1,62 +1,152 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
+
 {% block content %}
+<div class="container py-5">
 
-<h1 class="mb-4">Painel Administrativo</h1>
-
-<div class="row">
-    <!-- Upload -->
-    <div class="col-md-6 mb-4" id="upload">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>📷 Upload de Imagem</h5>
-                <form action="/upload" method="post" enctype="multipart/form-data">
-                    <input class="form-control mb-2" type="file" name="file">
-                    <button class="btn btn-primary">Enviar</button>
+    <!-- Card de acesso à empresa -->
+    <div id="empresaCard" class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4" style="border-radius: 1rem;">
+                <div class="text-center mb-3">
+                    <img src="/static/img/empresa.png" alt="Logo" style="width:80px;" class="mb-3">
+                    <h2 class="fw-bold">Acesso à Empresa</h2>
+                    <p class="text-muted">Digite seu CPF ou CNPJ</p>
+                </div>
+                <form id="formEmpresa">
+                    <div class="input-group mb-3 shadow-sm" style="border-radius: 0.5rem; overflow: hidden;">
+                        <span class="input-group-text bg-gradient-primary text-white">
+                            <i class="bi bi-building-fill"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-lg" id="cnpj" placeholder="CPF ou CNPJ" required>
+                    </div>
+                    <button type="submit" class="btn btn-lg w-100 fw-bold text-white btn-gradient">Consultar</button>
                 </form>
+
+                <!-- Loader -->
+                <div id="loader" class="text-center mt-3" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Consultando empresa...</p>
+                </div>
+
+                <!-- Área para mostrar dados da empresa -->
+                <div id="empresaDados" class="mt-4" style="display:none;">
+                    <h5 class="fw-bold">Dados da Empresa</h5>
+                    <p><strong>Nome:</strong> <span id="nomeEmpresa"></span></p>
+                    <p><strong>CNPJ:</strong> <span id="cnpjEmpresa"></span></p>
+                </div>
+
+                <!-- Mensagem de erro -->
+                <div id="msgErro" class="alert alert-danger mt-3" style="display:none;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Alterar Senha -->
-    <div class="col-md-6 mb-4" id="senha">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>🔑 Alterar Senha</h5>
-                <form action="/alterar-senha" method="post">
-                    <input class="form-control mb-2" type="password" name="senha_atual" placeholder="Senha atual">
-                    <input class="form-control mb-2" type="password" name="nova_senha" placeholder="Nova senha">
-                    <input class="form-control mb-2" type="password" name="confirmar" placeholder="Confirmar senha">
-                    <button class="btn btn-warning">Alterar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cadastrar Usuário -->
-    <div class="col-md-6 mb-4" id="usuario">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>👤 Cadastrar Usuário</h5>
-                <form action="/cadastrar-usuario" method="post">
-                    <input class="form-control mb-2" type="text" name="nome" placeholder="Nome">
-                    <input class="form-control mb-2" type="email" name="email" placeholder="Email">
-                    <input class="form-control mb-2" type="password" name="senha" placeholder="Senha">
-                    <button class="btn btn-success">Cadastrar</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Relatórios -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>📊 Relatórios de Vendas</h5>
-                <a href="/relatorios" class="btn btn-info">Acessar Relatórios</a>
-            </div>
-        </div>
-    </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+    const formEmpresa = document.getElementById('formEmpresa');
+    const loader = document.getElementById('loader');
+    const msgErro = document.getElementById('msgErro');
+    const empresaDados = document.getElementById('empresaDados');
+    const nomeEmpresa = document.getElementById('nomeEmpresa');
+    const cnpjEmpresa = document.getElementById('cnpjEmpresa');
+
+    formEmpresa.addEventListener('submit', async function(e){
+        e.preventDefault();
+
+        const cnpjInput = document.getElementById('cnpj');
+        const cnpj = cnpjInput.value.trim().replace(/\D/g,'');
+
+        if(!/^\d{11}$|^\d{14}$/.test(cnpj)){
+            alert("Digite um CPF (11 dígitos) ou CNPJ (14 dígitos) válido!");
+            return;
+        }
+
+        // Exibe loader
+        loader.style.display = 'block';
+        msgErro.style.display = 'none';
+        empresaDados.style.display = 'none';
+
+        try {
+            const formData = new FormData();
+            formData.append("cnpj", cnpj);
+
+            const response = await fetch("/identificar-empresa/", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            // Esconde loader
+            loader.style.display = 'none';
+
+            if(data.success){
+                // Exibe dados reais da empresa
+                empresaDados.style.display = "block";
+                nomeEmpresa.textContent = data.empresa.nome;
+                cnpjEmpresa.textContent = data.empresa.cnpj;
+
+                // Salva token no cookie
+                document.cookie = `empresa_token=${data.token}; path=/`;
+                document.cookie = `empresa_cnpj=${data.empresa.cnpj}; path=/`;
+
+                // Redireciona para dashboard depois de 1s
+                setTimeout(()=>{
+                    window.location.href = "/dashboard/";
+                }, 1000);
+            } else {
+                // Mensagem de erro
+                msgErro.textContent = data.msg;
+                msgErro.style.display = "block";
+            }
+
+        } catch(err){
+            console.error(err);
+            loader.style.display = 'none';
+            msgErro.textContent = "Erro ao consultar empresa. Tente novamente.";
+            msgErro.style.display = "block";
+        }
+    });
+</script>
+
+<script>
+    // Função para ler cookies
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    // Se já existir empresa_cnpj, pula direto para o dashboard
+    window.addEventListener("DOMContentLoaded", () => {
+        const empresaCnpj = getCookie("empresa_cnpj");
+        const empresaToken = getCookie("empresa_token");
+
+        if (empresaCnpj && empresaToken) {
+            // Mostra dados na tela (para UX melhor)
+            document.getElementById("empresaDados").style.display = "block";
+            document.getElementById("nomeEmpresa").textContent = "Empresa já reconhecida";
+            document.getElementById("cnpjEmpresa").textContent = empresaCnpj;
+
+            // Redireciona após 1s
+            setTimeout(() => {
+                window.location.href = "/dashboard/";
+            }, 1000);
+        }
+    });
+</script>
+
+
+
+<style>
+    .btn-gradient { background: linear-gradient(90deg,#4e54c8,#8f94fb); color:#fff; border:none; font-weight:bold; transition:0.2s;}
+    .btn-gradient:hover { transform:translateY(-2px);}
+    .bg-gradient-primary{background:linear-gradient(90deg,#4e54c8,#8f94fb);}
+</style>
 {% endblock %}

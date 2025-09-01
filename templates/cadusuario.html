@@ -4,13 +4,13 @@
 
 {% block content %}
 <div class="container col-md-6 col-lg-5 mt-5">
-  <h1 class="mb-4 text-center">Cadastrar Usuário</h1>
+  <h1 class="mb-4 text-center fw-bold text-gradient">Cadastrar Usuário</h1>
 
   {% if empresa %}
-  <div class="card border-0 shadow-lg mb-4" style="background-color: #f0f9ff;">
+  <div class="card border-0 shadow-lg mb-4 empresa-card">
     <div class="card-body">
-      <h5 class="card-title text-primary fw-bold">
-        <i class="bi bi-building me-2"></i> Empresa
+      <h5 class="card-title text-primary fw-bold mb-3">
+        <i class="bi bi-building me-2"></i>Empresa
       </h5>
       <p class="mb-1"><strong>CNPJ:</strong> {{ empresa.cnpj|formata_cnpj }}</p>
       <p class="mb-0"><strong>Nome:</strong> {{ empresa.nome }}</p>
@@ -18,84 +18,70 @@
   </div>
   {% endif %}
 
-  <div class="card border-0 shadow-sm bg-white">
-    <div class="card-body">
+  <div class="card border-0 shadow form-card">
+    <div class="card-body p-4">
       <form method="post" action="/cadusuarios/cadastrar" id="cadastro-form">
         <input type="hidden" name="cnpj" value="{{ empresa.cnpj }}" />
 
-        <!-- Vendedor -->
-        <div class="mb-3">
-          <label for="vendedor" class="form-label fw-semibold">
-            <i class="bi bi-person-badge me-1"></i> Vendedor
-          </label>
+        <!-- Floating Inputs -->
+        <div class="form-floating mb-3">
           <select class="form-select {% if errors.get('vendedor_id') %}is-invalid{% endif %}" id="vendedor" name="vendedor_id" required>
             <option value="">-- Escolha um vendedor --</option>
             {% for v in vendedores %}
               <option value="{{ v.id }}" {% if form_data.vendedor_id == v.id %}selected{% endif %}>{{ v.nome }}</option>
             {% endfor %}
           </select>
+          <label for="vendedor"><i class="bi bi-person-badge me-1"></i>Vendedor</label>
           {% if errors.get("vendedor_id") %}
             <div class="invalid-feedback">{{ errors.get("vendedor_id") }}</div>
           {% endif %}
         </div>
 
-        <!-- Usuário -->
-        <div class="mb-3">
-          <label for="usuario" class="form-label fw-semibold">
-            <i class="bi bi-person-circle me-1"></i> Usuário
-          </label>
-          <input type="text" class="form-control text-uppercase {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required />
+        <div class="form-floating mb-3">
+          <input type="text" class="form-control text-uppercase {% if errors.get('usuario') %}is-invalid{% endif %}" id="usuario" name="usuario" value="{{ form_data.usuario or '' }}" required placeholder="Usuário" />
+          <label for="usuario"><i class="bi bi-person-circle me-1"></i>Usuário</label>
           {% if errors.get("usuario") %}
             <div class="invalid-feedback">{{ errors.get("usuario") }}</div>
           {% endif %}
         </div>
 
-        <!-- E-mail -->
-        <div class="mb-3">
-          <label for="email" class="form-label fw-semibold">
-            <i class="bi bi-envelope me-1"></i> E-mail
-          </label>
-          <input type="email" class="form-control {% if errors.get('email') %}is-invalid{% endif %}" id="email" name="email" value="{{ form_data.email or '' }}" required />
+        <div class="form-floating mb-3">
+          <input type="email" class="form-control {% if errors.get('email') %}is-invalid{% endif %}" id="email" name="email" value="{{ form_data.email or '' }}" required placeholder="E-mail" />
+          <label for="email"><i class="bi bi-envelope me-1"></i>E-mail</label>
           {% if errors.get("email") %}
             <div class="invalid-feedback">{{ errors.get("email") }}</div>
           {% endif %}
         </div>
 
-        <!-- Senha -->
-        <div class="mb-3">
-          <label for="senha" class="form-label fw-semibold">
-            <i class="bi bi-lock me-1"></i> Senha
-          </label>
-          <input type="password" class="form-control text-uppercase {% if errors.get('senha') %}is-invalid{% endif %}" id="senha" name="senha" required />
+        <div class="form-floating mb-3">
+          <input type="password" class="form-control text-uppercase {% if errors.get('senha') %}is-invalid{% endif %}" id="senha" name="senha" required placeholder="Senha" />
+          <label for="senha"><i class="bi bi-lock me-1"></i>Senha</label>
           {% if errors.get("senha") %}
             <div class="invalid-feedback">{{ errors.get("senha") }}</div>
           {% endif %}
         </div>
 
-        <!-- Confirmar Senha -->
-        <div class="mb-3">
-          <label for="confirmar_senha" class="form-label fw-semibold">
-            <i class="bi bi-lock-fill me-1"></i> Confirmar Senha
-          </label>
-          <input type="password" class="form-control text-uppercase {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required />
+        <div class="form-floating mb-4">
+          <input type="password" class="form-control text-uppercase {% if errors.get('confirmar_senha') %}is-invalid{% endif %}" id="confirmar_senha" name="confirmar_senha" required placeholder="Confirmar Senha" />
+          <label for="confirmar_senha"><i class="bi bi-lock-fill me-1"></i>Confirmar Senha</label>
           {% if errors.get("confirmar_senha") %}
             <div class="invalid-feedback">{{ errors.get("confirmar_senha") }}</div>
           {% endif %}
         </div>
 
         <!-- Botão -->
-        <button type="submit" class="btn btn-primary w-100 fw-semibold">
-          <i class="bi bi-check-circle me-1"></i> Cadastrar
+        <button type="submit" class="btn btn-gradient w-100 fw-semibold py-2">
+          <i class="bi bi-check-circle me-1"></i>Cadastrar
         </button>
 
-        <!-- Link de recuperação -->
+        <!-- Links -->
         <div class="mt-4 text-center">
           <div class="d-flex justify-content-center gap-3 flex-wrap">
-            <a href="/alterar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none">
-              <i class="bi bi-key me-1"></i> Alterar minha senha
+            <a href="/alterar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none link-hover">
+              <i class="bi bi-key me-1"></i>Alterar minha senha
             </a>
-            <a href="/recuperar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none">
-              <i class="bi bi-unlock me-1"></i> Esqueci minha senha
+            <a href="/recuperar-senha?cnpj={{ empresa.cnpj }}" class="btn btn-link text-decoration-none link-hover">
+              <i class="bi bi-unlock me-1"></i>Esqueci minha senha
             </a>
           </div>
         </div>
@@ -105,9 +91,73 @@
 </div>
 
 <style>
-  .text-uppercase {
-    text-transform: uppercase;
-  }
+.text-uppercase { text-transform: uppercase; }
+
+.text-gradient {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.empresa-card {
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #e0f7fa, #ffffff);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.empresa-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.form-card {
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.form-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #6610f2;
+  box-shadow: 0 0 0 0.2rem rgba(102,16,242,.25);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  border: none;
+  color: #fff;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #6610f2, #0d6efd);
+  transform: translateY(-2px);
+}
+
+.link-hover:hover {
+  color: #6610f2;
+  text-decoration: underline;
+}
+
+.form-floating > label {
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+.form-floating .form-control:focus ~ label,
+.form-floating .form-select:focus ~ label,
+.form-floating .form-control:not(:placeholder-shown) ~ label {
+  color: #6610f2;
+  transform: translateY(-0.6rem) scale(0.85);
+}
+
+.icon {
+  color: #6610f2;
+  transition: transform 0.2s ease;
+}
+.icon:hover {
+  transform: scale(1.2);
+}
 </style>
 
 <script>

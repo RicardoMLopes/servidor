@@ -244,6 +244,10 @@ async def alterar_senha(
             errors["usuario"] = "Usuário não encontrado."
         else:
             user = user_raw[0]
+            logger.warning("Senha digitada: %s", senha_atual)
+            logger.warning("Hash no banco: %s", user["novasenha"])
+            logger.warning("Resultado verificar_senha: %s", verificar_senha(senha_atual, user["novasenha"]))
+
             # Verificar senha atual
             if not verificar_senha(senha_atual, user["novasenha"]):
                 errors["senha_atual"] = "Senha atual incorreta."
@@ -285,7 +289,7 @@ async def alterar_senha(
 
 @alterarsenha_router.get("", response_class=HTMLResponse)
 async def mostrar_form_recuperar_senha(request: Request, cnpj: str):
-    logger.warning("Entrou aqui! mostrar form recuperar senha...")
+ #   logger.warning("Entrou aqui! mostrar form recuperar senha...")
     empresa = None
     vendedores = []
     cnpj = limpa_cnpj(cnpj)
@@ -312,11 +316,11 @@ async def mostrar_form_recuperar_senha(request: Request, cnpj: str):
 @alterarsenha_router.get("/", response_class=JSONResponse)
 async def buscar_usuario_vendedor(cnpj: str = Query(...), vendedor_id: str = Query(...)):
     cnpj = limpa_cnpj(cnpj)
-    logger.warning("Entrou na função ConsultaUsuarioPorVendedor")
+#    logger.warning("Entrou na função ConsultaUsuarioPorVendedor")
 
 
-    logger.warning("CNPJ recebido:", cnpj)
-    logger.warning("Vendedor ID recebido:", vendedor_id)
+#    logger.warning("CNPJ recebido:", cnpj)
+#    logger.warning("Vendedor ID recebido:", vendedor_id)
 
     token = gerar_token_cnpj(cnpj, DB_CHAVE)
     nome_banco = get_nome_banco_por_token(token)
