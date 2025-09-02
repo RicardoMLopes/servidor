@@ -258,3 +258,12 @@
 [2025-09-02 17:33:58] 
 🔹 Verificando catálogo para FFA Dsitribuidora
 [2025-09-02 17:34:00] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-02 17:56:50] 
+🔹 Verificando catálogo para Testes
+[2025-09-02 17:56:53] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-02 17:56:53] 
+🔹 Verificando catálogo para JAM
+[2025-09-02 17:56:56] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-02 17:56:56] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-02 17:56:59] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
