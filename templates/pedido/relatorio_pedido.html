@@ -3,138 +3,284 @@
 {% block title %}Relatório de Pedidos{% endblock %}
 
 {% block content %}
-<div class="container col-md-8 col-lg-10 mt-5">
-  <h1 class="mb-4 text-center fw-bold text-gradient">Relatório de Pedidos</h1>
+<div class="container col-md-10 col-lg-10 mt-5">
 
-  <!-- Filtros -->
-  <div class="card border-0 shadow form-card mb-4">
-    <div class="card-body p-4">
-      <form method="get" action="/pedido-relatorios/">
-        <div class="row g-3">
-          <div class="col-md-3 form-floating">
-            <input type="text" class="form-control" id="empresa" name="empresa" placeholder="Empresa" value="{{ request.query_params.get('empresa')|default('') }}">
-            <label for="empresa"><i class="bi bi-building me-1"></i>Empresa</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" value="{{ request.query_params.get('cnpj')|default('') }}">
-            <label for="cnpj"><i class="bi bi-upc me-1"></i>CNPJ</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <select class="form-select" id="tipo" name="tipo">
-              <option value="analitico" {% if request.query_params.get('tipo') == 'analitico' %}selected{% endif %}>Analítico</option>
-              <option value="sintetico" {% if request.query_params.get('tipo') == 'sintetico' %}selected{% endif %}>Sintético</option>
-            </select>
-            <label for="tipo"><i class="bi bi-card-list me-1"></i>Tipo</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <input type="text" class="form-control" id="cliente" name="cliente" placeholder="Cliente" value="{{ request.query_params.get('cliente')|default('') }}">
-            <label for="cliente"><i class="bi bi-person-badge me-1"></i>Cliente</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ request.query_params.get('data_inicio')|default('') }}">
-            <label for="data_inicio">Data Início</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ request.query_params.get('data_fim')|default('') }}">
-            <label for="data_fim">Data Fim</label>
-          </div>
-          <div class="col-md-3 form-floating">
-            <select class="form-select" id="agrupamento" name="agrupamento">
-              <option value="pedido" {% if request.query_params.get('agrupamento') == 'pedido' %}selected{% endif %}>Pedido</option>
-              <option value="cliente" {% if request.query_params.get('agrupamento') == 'cliente' %}selected{% endif %}>Cliente</option>
-              <option value="vendedor" {% if request.query_params.get('agrupamento') == 'vendedor' %}selected{% endif %}>Vendedor</option>
-            </select>
-            <label for="agrupamento"><i class="bi bi-diagram-3 me-1"></i>Agrupamento</label>
-          </div>
-          <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn btn-gradient w-100 fw-semibold py-2">
-              <i class="bi bi-search me-1"></i>Buscar
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
+  <!-- Cabeçalho -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold display-5 text-gradient">Relatório de Pedidos</h2>
+    <p class="text-muted small mb-1">
+      {{ empresa_nome or "Empresa" }}
+    </p>
+    <span style="display:none;" id="empresa">{{ cnpj or '' }}</span>
+    <span style="display:none;" id="token">{{ token or '' }}</span>
   </div>
 
-  <!-- Lista de Resultados -->
-  {% if relatorio %}
-    {% for p in relatorio %}
-      <div class="card border-0 shadow mb-4 form-card">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between mb-2">
-            <h5 class="card-title fw-bold">
-              {% if tipo == 'analitico' %}
-                Pedido: {{ p.cabecalho.numerodocumento }}
-              {% else %}
-                Agrupamento: {{ p.cabecalho.agrupamento }}
-              {% endif %}
-            </h5>
-            <small>Forma de Pagamento: {{ p.forma_pagamento }}</small>
-          </div>
-          <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.nomecliente }}</p>
-          <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }}</p>
-          <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento }}</p>
+  <!-- Filtros -->
+  <div class="card shadow-sm mb-4 p-4 filter-card">
+    <h5 class="mb-3 fw-bold text-primary">Filtros de Busca</h5>
+    <form method="get" action="/pedido-relatorios/">
+      <input type="hidden" name="token" value="{{ token }}">
 
-          {% if tipo == 'analitico' and p.itens %}
-            <div class="table-responsive">
-              <table class="table table-hover table-sm align-middle">
-                <thead class="table-light">
-                  <tr>
-                    <th>Código</th>
-                    <th>Descrição</th>
-                    <th>Qtd</th>
-                    <th>Valor Unit</th>
-                    <th>Desconto</th>
-                    <th>Acréscimo</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for i in p.itens %}
-                    <tr>
-                      <td>{{ i.codigoproduto }}</td>
-                      <td>{{ i.descricaoproduto }}</td>
-                      <td>{{ i.quantidade|default(0) }}</td>
-                      <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
-                      <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
-                      <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
-                      <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          {% endif %}
-
-          <div class="mt-3 fw-bold">
-            Totais: Desconto {{ '%.2f' % p.totalizadores.totalDesconto|default(0) }},
-            Acréscimo {{ '%.2f' % p.totalizadores.totalAcrescimo|default(0) }},
-            Total {{ '%.2f' % p.totalizadores.totalGeral|default(0) }}
-          </div>
+      <!-- Linha de inputs -->
+      <div class="row g-3 align-items-end">
+        <div class="col-md-2 form-floating">
+          <input type="text" class="form-control" id="numerodocumento" name="numerodocumento"
+                 placeholder="Número do Pedido" value="{% if numerodocumento and numerodocumento != 'None' %}{{ numerodocumento }}{% endif %}">
+          <label for="numerodocumento"><i class="bi bi-receipt me-1"></i>Pedido</label>
+        </div>
+        <div class="col-md-3 form-floating">
+          <input type="text" class="form-control" id="cliente" name="cliente"
+                 placeholder="Cliente" value="{% if cliente and cliente != 'None' %}{{ cliente }}{% endif %}">
+          <label for="cliente"><i class="bi bi-person-badge me-1"></i>Cliente</label>
+        </div>
+        <div class="col-md-3 form-floating">
+          <input type="text" class="form-control" id="agrupamento" name="agrupamento"
+                 placeholder="Agrupamento" value="{% if agrupamento and agrupamento != 'None' %}{{ agrupamento }}{% endif %}">
+          <label for="agrupamento"><i class="bi bi-tags me-1"></i>Agrupamento</label>
+        </div>
+        <div class="col-md-2 form-floating">
+          <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ data_inicio|default('') }}">
+          <label for="data_inicio"><i class="bi bi-calendar2-event me-1"></i>Data Início</label>
+        </div>
+        <div class="col-md-2 form-floating">
+          <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ data_fim|default('') }}">
+          <label for="data_fim"><i class="bi bi-calendar2-event me-1"></i>Data Fim</label>
         </div>
       </div>
-    {% endfor %}
-  {% else %}
-    <div class="alert alert-info">Nenhum pedido encontrado com os filtros aplicados.</div>
+
+      <!-- Linha de selects e botões -->
+      <div class="row g-3 mt-3 align-items-center">
+        <div class="col-md-2 form-floating">
+          <select class="form-select" id="status" name="status">
+            <option value="todos" {% if status =="todos" %}selected{% endif %}>Todos</option>
+            <option value="pendente" {% if status =="pendente" %}selected{% endif %}>Pendente</option>
+            <option value="enviado" {% if status =="enviado" %}selected{% endif %}>Enviado</option>
+          </select>
+          <label for="status"><i class="bi bi-flag me-1"></i>Status</label>
+        </div>
+        <div class="col-md-2 form-floating">
+          <select class="form-select" id="tipo" name="tipo">
+            <option value="analitico" {% if tipo =="analitico" %}selected{% endif %}>Analítico</option>
+            <option value="sintetico" {% if tipo =="sintetico" %}selected{% endif %}>Sintético</option>
+          </select>
+          <label for="tipo"><i class="bi bi-list-task me-1"></i>Tipo</label>
+        </div>
+        <div class="col-md-8 d-flex gap-2 flex-wrap justify-content-end">
+          <button type="submit" class="btn btn-gradient fw-semibold py-2">
+            <i class="bi bi-search"></i> Buscar
+          </button>
+          <a href="/pedido-relatorios/" class="btn btn-outline-secondary fw-semibold py-2">
+            <i class="bi bi-x-circle"></i> Limpar
+          </a>
+          <button type="button" class="btn btn-outline-primary fw-semibold py-2" onclick="exportToPDF();">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+          </button>
+          <button type="button" class="btn btn-outline-success fw-semibold py-2" onclick="exportToExcel();">
+            <i class="bi bi-file-earmark-excel"></i> Excel
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Gráfico -->
+  {% if status_count %}
+  <div class="card shadow-sm mb-4 p-4 col-md-14 col-lg-14 mx-auto">
+    <h5 class="fw-bold text-primary mb-3 text-center">Pedidos por Status</h5>
+    <div style="position: relative; height: 250px;">
+      <canvas id="statusChart"></canvas>
+    </div>
+  </div>
   {% endif %}
+
+  <!-- Resultados -->
+  {% if relatorio %}
+    <div class="row g-4">
+      {% for p in relatorio %}
+        <div class="col-md-12">
+          <div class="card shadow-sm result-card animate__animated animate__fadeInUp">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="card-title fw-bold text-primary">
+                  Pedido: {{ p.cabecalho.numerodocumento }}
+                </h5>
+                <small class="text-muted">
+                  Forma de Pagamento: {{ p.cabecalho.codigocondPagamento }} - {{ p.cabecalho.formapagamento }}
+                </small>
+              </div>
+
+              <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
+              <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
+              <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento }}</p>
+
+              {% if tipo == 'analitico' and p.itens %}
+                <div class="table-responsive">
+                  <table class="table table-hover table-sm align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Qtd</th>
+                        <th>Valor Unit</th>
+                        <th>Desconto</th>
+                        <th>Acréscimo</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for i in p.itens %}
+                        <tr>
+                          <td>{{ i.codigoproduto }}</td>
+                          <td>{{ i.descricaoproduto }}</td>
+                          <td>{{ i.quantidade|default(0) }}</td>
+                          <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
+                          <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
+                          <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
+                          <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% endif %}
+
+              <!-- Totais -->
+              <div class="mt-3 fw-bold totals">
+                <span class="badge bg-danger">Desconto: {{ '%.2f' % p.totalizadores.totalDesconto|default(0) }}</span>
+                <span class="badge bg-success">Acréscimo: {{ '%.2f' % p.totalizadores.totalAcrescimo|default(0) }}</span>
+                <span class="badge bg-primary">Total: {{ '%.2f' % p.totalizadores.totalGeral|default(0) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center">
+      Nenhum pedido encontrado. Preencha pelo menos um filtro.
+    </div>
+  {% endif %}
+
 </div>
 
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  {% if status_count %}
+  const ctx = document.getElementById('statusChart');
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Pendente', 'Enviado'],
+      datasets: [{
+        data: [{{ status_count.P }}, {{ status_count.R }}],
+        backgroundColor: ['#ffc107', '#0d6efd']
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 10,
+            padding: 5,
+            font: { size: 11 }
+          }
+        }
+      }
+    }
+  });
+  {% endif %}
+</script>
+
+<!-- SheetJS para Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+<!-- jsPDF + html2canvas para PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+function exportToExcel() {
+    const tables = document.querySelectorAll('table');
+    if (tables.length === 0) {
+        alert("Não há dados para exportar.");
+        return;
+    }
+
+    // Cria uma nova planilha
+    const wb = XLSX.utils.book_new();
+    const ws_data = [];
+
+    tables.forEach((table) => {
+        const rows = table.querySelectorAll('tr');
+        rows.forEach((row, rowIndex) => {
+            const rowData = [];
+            row.querySelectorAll('th, td').forEach(cell => {
+                rowData.push(cell.innerText.trim());
+            });
+            ws_data.push(rowData);
+        });
+        // Linha em branco entre tabelas
+        ws_data.push([]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, "RelatorioPedidos");
+    XLSX.writeFile(wb, "relatorio_pedidos.xlsx");
+}
+
+function exportToPDF() {
+    const element = document.querySelector('.container'); // toda a área do relatório
+    html2canvas(element, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = pageWidth;
+        const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        pdf.save('relatorio_pedidos.pdf');
+    });
+}
+
+</script>
+
+<!-- Estilos -->
 <style>
 .text-gradient {
   background: linear-gradient(90deg, #0d6efd, #6610f2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-
-.form-card {
+.filter-card, .result-card {
   border-radius: 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.form-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+.filter-card {
+  background-color: #f8f9fa; /* cinza bem clarinho */
 }
-
+.filter-card:hover, .result-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
 .btn-gradient {
   background: linear-gradient(90deg, #0d6efd, #6610f2);
   border: none;
@@ -146,5 +292,11 @@
   background: linear-gradient(90deg, #6610f2, #0d6efd);
   transform: translateY(-2px);
 }
+.totals .badge {
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 {% endblock %}

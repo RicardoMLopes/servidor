@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -11,12 +13,16 @@ from function.funtions import gerar_token_cnpj
 from model.dictionary import criar_tabela_cadusers_se_nao_existir
 from model.pedido import colunas_movnota, colunas_movnotaitem, pks_movnotaitem, pks_movnota
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
-from database.querys import inserir_pedido  # função separada que faz a inserção
+from database.querys import inserir_pedido, ConsultaEmpresa  # função separada que faz a inserção
 from params.alerta import enviar_alerta
 from typing import Optional
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 
 pedido_router = APIRouter()
+templates = Jinja2Templates(directory="templates")
+templates.env.globals['now'] = datetime.now
 
 @pedido_router.post("")
 async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
@@ -64,132 +70,211 @@ async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
         )
 
 
-from fastapi import Request, Query, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 
-templates = Jinja2Templates(directory="templates")  # coloque sua pasta de templates
-templates.env.globals['now'] = datetime.now
+# ==========================================================================================|
+#                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |
+#===========================================================================================|
 
 @pedido_router.get("/", response_class=HTMLResponse)
 async def relatorio_pedido_template(
     request: Request,
-    empresa: str = Query(None),  # opcional
-    cnpj: str = Query(None),     # opcional
+    empresa: str = Query(None),
+    cnpj: str = Query(None),
+    token: str = Query(None),
     tipo: str = Query("analitico"),
-    numerodocumento: int = Query(None),
-    cliente: str = Query(None),
-    data_inicio: str = Query(None),
-    data_fim: str = Query(None),
-    agrupamento: str = Query("pedido")
+    numerodocumento: Optional[str] = Query(None),
+    cliente: Optional[str] = Query(None),
+    data_inicio: Optional[str] = Query(None),
+    data_fim: Optional[str] = Query(None),
+    agrupamento: Optional[str] = Query(None),
+    status: Optional[str] = Query("todos"),
 ):
     relatorio = []
 
-    # Só busca dados se filtros principais estiverem preenchidos
-    if empresa or cnpj or numerodocumento or cliente or data_inicio or data_fim:
-        # Gerar token e abrir conexão com o banco da empresa
+    # Gera token a partir do CNPJ se necessário
+    if not token and cnpj:
         token = gerar_token_cnpj(cnpj, DB_CHAVE)
-        nome_banco = get_nome_banco_por_token(token)
-        db = get_empresa_session(nome_banco)
 
-        # Montar filtros dinamicamente
-        filtros = ["empresa = ?"]
-        parametros = [empresa]
+    if not token:
+        return templates.TemplateResponse(
+            "pedido/relatorio_pedido.html",
+            {
+                "request": request,
+                "relatorio": [],
+                "tipo": tipo,
+                "empresa_nome": None,
+                "cliente": "",
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "numerodocumento": "",
+                "agrupamento": "",
+                "status": status,
+                "cnpj": cnpj,
+                "token": token
+            }
+        )
 
-        if numerodocumento:
-            filtros.append("numerodocumento = ?")
-            parametros.append(numerodocumento)
-        if cliente:
-            filtros.append("(codigocliente = ? OR nomecliente LIKE ?)")
-            parametros.append(cliente)
-            parametros.append(f"%{cliente}%")
-        if data_inicio:
-            filtros.append("dataLancamento >= ?")
-            parametros.append(data_inicio)
-        if data_fim:
-            filtros.append("dataLancamento <= ?")
-            parametros.append(data_fim)
+    nome_banco = get_nome_banco_por_token(token)
+    if not nome_banco:
+        raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
 
-        where_clause = " AND ".join(filtros)
+    db = get_empresa_session(nome_banco)
 
-        # Buscar pedidos
-        pedidos = db.execute(f"""
-            SELECT numerodocumento, codigovendedor, nomecliente, dataLancamento, codigocondPagamento
-            FROM movnota
-            WHERE {where_clause}
-            ORDER BY dataLancamento, numerodocumento
-        """, parametros).fetchall()
+    empresa_war = ConsultaEmpresa(db)
+    codigo_empresa = int(str(empresa_war[0]).lstrip("0"))
+    nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
 
-        # Função interna para buscar itens e totais de um pedido
-        def get_itens_e_totais(numerodoc):
-            itens = db.execute("""
-                SELECT codigoproduto, descricaoproduto, quantidade,
-                       valorunitariovenda, valorDesconto, valoracrescimo, valorTotal
-                FROM movnotaitem
-                WHERE empresa = ? AND numerodocumento = ?
-            """, (empresa, numerodoc)).fetchall()
-            totals = db.execute("""
-                SELECT SUM(valorDesconto) as totalDesconto,
-                       SUM(valoracrescimo) as totalAcrescimo,
-                       SUM(valorTotal) as totalGeral
-                FROM movnotaitem
-                WHERE empresa = ? AND numerodocumento = ?
-            """, (empresa, numerodoc)).fetchone()
-            return [dict(i) for i in itens], dict(totals)
+    try:
+        numerodocumento = int(numerodocumento) if numerodocumento else None
+    except ValueError:
+        numerodocumento = None
 
-        # Montar relatório
-        if tipo == "analitico":
-            for p in pedidos:
-                itens, totals = get_itens_e_totais(p["numerodocumento"])
-                relatorio.append({
-                    "cabecalho": dict(p),
-                    "itens": itens,
-                    "totalizadores": totals,
-                    "forma_pagamento": p["codigocondPagamento"]
-                })
-        elif tipo == "sintetico":
-            for p in pedidos:
-                _, totals = get_itens_e_totais(p["numerodocumento"])
-                relatorio.append({
-                    "cabecalho": dict(p),
-                    "totalizadores": totals,
-                    "forma_pagamento": p["codigocondPagamento"]
-                })
-        else:
-            raise HTTPException(status_code=400, detail="Tipo de relatório inválido")
+    filtros = ["A.empresa = :empresa"]
+    parametros = {"empresa": codigo_empresa}
 
-        # Aplicar agrupamento se necessário
-        if agrupamento != "pedido":
-            chave_map = {"cliente": "nomecliente", "vendedor": "codigovendedor"}
-            agrupado = {}
-            for r in relatorio:
-                key = r["cabecalho"].get(chave_map[agrupamento])
-                if key not in agrupado:
-                    agrupado[key] = {
-                        "cabecalho": {"agrupamento": key},
-                        "itens": r.get("itens", []),
-                        "totalizadores": r["totalizadores"].copy()
-                    }
-                else:
-                    if "itens" in r:
-                        agrupado[key]["itens"].extend(r["itens"])
-                    for t_key in ["totalDesconto", "totalAcrescimo", "totalGeral"]:
-                        agrupado[key]["totalizadores"][t_key] += r["totalizadores"][t_key]
-            relatorio = list(agrupado.values())
+    if numerodocumento is not None:
+        filtros.append("A.numerodocumento = :numerodocumento")
+        parametros["numerodocumento"] = numerodocumento
 
-    # Renderiza template
+    if cliente and cliente.strip() and cliente.lower() != "none":
+        filtros.append("(A.codigocliente = :cliente OR A.nomecliente LIKE :cliente_like)")
+        parametros["cliente"] = cliente
+        parametros["cliente_like"] = f"%{cliente}%"
+
+    if data_inicio and data_fim and data_inicio.strip() and data_fim.strip():
+        filtros.append("A.dataLancamento BETWEEN :data_inicio AND :data_fim")
+        parametros["data_inicio"] = f"{data_inicio} 00:00:00"
+        parametros["data_fim"] = f"{data_fim} 23:59:59"
+
+    if agrupamento and agrupamento.strip() and agrupamento.lower() != "none":
+        filtros.append("P.agrupamento LIKE :agrupamento")
+        parametros["agrupamento"] = f"%{agrupamento}%"
+
+    # Ajuste de status para evitar problemas com espaços e maiúsculas/minúsculas
+    status = status.strip().lower() if status else "todos"
+    if status != "todos":
+        if status == "pendente":
+            filtros.append("TRIM(UPPER(A.status)) = 'P'")
+        elif status == "enviado":
+            filtros.append("TRIM(UPPER(A.status)) = 'R'")
+
+    if len(filtros) <= 1:
+        return templates.TemplateResponse(
+            "pedido/relatorio_pedido.html",
+            {
+                "request": request,
+                "relatorio": [],
+                "tipo": tipo,
+                "empresa_nome": nome_empresa,
+                "cliente": "",
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "numerodocumento": "",
+                "agrupamento": "",
+                "status": status,
+                "cnpj": cnpj,
+                "token": token
+            }
+        )
+
+    where_clause = " AND ".join(filtros)
+
+    sql = f"""
+        SELECT A.numerodocumento, A.codigovendedor, V.nome as nomevendedor, A.codigocliente, A.nomecliente, A.dataLancamento,
+               A.codigocondPagamento, F.descricao as formapagamento, A.status,
+               B.codigoproduto, B.descricaoproduto, B.quantidade,
+               B.valorunitariovenda, B.valorDesconto, B.valoracrescimo, B.valorTotal,
+               P.unidadeMedida
+        FROM movnota A
+        LEFT JOIN movnotaitem B
+            ON A.empresa = B.empresa AND A.numerodocumento = B.numerodocumento AND A.codigocliente = B.codigocliente
+        LEFT JOIN cadproduto P
+            ON A.empresa = P.empresa AND B.codigoproduto = P.codigo
+        LEFT JOIN cadvendedor V
+            ON A.empresa = V.empresa AND A.codigovendedor = V.codigo
+        LEFT JOIN cadcondicaopagamento F
+            ON A.empresa = F.empresa AND A.codigocondPagamento = F.codigo
+        WHERE {where_clause}
+        ORDER BY A.dataLancamento, A.numerodocumento
+    """
+    logging.warning("SQL executado: %s", sql)
+    logging.warning("Parâmetros: %s", parametros)
+
+    pedidos = db.execute(text(sql), parametros).fetchall()
+
+    status_count = {"P": 0, "R": 0}
+
+    if tipo == "sintetico":
+        pedidos_dict_sintetico = {}
+        for p in pedidos:
+            if p._mapping["status"] in status_count:
+                status_count[p._mapping["status"]] += 1
+
+            cliente_key = p._mapping["nomecliente"]
+            if cliente_key not in pedidos_dict_sintetico:
+                pedidos_dict_sintetico[cliente_key] = {
+                    "cabecalho": {
+                        "nomecliente": cliente_key,
+                        "codigovendedor": p._mapping["codigovendedor"],
+                        "nomevendedor": p._mapping["nomevendedor"],
+                    },
+                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0,"totalPedidos":0}
+                }
+
+            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
+            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
+            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
+            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalPedidos"] += 1
+
+        relatorio = list(pedidos_dict_sintetico.values())
+    else:
+        pedidos_dict = {}
+        for p in pedidos:
+            numdoc = p._mapping["numerodocumento"]
+            status_doc = p._mapping["status"]
+
+            if status_doc in status_count:
+                status_count[status_doc] += 1
+
+            if numdoc not in pedidos_dict:
+                pedidos_dict[numdoc] = {
+                    "cabecalho": dict(p._mapping),
+                    "itens": [],
+                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0},
+                }
+
+            pedidos_dict[numdoc]["itens"].append({
+                "codigoproduto": p._mapping["codigoproduto"],
+                "descricaoproduto": p._mapping["descricaoproduto"],
+                "quantidade": p._mapping["quantidade"] or 0,
+                "valorunitariovenda": float(p._mapping["valorunitariovenda"] or 0),
+                "valorDesconto": float(p._mapping["valorDesconto"] or 0),
+                "valoracrescimo": float(p._mapping["valoracrescimo"] or 0),
+                "valorTotal": float(p._mapping["valorTotal"] or 0),
+            })
+
+            pedidos_dict[numdoc]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
+            pedidos_dict[numdoc]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
+            pedidos_dict[numdoc]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
+
+        relatorio = list(pedidos_dict.values())
+
     return templates.TemplateResponse(
         "pedido/relatorio_pedido.html",
         {
             "request": request,
             "relatorio": relatorio,
-            "empresa": empresa,
-            "cnpj": cnpj,
             "tipo": tipo,
-            "numerodocumento": numerodocumento,
-            "cliente": cliente,
+            "empresa_nome": nome_empresa,
+            "cliente": "",
             "data_inicio": data_inicio,
             "data_fim": data_fim,
-            "agrupamento": agrupamento
+            "numerodocumento": "",
+            "agrupamento": "",
+            "status": status,
+            "cnpj": cnpj,
+            "token": token,
+            "status_count": status_count
         }
     )
+
