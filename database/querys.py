@@ -277,13 +277,21 @@ def atualizar_senha_usuario(db, usuario, hash):
     dataatual = datetime.now()
     try:
         sql = text("""
-            UPDATE cadusers SET  novasenha = :novasenha, dataregistro = :dataregistro 
-            WHERE situacaoregistro <> 'E'  AND usuario = :usuario       
+            UPDATE cadusers
+            SET senha = :novasenha, novasenha = :novasenha, dataregistro = :dataregistro
+            WHERE situacaoregistro <> 'E' AND usuario = :usuario
         """)
-        print(sql, {"novasenha": hash, "dataregistro": dataatual})
 
-        resultado = db.execute(sql, {"usuario": usuario, "novasenha":hash, "dataregistro" :dataatual }).mappings().all()
-        return resultado
+        resultado = db.execute(sql, {
+            "usuario": usuario,
+            "novasenha": hash,
+            "dataregistro": dataatual
+        })
+
+        db.commit()  # 🔑 garante que a alteração seja persistida
+
+        # retorna True se pelo menos 1 linha foi atualizada
+        return resultado.rowcount > 0
     except Exception as e:
         traceback.print_exc()
         return None

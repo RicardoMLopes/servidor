@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container col-md-8 col-lg-10 mt-5">
+  <h1 class="mb-4 text-center fw-bold text-gradient">Relatório de Pedidos</h1>
+
+  <!-- Filtros -->
+  <div class="card border-0 shadow form-card mb-4">
+    <div class="card-body p-4">
+      <form method="get" action="/pedido-relatorios/">
+        <div class="row g-3">
+          <div class="col-md-3 form-floating">
+            <input type="text" class="form-control" id="empresa" name="empresa" placeholder="Empresa" value="{{ request.query_params.get('empresa')|default('') }}">
+            <label for="empresa"><i class="bi bi-building me-1"></i>Empresa</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="CNPJ" value="{{ request.query_params.get('cnpj')|default('') }}">
+            <label for="cnpj"><i class="bi bi-upc me-1"></i>CNPJ</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <select class="form-select" id="tipo" name="tipo">
+              <option value="analitico" {% if request.query_params.get('tipo') == 'analitico' %}selected{% endif %}>Analítico</option>
+              <option value="sintetico" {% if request.query_params.get('tipo') == 'sintetico' %}selected{% endif %}>Sintético</option>
+            </select>
+            <label for="tipo"><i class="bi bi-card-list me-1"></i>Tipo</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <input type="text" class="form-control" id="cliente" name="cliente" placeholder="Cliente" value="{{ request.query_params.get('cliente')|default('') }}">
+            <label for="cliente"><i class="bi bi-person-badge me-1"></i>Cliente</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ request.query_params.get('data_inicio')|default('') }}">
+            <label for="data_inicio">Data Início</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ request.query_params.get('data_fim')|default('') }}">
+            <label for="data_fim">Data Fim</label>
+          </div>
+          <div class="col-md-3 form-floating">
+            <select class="form-select" id="agrupamento" name="agrupamento">
+              <option value="pedido" {% if request.query_params.get('agrupamento') == 'pedido' %}selected{% endif %}>Pedido</option>
+              <option value="cliente" {% if request.query_params.get('agrupamento') == 'cliente' %}selected{% endif %}>Cliente</option>
+              <option value="vendedor" {% if request.query_params.get('agrupamento') == 'vendedor' %}selected{% endif %}>Vendedor</option>
+            </select>
+            <label for="agrupamento"><i class="bi bi-diagram-3 me-1"></i>Agrupamento</label>
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-gradient w-100 fw-semibold py-2">
+              <i class="bi bi-search me-1"></i>Buscar
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de Resultados -->
+  {% if relatorio %}
+    {% for p in relatorio %}
+      <div class="card border-0 shadow mb-4 form-card">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between mb-2">
+            <h5 class="card-title fw-bold">
+              {% if tipo == 'analitico' %}
+                Pedido: {{ p.cabecalho.numerodocumento }}
+              {% else %}
+                Agrupamento: {{ p.cabecalho.agrupamento }}
+              {% endif %}
+            </h5>
+            <small>Forma de Pagamento: {{ p.forma_pagamento }}</small>
+          </div>
+          <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.nomecliente }}</p>
+          <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }}</p>
+          <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento }}</p>
+
+          {% if tipo == 'analitico' and p.itens %}
+            <div class="table-responsive">
+              <table class="table table-hover table-sm align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>Código</th>
+                    <th>Descrição</th>
+                    <th>Qtd</th>
+                    <th>Valor Unit</th>
+                    <th>Desconto</th>
+                    <th>Acréscimo</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for i in p.itens %}
+                    <tr>
+                      <td>{{ i.codigoproduto }}</td>
+                      <td>{{ i.descricaoproduto }}</td>
+                      <td>{{ i.quantidade|default(0) }}</td>
+                      <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
+                      <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
+                      <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
+                      <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+
+          <div class="mt-3 fw-bold">
+            Totais: Desconto {{ '%.2f' % p.totalizadores.totalDesconto|default(0) }},
+            Acréscimo {{ '%.2f' % p.totalizadores.totalAcrescimo|default(0) }},
+            Total {{ '%.2f' % p.totalizadores.totalGeral|default(0) }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info">Nenhum pedido encontrado com os filtros aplicados.</div>
+  {% endif %}
+</div>
+
+<style>
+.text-gradient {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.form-card {
+  border-radius: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.form-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #0d6efd, #6610f2);
+  border: none;
+  color: #fff;
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+  background: linear-gradient(90deg, #6610f2, #0d6efd);
+  transform: translateY(-2px);
+}
+</style>
+{% endblock %}

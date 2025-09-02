@@ -73,6 +73,7 @@ async def esqueci_senha(request: Request, cnpj: str = Form(...), usuario: str = 
 
         # Gera senha temporária
         nova_senha = secrets.token_urlsafe(8).upper()
+        nova_senha = nova_senha.upper()
         logger.warning(f"Nova senha temporária gerada para {usuario}: {nova_senha}")
         nova_senha_hash = hash_password(nova_senha)
         dataatual = datetime.now()
