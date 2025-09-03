@@ -128,6 +128,18 @@ def processar_imagem(arquivo_origem, arquivo_destino, largura=800, altura=800, q
         # Salvar em JPG com qualidade definida
         img.save(arquivo_destino, "JPEG", quality=qualidade, optimize=True)
 
+def formatar_data_brasileira(data):
+    if isinstance(data, str):
+        try:
+            data = datetime.fromisoformat(data)
+        except ValueError:
+            return data  # se não conseguir converter, retorna como está
+    if isinstance(data, datetime):
+        return data.strftime("%d/%m/%Y %H:%M:%S")
+    return data
+
+def to_float(valor):
+    return float(valor or 0)
 
 templates.env.filters["formata_cnpj"] = formata_cnpj
 

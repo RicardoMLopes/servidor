@@ -8,9 +8,12 @@
   <!-- Cabeçalho -->
   <div class="text-center mb-4">
     <h2 class="fw-bold display-5 text-gradient">Relatório de Pedidos</h2>
-    <p class="text-muted small mb-1">
-      {{ empresa_nome or "Empresa" }}
+    <p class="small mb-1 text-highlight">
+        {{ empresa_nome or "Empresa" }}
     </p>
+
+
+
     <span style="display:none;" id="empresa">{{ cnpj or '' }}</span>
     <span style="display:none;" id="token">{{ token or '' }}</span>
   </div>
@@ -20,9 +23,8 @@
     <h5 class="mb-3 fw-bold text-primary">Filtros de Busca</h5>
     <form method="get" action="/pedido-relatorios/">
       <input type="hidden" name="token" value="{{ token }}">
-
-      <!-- Linha de inputs -->
       <div class="row g-3 align-items-end">
+        <!-- Campos do filtro (igual ao seu original) -->
         <div class="col-md-2 form-floating">
           <input type="text" class="form-control" id="numerodocumento" name="numerodocumento"
                  placeholder="Número do Pedido" value="{% if numerodocumento and numerodocumento != 'None' %}{{ numerodocumento }}{% endif %}">
@@ -48,7 +50,6 @@
         </div>
       </div>
 
-      <!-- Linha de selects e botões -->
       <div class="row g-3 mt-3 align-items-center">
         <div class="col-md-2 form-floating">
           <select class="form-select" id="status" name="status">
@@ -72,7 +73,7 @@
           <a href="/pedido-relatorios/" class="btn btn-outline-secondary fw-semibold py-2">
             <i class="bi bi-x-circle"></i> Limpar
           </a>
-          <button type="button" class="btn btn-outline-primary fw-semibold py-2" onclick="exportToPDF();">
+          <button type="button" class="btn btn-outline-primary fw-semibold py-2" onclick="gerarPDF();">
             <i class="bi bi-file-earmark-pdf"></i> PDF
           </button>
           <button type="button" class="btn btn-outline-success fw-semibold py-2" onclick="exportToExcel();">
@@ -111,7 +112,8 @@
 
               <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
               <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
-              <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento }}</p>
+              <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento_html }}</p>
+
 
               {% if tipo == 'analitico' and p.itens %}
                 <div class="table-responsive">
@@ -144,7 +146,6 @@
                 </div>
               {% endif %}
 
-              <!-- Totais -->
               <div class="mt-3 fw-bold totals">
                 <span class="badge bg-danger">Desconto: {{ '%.2f' % p.totalizadores.totalDesconto|default(0) }}</span>
                 <span class="badge bg-success">Acréscimo: {{ '%.2f' % p.totalizadores.totalAcrescimo|default(0) }}</span>
@@ -162,6 +163,11 @@
   {% endif %}
 
 </div>
+
+<!-- Popula relatorioAtual no JS -->
+<script>
+    window.relatorioAtual = {{ relatorio|default([])|tojson }};
+</script>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -195,10 +201,7 @@
   {% endif %}
 </script>
 
-<!-- SheetJS para Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-
-<!-- jsPDF + html2canvas para PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
@@ -209,93 +212,80 @@ function exportToExcel() {
         alert("Não há dados para exportar.");
         return;
     }
-
-    // Cria uma nova planilha
     const wb = XLSX.utils.book_new();
     const ws_data = [];
-
     tables.forEach((table) => {
         const rows = table.querySelectorAll('tr');
-        rows.forEach((row, rowIndex) => {
+        rows.forEach((row) => {
             const rowData = [];
-            row.querySelectorAll('th, td').forEach(cell => {
-                rowData.push(cell.innerText.trim());
-            });
+            row.querySelectorAll('th, td').forEach(cell => rowData.push(cell.innerText.trim()));
             ws_data.push(rowData);
         });
-        // Linha em branco entre tabelas
         ws_data.push([]);
     });
-
     const ws = XLSX.utils.aoa_to_sheet(ws_data);
     XLSX.utils.book_append_sheet(wb, ws, "RelatorioPedidos");
     XLSX.writeFile(wb, "relatorio_pedidos.xlsx");
 }
 
-function exportToPDF() {
-    const element = document.querySelector('.container'); // toda a área do relatório
-    html2canvas(element, { scale: 2 }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgProps = pdf.getImageProperties(imgData);
-        const imgWidth = pageWidth;
-        const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
-
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-
-        pdf.save('relatorio_pedidos.pdf');
-    });
+function gerarPDF() {
+    if (!window.relatorioAtual || !window.relatorioAtual.length) {
+        alert("Nenhum pedido disponível para gerar PDF!");
+        return;
+    }
+    const tipo = document.getElementById('tipo').value;
+    const payload = {
+        tipo: tipo,
+        relatorio: window.relatorioAtual.map(p => {
+            const cabecalho = { ...p.cabecalho, dataLancamento: new Date(p.cabecalho.dataLancamento).toISOString() };
+            const itens = (p.itens || []).map(i => ({
+                codigoproduto: i.codigoproduto,
+                descricaoproduto: i.descricaoproduto,
+                quantidade: Number(i.quantidade || 0),
+                valorunitariovenda: Number(i.valorunitariovenda || 0),
+                valorDesconto: Number(i.valorDesconto || 0),
+                valoracrescimo: Number(i.valoracrescimo || 0),
+                valorTotal: Number(i.valorTotal || 0),
+                unidadeMedida: i.unidadeMedida || ''
+            }));
+            const totalizadores = {
+                totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
+                totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
+                totalGeral: Number(p.totalizadores?.totalGeral || 0)
+            };
+            return { cabecalho, itens, totalizadores };
+        })
+    };
+    fetch("/pedido-relatorios-pdf/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(res => { if (!res.ok) throw new Error("Falha ao gerar PDF"); return res.blob(); })
+    .then(blob => {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `relatorio_${tipo}.pdf`;
+        link.click();
+    })
+    .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
-
 </script>
 
-<!-- Estilos -->
 <style>
-.text-gradient {
-  background: linear-gradient(90deg, #0d6efd, #6610f2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.text-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.filter-card, .result-card { border-radius: 1rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.filter-card { background-color: #f8f9fa; }
+.filter-card:hover, .result-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+.btn-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); border: none; color: #fff; border-radius: 0.75rem; transition: all 0.3s ease; }
+.btn-gradient:hover { background: linear-gradient(90deg, #6610f2, #0d6efd); transform: translateY(-2px); }
+.totals .badge { font-size: 0.9rem; margin-right: 0.5rem; }
+.text-highlight {
+    color: #2F4F4F;  /* Laranja queimado */
+    font-weight: bold;
 }
-.filter-card, .result-card {
-  border-radius: 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.filter-card {
-  background-color: #f8f9fa; /* cinza bem clarinho */
-}
-.filter-card:hover, .result-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-.btn-gradient {
-  background: linear-gradient(90deg, #0d6efd, #6610f2);
-  border: none;
-  color: #fff;
-  border-radius: 0.75rem;
-  transition: all 0.3s ease;
-}
-.btn-gradient:hover {
-  background: linear-gradient(90deg, #6610f2, #0d6efd);
-  transform: translateY(-2px);
-}
-.totals .badge {
-  font-size: 0.9rem;
-  margin-right: 0.5rem;
-}
+
+
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>

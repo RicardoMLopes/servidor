@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Relatório de Pedidos - {{ tipo|capitalize }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+      color: #ff6f00; /* laranja */
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    h4 {
+      margin: 10px 0 5px 0;
+      color: #444;
+    }
+
+    p {
+      margin: 3px 0;
+      font-size: 12px;
+    }
+
+    .pedido {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px 15px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    th, td {
+      border: 1px solid #aaa;
+      padding: 4px 6px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f5f5f5;
+      font-weight: bold;
+    }
+
+    .totais {
+      background: #fdf3e7;
+      border: 1px solid #f5c07a;
+      padding: 5px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .totais span {
+      display: inline-block;
+      margin-right: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Relatório de Pedidos - {{ tipo|capitalize }}</h2>
+
+  {% for p in relatorio %}
+    <div class="pedido">
+      <h4>Pedido {{ p.cabecalho.numerodocumento }}</h4>
+      <p><b>Cliente: </b> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
+      <p><b>Vendedor: </b> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
+      <p><b>Data: </b> {{ p.cabecalho.dataLancamento }}</p>
+      <p><b>Forma de Pagamento: </b> {{ p.cabecalho.formaPagamento }}</p>
+
+      {% if tipo == "analitico" and p.itens %}
+        <table>
+          <tr>
+            <th>Código</th>
+            <th>Descrição</th>
+            <th>Qtd</th>
+            <th>Unit.</th>
+            <th>Desconto</th>
+            <th>Acréscimo</th>
+            <th>Total</th>
+          </tr>
+          {% for i in p.itens %}
+          <tr>
+            <td>{{ i.codigoproduto }}</td>
+            <td>{{ i.descricaoproduto }}</td>
+            <td>{{ "%.2f"|format(i.quantidade) }}</td>
+            <td>{{ "%.2f"|format(i.valorunitariovenda) }}</td>
+            <td>{{ "%.2f"|format(i.valorDesconto) }}</td>
+            <td>{{ "%.2f"|format(i.valoracrescimo) }}</td>
+            <td>{{ "%.2f"|format(i.valorTotal) }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      {% elif tipo == "sintetico" %}
+        <p><b>Qtd Itens:</b> {{ p.itens|length }}</p>
+        <p><b>Total Produto:</b> {{ "%.2f"|format(p.totalizadores.totalGeral - p.totalizadores.totalDesconto + p.totalizadores.totalAcrescimo) }}</p>
+      {% endif %}
+
+      <div class="totais">
+          <span><b>Desconto:</b> {{ "%.2f"|format(p.totalizadores.totalDesconto) }}</span>
+          <span><b>Acréscimo:</b> {{ "%.2f"|format(p.totalizadores.totalAcrescimo) }}</span>
+          <span><b>Total Pedido:</b> {{ "%.2f"|format(p.totalizadores.totalGeral) }}</span>
+      </div>
+    </div>
+  {% endfor %}
+</body>
+</html>

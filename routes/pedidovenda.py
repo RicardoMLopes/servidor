@@ -1,15 +1,18 @@
+from io import BytesIO
 import logging
-
+import os
+import pdfkit
 from fastapi import APIRouter, Depends, HTTPException, Request
+from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 import hashlib
 import traceback
 from fastapi import Query
 from datetime import datetime
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse
 from database.connection import get_empresa_session, DB_CHAVE
-from function.funtions import gerar_token_cnpj
+from function.funtions import gerar_token_cnpj, formatar_data_brasileira
 from model.dictionary import criar_tabela_cadusers_se_nao_existir
 from model.pedido import colunas_movnota, colunas_movnotaitem, pks_movnotaitem, pks_movnota
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
@@ -18,11 +21,62 @@ from params.alerta import enviar_alerta
 from typing import Optional
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from model.relatorio_pedido_venda import serializar_relatorio
+import shutil
+from decimal import Decimal
 
 
 pedido_router = APIRouter()
+pedido_relatorios_router = APIRouter()
+pedido_relatorios_PDF_router = APIRouter()
+
 templates = Jinja2Templates(directory="templates")
 templates.env.globals['now'] = datetime.now
+
+
+
+
+# Detecta wkhtmltopdf no PATH
+def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None) -> BytesIO:
+    """
+    Gera PDF a partir de dados de relatório.
+
+    :param relatorio: lista de dicionários com os dados do relatório
+    :param tipo: tipo de relatório ("analitico" ou "sintetico")
+    :param template_path: caminho do template Jinja2 (opcional)
+    :return: BytesIO com o PDF gerado
+    """
+    # Detecta wkhtmltopdf no PATH
+    wkhtmltopdf_path = shutil.which("wkhtmltopdf")
+    if not wkhtmltopdf_path:
+        raise RuntimeError("wkhtmltopdf não encontrado no PATH. Instale-o e/ou adicione ao PATH.")
+
+    config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
+
+    # Define caminho padrão do template se não for fornecido
+    if template_path is None:
+        template_dir = os.path.join(os.getcwd(), "templates", "pedido")
+        template_path = os.path.join(template_dir, "relatorio_pedido_pdf.html")
+    else:
+        template_dir = os.path.dirname(template_path)
+
+    # Verifica se o template existe
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f"Template não encontrado: {template_path}")
+
+    # Configura o ambiente Jinja2
+    env = Environment(loader=FileSystemLoader(template_dir))
+    template = env.get_template(os.path.basename(template_path))
+
+    # Renderiza o HTML
+    html_rendered = template.render(tipo=tipo, relatorio=relatorio)
+
+    # Gera PDF
+    pdf_bytes = pdfkit.from_string(html_rendered, False, configuration=config)
+
+    return BytesIO(pdf_bytes)
+
+
 
 @pedido_router.post("")
 async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
@@ -74,8 +128,17 @@ async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
 # ==========================================================================================|
 #                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |
 #===========================================================================================|
+def to_float(valor):
+    return float(valor or 0)
 
-@pedido_router.get("/", response_class=HTMLResponse)
+def to_decimal(valor):
+    if valor is None:
+        return Decimal("0")
+    if isinstance(valor, Decimal):
+        return valor
+    return Decimal(str(valor))  # converte float ou int para Decimal
+
+@pedido_relatorios_router.get("/", response_class=HTMLResponse)
 async def relatorio_pedido_template(
     request: Request,
     empresa: str = Query(None),
@@ -91,7 +154,7 @@ async def relatorio_pedido_template(
 ):
     relatorio = []
 
-    # Gera token a partir do CNPJ se necessário
+    # 🔹 Gera token a partir do CNPJ se necessário
     if not token and cnpj:
         token = gerar_token_cnpj(cnpj, DB_CHAVE)
 
@@ -119,7 +182,6 @@ async def relatorio_pedido_template(
         raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
 
     db = get_empresa_session(nome_banco)
-
     empresa_war = ConsultaEmpresa(db)
     codigo_empresa = int(str(empresa_war[0]).lstrip("0"))
     nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
@@ -150,7 +212,6 @@ async def relatorio_pedido_template(
         filtros.append("P.agrupamento LIKE :agrupamento")
         parametros["agrupamento"] = f"%{agrupamento}%"
 
-    # Ajuste de status para evitar problemas com espaços e maiúsculas/minúsculas
     status = status.strip().lower() if status else "todos"
     if status != "todos":
         if status == "pendente":
@@ -201,7 +262,6 @@ async def relatorio_pedido_template(
     logging.warning("Parâmetros: %s", parametros)
 
     pedidos = db.execute(text(sql), parametros).fetchall()
-
     status_count = {"P": 0, "R": 0}
 
     if tipo == "sintetico":
@@ -212,11 +272,21 @@ async def relatorio_pedido_template(
 
             cliente_key = p._mapping["nomecliente"]
             if cliente_key not in pedidos_dict_sintetico:
+                # 🔹 Adiciona data e forma de pagamento formatada
+                data_lancamento_html = (
+                    p._mapping["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
+                    if isinstance(p._mapping.get("dataLancamento"), datetime)
+                    else p._mapping.get("dataLancamento")
+                )
+                forma_pagamento = p._mapping.get("formapagamento") or ""
+
                 pedidos_dict_sintetico[cliente_key] = {
                     "cabecalho": {
                         "nomecliente": cliente_key,
                         "codigovendedor": p._mapping["codigovendedor"],
                         "nomevendedor": p._mapping["nomevendedor"],
+                        "dataLancamento_html": data_lancamento_html,
+                        "formapagamento": forma_pagamento,
                     },
                     "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0,"totalPedidos":0}
                 }
@@ -237,8 +307,19 @@ async def relatorio_pedido_template(
                 status_count[status_doc] += 1
 
             if numdoc not in pedidos_dict:
+                cabecalho = dict(p._mapping)
+                # 🔹 Mantém datetime original para PDF
+                if isinstance(cabecalho.get("dataLancamento"), (datetime, datetime)):
+                    cabecalho["dataLancamento_html"] = cabecalho["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
+                else:
+                    cabecalho["dataLancamento_html"] = cabecalho.get("dataLancamento", "")
+                # 🔹 Converte Decimals para float
+                for key in ["valorunitariovenda", "valorDesconto", "valoracrescimo", "valorTotal"]:
+                    if key in cabecalho and isinstance(cabecalho[key], Decimal):
+                        cabecalho[key] = float(cabecalho[key])
+
                 pedidos_dict[numdoc] = {
-                    "cabecalho": dict(p._mapping),
+                    "cabecalho": cabecalho,
                     "itens": [],
                     "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0},
                 }
@@ -259,11 +340,14 @@ async def relatorio_pedido_template(
 
         relatorio = list(pedidos_dict.values())
 
+    # 🔹 Converte datas e Decimals antes de passar pro Jinja
+    relatorio_serializavel = make_json_serializable(relatorio)
+
     return templates.TemplateResponse(
         "pedido/relatorio_pedido.html",
         {
             "request": request,
-            "relatorio": relatorio,
+            "relatorio": relatorio_serializavel,
             "tipo": tipo,
             "empresa_nome": nome_empresa,
             "cliente": "",
@@ -278,3 +362,80 @@ async def relatorio_pedido_template(
         }
     )
 
+
+# ==========================================================================================|
+#                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |
+#===========================================================================================|
+
+
+# Função utilitária para serializar datetime/Decimal
+def make_json_serializable(obj):
+    if isinstance(obj, dict):
+        return {k: make_json_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [make_json_serializable(v) for v in obj]
+    elif isinstance(obj, datetime):
+        return obj.isoformat()
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    elif obj is None:
+        return None
+    else:
+        return obj
+
+
+@pedido_relatorios_PDF_router.post("/")
+async def relatorio_pedido_pdf(request: Request, payload: dict):
+    """
+    Recebe JSON do front-end e retorna PDF gerado do template HTML.
+    """
+    tipo = payload.get("tipo", "analitico")
+    relatorio = payload.get("relatorio", [])
+
+    if not relatorio:
+        return {"erro": "Nenhum dado de relatório fornecido."}
+
+    # Torna os dados serializáveis caso use Decimal ou datas
+    relatorio_serializavel = make_json_serializable(relatorio)
+
+    # 🔹 Prepara os dados para PDF (formata datas, forma de pagamento, etc.)
+    relatorio_formatado = preparar_relatorio_para_pdf(relatorio_serializavel)
+
+    # Gera PDF usando a função reutilizável
+    pdf_io = gerar_pdf_relatorio(relatorio_formatado, tipo)
+
+    # Retorna PDF como attachment
+    return StreamingResponse(
+        pdf_io,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=relatorio_{tipo}.pdf"}
+    )
+
+
+
+
+def preparar_relatorio_para_pdf(relatorio):
+    relatorio_formatado = []
+
+    for p in relatorio:
+        # Formata a data
+        data_br = ""
+        if p.get("cabecalho", {}).get("dataLancamento"):
+            dt = datetime.fromisoformat(p["cabecalho"]["dataLancamento"].replace("Z", "+00:00"))
+            data_br = dt.strftime("%d/%m/%Y %H:%M:%S")
+
+        # Forma de pagamento
+        forma_pagamento = ""
+        if p.get("cabecalho"):
+            codigo = p["cabecalho"].get("codigocondPagamento", "")
+            descricao = p["cabecalho"].get("formapagamento", "")
+            forma_pagamento = f"{codigo} - {descricao}" if codigo else descricao
+
+        # Copia o restante dos dados
+        item_formatado = p.copy()
+        item_formatado["cabecalho"]["dataLancamento"] = data_br
+        item_formatado["cabecalho"]["formaPagamento"] = forma_pagamento
+
+        relatorio_formatado.append(item_formatado)
+
+    return relatorio_formatado
