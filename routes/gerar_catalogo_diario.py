@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from database.dependencies import get_controle_session, get_empresa_session, todos_nome_banco
-from database.querys import ConsultaEmpresa, ConsultaProduto, ConsultaParametroporempresa, AtualizarParametro
+from database.querys import ConsultaEmpresa, ConsultaProduto, ConsultaParametroporempresa, AtualizarParametro, \
+    ConsultaProdutoCatalogo
 from routes.gerar_catalogo import gerar_catalogo_pdf
 import os
 from params.alerta import enviar_alerta
@@ -44,7 +45,7 @@ async def gerar_catalogo_diario():
                     continue
 
                 dados_empresa = ConsultaEmpresa(empresa_db)
-                produtos = ConsultaProduto(empresa_db)
+                produtos = ConsultaProdutoCatalogo(empresa_db)
 
                 if not dados_empresa or not produtos:
                     log_msg(f"⚠️ Dados insuficientes para {nome_empresa}")

@@ -10,9 +10,9 @@ import hashlib
 import traceback
 from fastapi import Query
 from datetime import datetime
-from starlette.responses import JSONResponse, StreamingResponse
+from starlette.responses import  StreamingResponse
 from database.connection import get_empresa_session, DB_CHAVE
-from function.funtions import gerar_token_cnpj, formatar_data_brasileira
+from function.funtions import gerar_token_cnpj
 from model.dictionary import criar_tabela_cadusers_se_nao_existir
 from model.pedido import colunas_movnota, colunas_movnotaitem, pks_movnotaitem, pks_movnota
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
@@ -21,7 +21,6 @@ from params.alerta import enviar_alerta
 from typing import Optional
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from model.relatorio_pedido_venda import serializar_relatorio
 import shutil
 from decimal import Decimal
 
@@ -258,21 +257,15 @@ async def relatorio_pedido_template(
         WHERE {where_clause}
         ORDER BY A.dataLancamento, A.numerodocumento
     """
-    logging.warning("SQL executado: %s", sql)
-    logging.warning("Parâmetros: %s", parametros)
 
     pedidos = db.execute(text(sql), parametros).fetchall()
-    status_count = {"P": 0, "R": 0}
 
     if tipo == "sintetico":
         pedidos_dict_sintetico = {}
         for p in pedidos:
-            if p._mapping["status"] in status_count:
-                status_count[p._mapping["status"]] += 1
-
+            status_val = p._mapping["status"]
             cliente_key = p._mapping["nomecliente"]
             if cliente_key not in pedidos_dict_sintetico:
-                # 🔹 Adiciona data e forma de pagamento formatada
                 data_lancamento_html = (
                     p._mapping["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
                     if isinstance(p._mapping.get("dataLancamento"), datetime)
@@ -287,13 +280,15 @@ async def relatorio_pedido_template(
                         "nomevendedor": p._mapping["nomevendedor"],
                         "dataLancamento_html": data_lancamento_html,
                         "formapagamento": forma_pagamento,
+                        "status": status_val,  # 🔹 incluído para usar depois no gráfico
                     },
-                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0,"totalPedidos":0}
+                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0,"totalPedidos":0, "subtotal": 0.0}
                 }
-
+            pedidos_dict_sintetico[cliente_key]["totalizadores"]["subtotal"] += (float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0)))
             pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
             pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
             pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
+
             pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalPedidos"] += 1
 
         relatorio = list(pedidos_dict_sintetico.values())
@@ -301,19 +296,13 @@ async def relatorio_pedido_template(
         pedidos_dict = {}
         for p in pedidos:
             numdoc = p._mapping["numerodocumento"]
-            status_doc = p._mapping["status"]
-
-            if status_doc in status_count:
-                status_count[status_doc] += 1
-
+            status_val = p._mapping["status"]
             if numdoc not in pedidos_dict:
                 cabecalho = dict(p._mapping)
-                # 🔹 Mantém datetime original para PDF
                 if isinstance(cabecalho.get("dataLancamento"), (datetime, datetime)):
                     cabecalho["dataLancamento_html"] = cabecalho["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
                 else:
                     cabecalho["dataLancamento_html"] = cabecalho.get("dataLancamento", "")
-                # 🔹 Converte Decimals para float
                 for key in ["valorunitariovenda", "valorDesconto", "valoracrescimo", "valorTotal"]:
                     if key in cabecalho and isinstance(cabecalho[key], Decimal):
                         cabecalho[key] = float(cabecalho[key])
@@ -321,7 +310,7 @@ async def relatorio_pedido_template(
                 pedidos_dict[numdoc] = {
                     "cabecalho": cabecalho,
                     "itens": [],
-                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0},
+                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0, "subtotal":0.0},
                 }
 
             pedidos_dict[numdoc]["itens"].append({
@@ -337,11 +326,22 @@ async def relatorio_pedido_template(
             pedidos_dict[numdoc]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
             pedidos_dict[numdoc]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
             pedidos_dict[numdoc]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
+            pedidos_dict[numdoc]["totalizadores"]["subtotal"] += (float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0)))
 
         relatorio = list(pedidos_dict.values())
 
     # 🔹 Converte datas e Decimals antes de passar pro Jinja
     relatorio_serializavel = make_json_serializable(relatorio)
+
+    # 🔹 Novo cálculo de status_count baseado no relatório final
+    status_count = {"P": 0, "R": 0}
+    for pedido in relatorio_serializavel:
+        status_val = pedido.get("cabecalho", {}).get("status")
+        if status_val in status_count:
+            status_count[status_val] += 1
+
+    # logging.warning(f"Pedidos exibidos no relatório: {len(relatorio_serializavel)}")
+    # logging.warning(f"Status count atualizado: {status_count}")
 
     return templates.TemplateResponse(
         "pedido/relatorio_pedido.html",
@@ -358,10 +358,9 @@ async def relatorio_pedido_template(
             "status": status,
             "cnpj": cnpj,
             "token": token,
-            "status_count": status_count
+            "status_count": status_count  # ✅ agora correto
         }
     )
-
 
 # ==========================================================================================|
 #                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |

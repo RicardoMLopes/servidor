@@ -40,6 +40,7 @@ def serializar_relatorio(relatorio):
             },
             "itens": itens_serializados,
             "totalizadores": {
+                "subtotal": float(getattr(totals, "subtotal", 0) or 0),
                 "totalDesconto": float(getattr(totals, "totalDesconto", 0) or 0),
                 "totalAcrescimo": float(getattr(totals, "totalAcrescimo", 0) or 0),
                 "totalGeral": float(getattr(totals, "totalGeral", 0) or 0)

@@ -20,6 +20,23 @@ def ConsultaEmpresa(db):
     return resultado
 
 
+def ConsultaProdutoCatalogo(db):
+    """
+    Consulta produtos na tabela cadproduto.
+
+    """
+    try:
+        sql = "SELECT * FROM cadproduto WHERE situacaoregistro <> 'E' "
+
+
+
+        resultado = db.execute(text(sql)).fetchall()
+       # logger.warning("Resultado: %s", resultado)
+        return resultado
+
+    except Exception as e:
+        traceback.print_exc()
+        return []
 
 def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
     """

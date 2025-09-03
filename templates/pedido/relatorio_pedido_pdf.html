@@ -107,9 +107,18 @@
       {% endif %}
 
       <div class="totais">
-          <span><b>Desconto:</b> {{ "%.2f"|format(p.totalizadores.totalDesconto) }}</span>
-          <span><b>Acréscimo:</b> {{ "%.2f"|format(p.totalizadores.totalAcrescimo) }}</span>
-          <span><b>Total Pedido:</b> {{ "%.2f"|format(p.totalizadores.totalGeral) }}</span>
+          <span>
+            SubTotal: {{ "{:,.2f}".format(p.totalizadores.subtotal or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+          </span>
+          <span>
+            Desconto: {{ "{:,.2f}".format(p.totalizadores.totalDesconto or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+          </span>
+          <span>
+            Acréscimo: {{ "{:,.2f}".format(p.totalizadores.totalAcrescimo or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+          </span>
+          <span>
+            Total: {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+          </span>
       </div>
     </div>
   {% endfor %}

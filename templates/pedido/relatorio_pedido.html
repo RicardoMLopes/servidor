@@ -66,20 +66,31 @@
           </select>
           <label for="tipo"><i class="bi bi-list-task me-1"></i>Tipo</label>
         </div>
-        <div class="col-md-8 d-flex gap-2 flex-wrap justify-content-end">
-          <button type="submit" class="btn btn-gradient fw-semibold py-2">
-            <i class="bi bi-search"></i> Buscar
-          </button>
-          <a href="/pedido-relatorios/" class="btn btn-outline-secondary fw-semibold py-2">
-            <i class="bi bi-x-circle"></i> Limpar
-          </a>
-          <button type="button" class="btn btn-outline-primary fw-semibold py-2" onclick="gerarPDF();">
-            <i class="bi bi-file-earmark-pdf"></i> PDF
-          </button>
-          <button type="button" class="btn btn-outline-success fw-semibold py-2" onclick="exportToExcel();">
-            <i class="bi bi-file-earmark-excel"></i> Excel
-          </button>
+        <div class="col-md-8">
+          <div class="row g-2 justify-content-end">
+            <div class="col-6 col-md-auto">
+              <button type="submit" class="btn btn-gradient fw-semibold py-2 w-100">
+                <i class="bi bi-search"></i> Buscar
+              </button>
+            </div>
+            <div class="col-6 col-md-auto">
+              <a href="/pedido-relatorios/" class="btn btn-secondary fw-semibold py-2 w-100">
+                <i class="bi bi-x-circle"></i> Limpar
+              </a>
+            </div>
+            <div class="col-6 col-md-auto">
+              <button type="button" class="btn btn-primary fw-semibold py-2 w-100" onclick="gerarPDF();">
+                <i class="bi bi-file-earmark-pdf"></i> PDF
+              </button>
+            </div>
+            <div class="col-6 col-md-auto">
+              <button type="button" class="btn btn-success fw-semibold py-2 w-100" onclick="exportToExcel();">
+                <i class="bi bi-file-earmark-excel"></i> Excel
+              </button>
+            </div>
+          </div>
         </div>
+
       </div>
     </form>
   </div>
@@ -147,10 +158,20 @@
               {% endif %}
 
               <div class="mt-3 fw-bold totals">
-                <span class="badge bg-danger">Desconto: {{ '%.2f' % p.totalizadores.totalDesconto|default(0) }}</span>
-                <span class="badge bg-success">Acréscimo: {{ '%.2f' % p.totalizadores.totalAcrescimo|default(0) }}</span>
-                <span class="badge bg-primary">Total: {{ '%.2f' % p.totalizadores.totalGeral|default(0) }}</span>
+                <span class="badge bg-warning text-dark">
+                  SubTotal: {{ "{:,.2f}".format(p.totalizadores.subtotal or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </span>
+                <span class="badge bg-danger">
+                  Desconto: {{ "{:,.2f}".format(p.totalizadores.totalDesconto or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </span>
+                <span class="badge bg-success">
+                  Acréscimo: {{ "{:,.2f}".format(p.totalizadores.totalAcrescimo or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </span>
+                <span class="badge bg-primary">
+                  Total: {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </span>
               </div>
+
             </div>
           </div>
         </div>
@@ -249,6 +270,7 @@ function gerarPDF() {
                 unidadeMedida: i.unidadeMedida || ''
             }));
             const totalizadores = {
+                subtotal: Number(p.totalizadores?.subtotal || 0),
                 totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
                 totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
                 totalGeral: Number(p.totalizadores?.totalGeral || 0)
