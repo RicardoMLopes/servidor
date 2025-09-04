@@ -202,6 +202,7 @@ async def relatorio_pedido_template(
         parametros["cliente"] = cliente
         parametros["cliente_like"] = f"%{cliente}%"
 
+
     if data_inicio and data_fim and data_inicio.strip() and data_fim.strip():
         filtros.append("A.dataLancamento BETWEEN :data_inicio AND :data_fim")
         parametros["data_inicio"] = f"{data_inicio} 00:00:00"

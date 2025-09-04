@@ -40,14 +40,18 @@
                  placeholder="Agrupamento" value="{% if agrupamento and agrupamento != 'None' %}{{ agrupamento }}{% endif %}">
           <label for="agrupamento"><i class="bi bi-tags me-1"></i>Agrupamento</label>
         </div>
-        <div class="col-md-2 form-floating">
-          <input type="date" class="form-control" id="data_inicio" name="data_inicio" value="{{ data_inicio|default('') }}">
+       <div class="col-md-2 form-floating">
+          <input type="date" class="form-control" id="data_inicio" name="data_inicio"
+                 value="{{ data_inicio }}">
           <label for="data_inicio"><i class="bi bi-calendar2-event me-1"></i>Data Início</label>
         </div>
         <div class="col-md-2 form-floating">
-          <input type="date" class="form-control" id="data_fim" name="data_fim" value="{{ data_fim|default('') }}">
+          <input type="date" class="form-control" id="data_fim" name="data_fim"
+                 value="{{ data_fim }}">
           <label for="data_fim"><i class="bi bi-calendar2-event me-1"></i>Data Fim</label>
         </div>
+
+
       </div>
 
       <div class="row g-3 mt-3 align-items-center">
@@ -293,6 +297,22 @@ function gerarPDF() {
     .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const hoje = new Date();
+    const yyyy = hoje.getFullYear();
+    const mm = String(hoje.getMonth() + 1).padStart(2, '0'); // meses começam do 0
+    const dd = String(hoje.getDate()).padStart(2, '0');
+    const dataLocal = `${yyyy}-${mm}-${dd}`; // formato YYYY-MM-DD para input date
+
+    const dataInicioInput = document.getElementById('data_inicio');
+    const dataFimInput = document.getElementById('data_fim');
+
+    if (!dataInicioInput.value) dataInicioInput.value = dataLocal;
+    if (!dataFimInput.value) dataFimInput.value = dataLocal;
+});
+</script>
+
 
 <style>
 .text-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
