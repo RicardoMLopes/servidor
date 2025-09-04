@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional
 import pytz
@@ -22,6 +23,7 @@ async def listar_produtos(
     ),
     db: Session = Depends(get_empresa_db)
 ):
+   # logging.warning("Exibir data: %s", last_sync)
     try:
         filtro_data: Optional[datetime] = None
         if last_sync:

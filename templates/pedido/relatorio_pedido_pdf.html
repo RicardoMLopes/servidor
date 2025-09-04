@@ -1,126 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Relatório de Pedidos - {{ tipo|capitalize }}</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      color: #333;
-    }
-
-    h2 {
-      text-align: center;
-      color: #ff6f00; /* laranja */
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
-
-    h4 {
-      margin: 10px 0 5px 0;
-      color: #444;
-    }
-
-    p {
-      margin: 3px 0;
-      font-size: 12px;
-    }
-
-    .pedido {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px 15px;
-      margin-bottom: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 8px;
-      font-size: 12px;
-    }
-
-    th, td {
-      border: 1px solid #aaa;
-      padding: 4px 6px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-    }
-
-    .totais {
-      background: #fdf3e7;
-      border: 1px solid #f5c07a;
-      padding: 5px 10px;
-      border-radius: 6px;
-      margin-top: 8px;
-      font-size: 12px;
-    }
-
-    .totais span {
-      display: inline-block;
-      margin-right: 12px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Relatório de Pedidos - {{ tipo|capitalize }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+        h2 { text-align: center; color: #0d6efd; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #333; padding: 5px; text-align: left; font-size: 12px; }
+        th { background-color: #f0f0f0; }
+        .totals { margin-top: 15px; font-weight: bold; }
+        .totals span { margin-right: 15px; }
+        .badge { padding: 2px 6px; border-radius: 3px; }
+        .bg-warning { background-color: #ffc107; color: #000; }
+        .bg-danger { background-color: #dc3545; color: #fff; }
+        .bg-success { background-color: #198754; color: #fff; }
+        .bg-primary { background-color: #0d6efd; color: #fff; }
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 10px; }
+        .mt-2 { margin-top: 10px; }
+    </style>
 </head>
 <body>
-  <h2>Relatório de Pedidos - {{ tipo|capitalize }}</h2>
 
-  {% for p in relatorio %}
+<h2>Relatório de Pedidos - {{ tipo|capitalize }}</h2>
+
+{% for p in relatorio %}
     <div class="pedido">
-      <h4>Pedido {{ p.cabecalho.numerodocumento }}</h4>
-      <p><b>Cliente: </b> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
-      <p><b>Vendedor: </b> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
-      <p><b>Data: </b> {{ p.cabecalho.dataLancamento }}</p>
-      <p><b>Forma de Pagamento: </b> {{ p.cabecalho.formaPagamento }}</p>
+        <p class="mb-2"><strong>Pedido:</strong> {{ p.cabecalho.numerodocumento }}</p>
+        <p class="mb-2"><strong>Cliente:</strong> {{ p.cabecalho.nomecliente }} ({{ p.cabecalho.codigocliente }})</p>
+        <p class="mb-2"><strong>Vendedor:</strong> {{ p.cabecalho.nomevendedor }} ({{ p.cabecalho.codigovendedor }})</p>
+        <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento }}</p>
+        <p class="mb-2"><strong>Forma de Pagamento:</strong> {{ p.cabecalho.formapagamento }}</p>
 
-      {% if tipo == "analitico" and p.itens %}
-        <table>
-          <tr>
-            <th>Código</th>
-            <th>Descrição</th>
-            <th>Qtd</th>
-            <th>Unit.</th>
-            <th>Desconto</th>
-            <th>Acréscimo</th>
-            <th>Total</th>
-          </tr>
-          {% for i in p.itens %}
-          <tr>
-            <td>{{ i.codigoproduto }}</td>
-            <td>{{ i.descricaoproduto }}</td>
-            <td>{{ "%.2f"|format(i.quantidade) }}</td>
-            <td>{{ "%.2f"|format(i.valorunitariovenda) }}</td>
-            <td>{{ "%.2f"|format(i.valorDesconto) }}</td>
-            <td>{{ "%.2f"|format(i.valoracrescimo) }}</td>
-            <td>{{ "%.2f"|format(i.valorTotal) }}</td>
-          </tr>
-          {% endfor %}
-        </table>
-      {% elif tipo == "sintetico" %}
-        <p><b>Qtd Itens:</b> {{ p.itens|length }}</p>
-        <p><b>Total Produto:</b> {{ "%.2f"|format(p.totalizadores.totalGeral - p.totalizadores.totalDesconto + p.totalizadores.totalAcrescimo) }}</p>
-      {% endif %}
+        {% if tipo == 'analitico' and p.itens %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descrição</th>
+                        <th>Qtd</th>
+                        <th>Valor Unit</th>
+                        <th>Desconto</th>
+                        <th>Acréscimo</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in p.itens %}
+                        <tr>
+                            <td>{{ i.codigoproduto }}</td>
+                            <td>{{ i.descricaoproduto }}</td>
+                            <td>{{ i.quantidade|default(0) }}</td>
+                            <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
+                            <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
+                            <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
+                            <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif tipo == 'sintetico' %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pedido</th>
+                        <th>Cliente</th>
+                        <th>Qtd Itens</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ p.cabecalho.numerodocumento }}</td>
+                        <td>{{ p.cabecalho.nomecliente }}</td>
+                        <td>{{ p.totalizadores.quantidadeItens }}</td>
+                        <td>{{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
 
-      <div class="totais">
-          <span>
-            SubTotal: {{ "{:,.2f}".format(p.totalizadores.subtotal or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-          </span>
-          <span>
-            Desconto: {{ "{:,.2f}".format(p.totalizadores.totalDesconto or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-          </span>
-          <span>
-            Acréscimo: {{ "{:,.2f}".format(p.totalizadores.totalAcrescimo or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-          </span>
-          <span>
-            Total: {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-          </span>
-      </div>
+        <div class="totals mt-2">
+            <span class="badge bg-warning">SubTotal: {{ "{:,.2f}".format(p.totalizadores.subtotal or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</span>
+            <span class="badge bg-danger">Desconto: {{ "{:,.2f}".format(p.totalizadores.totalDesconto or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</span>
+            <span class="badge bg-success">Acréscimo: {{ "{:,.2f}".format(p.totalizadores.totalAcrescimo or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</span>
+            <span class="badge bg-primary">Total: {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</span>
+        </div>
+
+        <hr style="margin:20px 0;">
     </div>
-  {% endfor %}
+{% endfor %}
+
+{% if not relatorio %}
+    <p class="text-center">Nenhum pedido disponível para gerar PDF.</p>
+{% endif %}
+
 </body>
 </html>

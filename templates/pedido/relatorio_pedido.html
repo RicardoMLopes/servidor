@@ -262,26 +262,34 @@ function gerarPDF() {
     const payload = {
         tipo: tipo,
         relatorio: window.relatorioAtual.map(p => {
-            const cabecalho = { ...p.cabecalho, dataLancamento: new Date(p.cabecalho.dataLancamento).toISOString() };
-            const itens = (p.itens || []).map(i => ({
-                codigoproduto: i.codigoproduto,
-                descricaoproduto: i.descricaoproduto,
-                quantidade: Number(i.quantidade || 0),
-                valorunitariovenda: Number(i.valorunitariovenda || 0),
-                valorDesconto: Number(i.valorDesconto || 0),
-                valoracrescimo: Number(i.valoracrescimo || 0),
-                valorTotal: Number(i.valorTotal || 0),
-                unidadeMedida: i.unidadeMedida || ''
-            }));
+            let itens = [];
+            if (tipo === 'analitico') {
+                itens = (p.itens || []).map(i => ({
+                    codigoproduto: i.codigoproduto,
+                    descricaoproduto: i.descricaoproduto,
+                    quantidade: Number(i.quantidade || 0),
+                    valorunitariovenda: Number(i.valorunitariovenda || 0),
+                    valorDesconto: Number(i.valorDesconto || 0),
+                    valoracrescimo: Number(i.valoracrescimo || 0),
+                    valorTotal: Number(i.valorTotal || 0),
+                    unidadeMedida: i.unidadeMedida || ''
+                }));
+            } else if (tipo === 'sintetico') {
+                // Para sintético, enviamos apenas um resumo
+                itens = [{ resumo: true }];
+            }
+
             const totalizadores = {
                 subtotal: Number(p.totalizadores?.subtotal || 0),
                 totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
                 totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
-                totalGeral: Number(p.totalizadores?.totalGeral || 0)
+                totalGeral: Number(p.totalizadores?.totalGeral || 0),
+                quantidadeItens: (p.itens || []).length
             };
-            return { cabecalho, itens, totalizadores };
+            return { cabecalho: p.cabecalho, itens, totalizadores };
         })
     };
+
     fetch("/pedido-relatorios-pdf/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -296,6 +304,8 @@ function gerarPDF() {
     })
     .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
+
+
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {

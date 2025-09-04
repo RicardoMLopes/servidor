@@ -59,7 +59,7 @@ async def gerar_catalogo_pdf(dados, db):
     os.makedirs(pasta_temp, exist_ok=True)
 
     pdf_path = os.path.join(pasta_destino, "catalogo.pdf")
-    pdf = FPDF()
+    pdf = CatalogoPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
 
@@ -94,7 +94,7 @@ async def gerar_catalogo_pdf(dados, db):
         if codigo not in produtos_unicos:
             produtos_unicos[codigo] = produto
 
-    produtos_para_pdf = list(produtos_unicos.values())[:100]
+    produtos_para_pdf = list(produtos_unicos.values())
 
     largura_imagem = 25
     altura_imagem = 25
@@ -160,3 +160,26 @@ async def gerar_catalogo_pdf(dados, db):
 
     pdf.output(pdf_path)
     print(f"✅ PDF gerado com sucesso: {os.path.abspath(pdf_path)}")
+
+
+class CatalogoPDF(FPDF):
+    def footer(self):
+        # Posição 15 mm da borda inferior
+        self.set_y(-15)
+
+        # Linha separadora
+        self.set_draw_color(200, 200, 200)
+        self.set_line_width(0.3)
+        self.line(10, self.get_y(), 200, self.get_y())
+
+        # Fonte menor
+        self.set_font("Arial", "I", 8)
+        self.set_text_color(100, 100, 100)
+
+        # Texto centralizado
+        self.cell(
+            0,
+            10,
+            "Data Access Informática Ltda - Telefone: (31) 3771-8273 - https://dataaccess.inf.br/",
+            align="C",
+        )
