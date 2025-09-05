@@ -1,5 +1,5 @@
 from .empresa import empresa_router
-from .produto import products_router
+from .produto import products_router, list_products_router
 from .sicronizeimage import imagem_router
 from .parametro import parameter_router
 from .vendedor import vendedor_router
@@ -18,4 +18,5 @@ __all__ = [
             "cliente_router", "condicao_pagamento_router", "cadusers_router", "sincronizaruser_router",
             "alterarsenha_router", "recuperaruser_router", "pedido_router", "sincronizar_pedidos",
             "email_router", "home_router", "pedido_relatorios_router", "pedido_relatorios_PDF_router",
+            "list_products_router",
            ]

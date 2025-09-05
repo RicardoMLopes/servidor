@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+
+  <h2 class="mb-4 text-center">{{ empresa_nome or "Produtos" }}</h2>
+
+  <!-- Formulário de Filtro -->
+  <form method="get" class="mb-4">
+      <!-- mantém token/cnpj/empresa ao submeter -->
+      <input type="hidden" name="empresa" value="{{ empresa_nome }}">
+      <input type="hidden" name="cnpj" value="{{ empresa_cnpj }}">
+      <input type="hidden" name="token" value="{{ empresa_token }}">
+
+      <div class="row g-2">
+          <div class="col-md-5">
+              <input type="text" name="descricao" class="form-control" placeholder="Filtrar por descrição"
+                     value="{{ request.query_params.get('descricao', '') }}">
+          </div>
+          <div class="col-md-5">
+              <input type="text" name="agrupamento" class="form-control" placeholder="Filtrar por agrupamento"
+                     value="{{ request.query_params.get('agrupamento', '') }}">
+          </div>
+          <div class="col-md-2">
+              <button type="submit" class="btn btn-gradient w-100">Filtrar</button>
+          </div>
+      </div>
+  </form>
+
+  <!-- Grid de Produtos -->
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for p in produtos %}
+      <div class="col">
+          <div class="card h-100 shadow-sm border-0 rounded-3">
+              <div class="text-center p-3" style="height: 220px;">
+                  <img src="{{ p.imagem_url }}"
+                       alt="{{ p.descricao }}"
+                       class="img-fluid rounded"
+                       style="max-height: 200px; object-fit: contain;">
+              </div>
+              <div class="card-body">
+                  <h5 class="card-title text-truncate">{{ p.descricao }}</h5>
+                  <p class="card-text mb-1"><strong>Código:</strong> {{ p.codigo }}</p>
+                  <p class="card-text mb-1"><strong>Agrupamento:</strong> {{ p.agrupamento or "-" }}</p>
+                  <p class="card-text text-success fw-bold">{{ p.precovenda_str }}</p>
+              </div>
+          </div>
+      </div>
+      {% endfor %}
+  </div>
+
+  {% if not produtos %}
+  <div class="alert alert-warning text-center mt-4">
+      Nenhum produto encontrado com os filtros aplicados.
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

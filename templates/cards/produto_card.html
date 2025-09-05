@@ -1,0 +1,78 @@
+<div class="col-md-4">
+    <div class="card shadow-lg border-0 h-100 rounded-4">
+        <div class="card-body">
+            <div>
+                <h5 class="card-title fw-bold text-primary">
+                    <i class="bi bi-box-seam me-2"></i> Lista de Produtos
+                </h5>
+                <p class="card-text text-muted">
+                    Visualize todos os produtos cadastrados, com código, descrição, preço e imagem. Use os filtros para pesquisar por descrição ou agrupamento.
+                </p>
+            </div>
+            <a href="/listar-produtos/?empresa={{ empresa_nome }}&cnpj={{ empresa_cnpj }}&token={{ empresa_token }}"
+               class="btn btn-primary fw-bold mt-3">
+                Ver Produtos
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+</style>
+
+<script>
+async function carregarProdutos(button) {
+    const cardBody = button.closest('.card-body');
+    const listaDiv = cardBody.querySelector('.produtos-lista');
+
+    // Toggle mostrar/ocultar
+    if (listaDiv.style.display === 'block') {
+        listaDiv.style.display = 'none';
+        button.textContent = 'Mostrar Produtos';
+        return;
+    }
+
+    // Requisição para a rota JSON
+    try {
+       const res = await fetch("/listar-produtos/"); // rota correta agora
+        if (!res.ok) throw new Error("Falha ao carregar produtos");
+
+        const data = await res.json();
+        const produtos = data.produtos || [];
+
+        // Monta a tabela
+        let html = `<table class="table table-sm table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descrição</th>
+                                <th>Preço</th>
+                                <th>Imagem</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+        produtos.forEach(p => {
+            html += `<tr>
+                        <td>${p.codigo}</td>
+                        <td>${p.descricao}</td>
+                        <td>${p.precovenda?.toFixed(2) || 0}</td>
+                        <td>
+                            ${p.imagem_url ? `<img src="${p.imagem_url}" width="50">` : 'Sem imagem'}
+                            <button class="btn btn-sm btn-outline-secondary ms-1">Adicionar</button>
+                        </td>
+                     </tr>`;
+        });
+        html += `</tbody></table>`;
+
+        listaDiv.innerHTML = html;
+        listaDiv.style.display = 'block';
+        button.textContent = 'Ocultar Produtos';
+    } catch (err) {
+        alert("Erro: " + err.message);
+    }
+}
+</script>
