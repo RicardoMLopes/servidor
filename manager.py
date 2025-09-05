@@ -6,7 +6,7 @@ import asyncio
 # from starlette.responses import HTMLResponse
 # from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router, email_router, \
-    home_router, list_products_router
+    home_router, list_products_router, upload_imagem_produtos_router
 from routes.cadusers import cadusers_router
 from routes.pedidovenda import pedido_relatorios_router, pedido_router, pedido_relatorios_PDF_router
 from routes.recuperar_password import recuperaruser_router
@@ -60,6 +60,7 @@ app.include_router(empresa_router, prefix="/empresa", tags=["Empresa"])
 app.include_router(products_router, prefix="/produtos", tags=["Produtos"])
 app.include_router(list_products_router, prefix="/listar-produtos", tags=["Produtos"])
 app.include_router(products_router, prefix="/insert-produtos", tags=["Produtos"])
+app.include_router(upload_imagem_produtos_router, prefix="/upload-imagem", tags=["Produtos"])
 
 # PARAMETRO
 app.include_router(parameter_router, prefix="/parametro", tags=["Parametro"])

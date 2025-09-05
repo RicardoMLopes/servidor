@@ -1,58 +1,216 @@
 {% extends "base.html" %}
+
+{% block title %}Produtos - IBVendas{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
 
-  <h2 class="mb-4 text-center">{{ empresa_nome or "Produtos" }}</h2>
+  <!-- Cabeçalho fixo: Empresa + filtros -->
+  <div class="sticky-top cabeçalho-fixo" id="cabeçalho-fixo">
 
-  <!-- Formulário de Filtro -->
-  <form method="get" class="mb-4">
-      <!-- mantém token/cnpj/empresa ao submeter -->
-      <input type="hidden" name="empresa" value="{{ empresa_nome }}">
-      <input type="hidden" name="cnpj" value="{{ empresa_cnpj }}">
-      <input type="hidden" name="token" value="{{ empresa_token }}">
+    <!-- Nome da empresa -->
+    <div class="empresa-header text-center mb-2" id="empresa-header">
+      <h2 class="mb-0" style="font-family:'Inter', sans-serif; font-weight:700; color:#4e54c8; transition: opacity 0.5s;">{{ empresa_nome|default("Produtos") }}</h2>
+    </div>
 
-      <div class="row g-2">
-          <div class="col-md-5">
-              <input type="text" name="descricao" class="form-control" placeholder="Filtrar por descrição"
-                     value="{{ request.query_params.get('descricao', '') }}">
-          </div>
-          <div class="col-md-5">
-              <input type="text" name="agrupamento" class="form-control" placeholder="Filtrar por agrupamento"
-                     value="{{ request.query_params.get('agrupamento', '') }}">
-          </div>
-          <div class="col-md-2">
-              <button type="submit" class="btn btn-gradient w-100">Filtrar</button>
-          </div>
-      </div>
-  </form>
+    <!-- Filtros -->
+    <div class="filtros-header">
+      <form method="get" class="row g-2 align-items-end">
+        <input type="hidden" name="empresa" value="{{ empresa_nome }}">
+        <input type="hidden" name="cnpj" value="{{ empresa_cnpj }}">
+        <input type="hidden" name="token" value="{{ empresa_token }}">
+
+        <div class="col-md-2">
+          <label class="form-label">Código</label>
+          <input type="text" name="codigo" class="form-control" placeholder="Código"
+                 value="{{ request.query_params.get('codigo', '') }}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Código de Barra</label>
+          <input type="text" name="codigobarra" class="form-control" placeholder="Código de barra"
+                 value="{{ request.query_params.get('codigobarra', '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Descrição</label>
+          <input type="text" name="descricao" class="form-control" placeholder="Descrição"
+                 value="{{ request.query_params.get('descricao', '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Agrupamento</label>
+          <input type="text" name="agrupamento" class="form-control" placeholder="Agrupamento"
+                 value="{{ request.query_params.get('agrupamento', '') }}">
+        </div>
+        <div class="col-md-2">
+          <button type="submit" class="btn btn-gradient w-100">Filtrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Grid de Produtos -->
-  <div class="row row-cols-1 row-cols-md-3 g-4">
-      {% for p in produtos %}
-      <div class="col">
-          <div class="card h-100 shadow-sm border-0 rounded-3">
-              <div class="text-center p-3" style="height: 220px;">
-                  <img src="{{ p.imagem_url }}"
-                       alt="{{ p.descricao }}"
-                       class="img-fluid rounded"
-                       style="max-height: 200px; object-fit: contain;">
-              </div>
-              <div class="card-body">
-                  <h5 class="card-title text-truncate">{{ p.descricao }}</h5>
-                  <p class="card-text mb-1"><strong>Código:</strong> {{ p.codigo }}</p>
-                  <p class="card-text mb-1"><strong>Agrupamento:</strong> {{ p.agrupamento or "-" }}</p>
-                  <p class="card-text text-success fw-bold">{{ p.precovenda_str }}</p>
-              </div>
+  <div class="row row-cols-1 row-cols-md-3 g-4 mt-4" id="grid-produtos">
+    {% for p in produtos %}
+    <div class="col produto-card" style="display:{{ 'block' if loop.index <= 12 else 'none' }};">
+      <div class="card h-100 shadow-hover border-0 rounded-4 overflow-hidden produto-card-transparente">
+        <div class="card-body text-center p-3">
+          <h5 class="card-descricao mb-2">{{ p.descricao }}</h5>
+
+          <div class="position-relative mb-3" style="height:200px;">
+            <img src="{{ p.imagem_url }}" data-codigo="{{ p.codigo }}"
+                 class="img-fluid img-produto rounded zoom-hover" style="max-height:100%; object-fit:contain; cursor:pointer;">
+            <input type="file" class="d-none file-input" data-codigo="{{ p.codigo }}" accept="image/*">
           </div>
+
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="text-start">
+              <p class="mb-1"><strong>Código:</strong> {{ p.codigo }}</p>
+              <p class="mb-1"><strong>Código de Barra:</strong> {{ p.codigobarra|default("-") }}</p>
+              <p class="mb-1"><strong>Agrupamento:</strong> {{ p.agrupamento|default("-") }}</p>
+            </div>
+            <div class="text-end">
+              <p class="mb-0 fw-bold fs-5 text-success">Preço: {{ p.precovenda_str }}</p>
+            </div>
+          </div>
+        </div>
       </div>
-      {% endfor %}
+    </div>
+    {% endfor %}
   </div>
 
-  {% if not produtos %}
-  <div class="alert alert-warning text-center mt-4">
-      Nenhum produto encontrado com os filtros aplicados.
+  <div id="loader" class="text-center mt-3" style="display:none;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
   </div>
-  {% endif %}
-
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const cnpj = "{{ empresa_cnpj | default('') }}".replace(/\D/g,'');
+  console.log("CNPJ detectado:", cnpj);
+
+  const grid = document.getElementById("grid-produtos");
+  const loader = document.getElementById("loader");
+  const cabecalho = document.getElementById("cabeçalho-fixo");
+  const empresaHeader = document.getElementById("empresa-header");
+  let shown = 12;
+  const perPage = 12;
+
+  // Animação do cabeçalho ao rolar
+  window.addEventListener("scroll", () => {
+    if(window.scrollY > 20){
+      cabecalho.style.backdropFilter = "blur(15px)";
+      cabecalho.style.boxShadow = "0 10px 25px rgba(0,0,0,0.25)";
+      empresaHeader.style.opacity = "1";
+    } else {
+      cabecalho.style.backdropFilter = "blur(10px)";
+      cabecalho.style.boxShadow = "0 4px 15px rgba(0,0,0,0.15)";
+      empresaHeader.style.opacity = "0.85";
+    }
+
+    const cards = document.querySelectorAll(".produto-card");
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+      if (shown < cards.length) showNext();
+    }
+  });
+
+  // Upload de imagem
+  grid.addEventListener("click", (e) => {
+    const img = e.target.closest(".img-produto");
+    if (!img) return;
+    const codigo = img.dataset.codigo;
+    const input = grid.querySelector(`.file-input[data-codigo="${codigo}"]`);
+    if (!input) return;
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("cnpj", cnpj);
+      formData.append("codigo", codigo);
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/upload-imagem/", { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          img.src = `/static/img/${cnpj}/${codigo}.jpg?${Date.now()}`;
+          alert("Imagem atualizada!");
+        } else {
+          alert(data.msg || "Erro ao salvar imagem.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao processar imagem.");
+      }
+    };
+
+    input.click();
+  });
+
+  function showNext() {
+    const cards = document.querySelectorAll(".produto-card");
+    loader.style.display = "block";
+    setTimeout(() => {
+      for (let i = shown; i < shown + perPage && i < cards.length; i++) {
+        cards[i].style.display = "block";
+      }
+      shown += perPage;
+      loader.style.display = "none";
+    }, 300);
+  }
+
+});
+</script>
+
+<style>
+.btn-gradient {
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.btn-gradient:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.produto-card {
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card-descricao {
+  color: #4e54c8;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+}
+.produto-card-transparente {
+  background-color: rgba(255,255,255,0.5); /* mais transparente */
+  backdrop-filter: blur(5px);
+}
+
+.shadow-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+}
+.zoom-hover:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s;
+}
+
+.cabeçalho-fixo {
+  transition: backdrop-filter 0.3s, box-shadow 0.3s;
+  border-radius:0.5rem;
+  padding:0.75rem 1rem;
+  z-index:100;
+}
+.empresa-header h2 {
+  transition: opacity 0.5s;
+}
+</style>
 {% endblock %}

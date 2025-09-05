@@ -1,10 +1,11 @@
 import ast
-import os
+import logging
+import os, io
 from datetime import datetime
 from typing import Optional
 import pytz
 from fastapi import APIRouter
-from fastapi import Query, Request
+from fastapi import Query, Request, UploadFile, Form
 from starlette.responses import HTMLResponse
 from typing import List
 from database.connection import get_empresa_session, DB_CHAVE
@@ -15,11 +16,14 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
 import traceback
-
+from fastapi.responses import JSONResponse
+import shutil
+from PIL import Image
 from routes.pedidovenda import templates
 
 products_router = APIRouter()
 list_products_router = APIRouter()
+upload_imagem_produtos_router = APIRouter()
 
 @products_router.get("")
 async def listar_produtos(
@@ -113,13 +117,14 @@ async def produtos_list_template(
     token: Optional[str] = Query(None),
     agrupamento: Optional[str] = Query(None),
     descricao: Optional[str] = Query(None),
+    codigo: Optional[str] = Query(None),
+    codigobarra: Optional[str] = Query(None),
 ):
     # ------ autenticação / token (igual ao seu fluxo) ------
     if not token and cnpj:
         token = gerar_token_cnpj(cnpj, DB_CHAVE)
 
     if not token:
-        # retorna template vazio — formulario precisa reenviar token/cnpj
         return templates.TemplateResponse(
             "produto/listar_produtos.html",
             {"request": request, "produtos": [], "empresa_nome": None,
@@ -146,11 +151,9 @@ async def produtos_list_template(
 
     produtos = []
     for item in resultado:
-        # se item já for dict, use direto; senão zippa com colunas
         if isinstance(item, dict):
             p = item.copy()
         else:
-            # cuidado com comprimentos diferentes
             if len(item) != len(colunas):
                 p = {col: item[i] if i < len(item) else None for i, col in enumerate(colunas)}
             else:
@@ -158,53 +161,49 @@ async def produtos_list_template(
         produtos.append(p)
 
     # ------ NORMALIZAÇÕES úteis ------
-    # normaliza a lista de imagens (p["imagens"]) para uma lista de nomes de arquivo
     def normalize_imagens_field(imagens_field) -> List[str]:
         if not imagens_field:
             return []
-        # se já é lista/tuple
         if isinstance(imagens_field, (list, tuple)):
             return [str(x).strip() for x in imagens_field if str(x).strip()]
-        # se for bytes
         if isinstance(imagens_field, bytes):
             imagens_field = imagens_field.decode('utf-8', errors='ignore')
-        # se for string: pode ser "['a.jpg']" (JSON/python list) ou "a.jpg,b.jpg"
         if isinstance(imagens_field, str):
             s = imagens_field.strip()
-            # tenta interpretar como literal Python (ex: "['a.jpg','b.png']")
             try:
                 parsed = ast.literal_eval(s)
                 if isinstance(parsed, (list, tuple)):
                     return [str(x).strip() for x in parsed if str(x).strip()]
             except Exception:
                 pass
-            # fallback: split por vírgula
             parts = [p.strip() for p in s.split(',') if p.strip()]
             return parts
         return []
 
-    # ------ APLICA FILTROS em Python (robustos) ------
-    descricao_q = descricao.strip().lower() if descricao and descricao.strip() else None
-    agrupamento_q = agrupamento.strip().lower() if agrupamento and agrupamento.strip() else None
+    # ------ APLICA FILTROS em Python ------
+    descricao_q = descricao.strip().lower() if descricao else None
+    agrupamento_q = agrupamento.strip().lower() if agrupamento else None
+    codigo_q = codigo.strip().lower() if codigo else None
+    codigobarra_q = codigobarra.strip().lower() if codigobarra else None
 
     if descricao_q:
         produtos = [p for p in produtos if descricao_q in str(p.get("descricao") or "").strip().lower()]
-
     if agrupamento_q:
         produtos = [p for p in produtos if agrupamento_q in str(p.get("agrupamento") or "").strip().lower()]
+    if codigo_q:
+        produtos = [p for p in produtos if codigo_q in str(p.get("codigo") or "").strip().lower()]
+    if codigobarra_q:
+        produtos = [p for p in produtos if codigobarra_q in str(p.get("codigobarra") or "").strip().lower()]
 
-    # ------ IMAGENS: monta imagem URL preferindo arquivos reais na pasta ------
+    # ------ IMAGENS: monta imagem URL ------
     cnpj_limpo = limpa_cnpj(cnpj) if cnpj else ""
     pasta_cnpj = os.path.join(UPLOAD_DIR, cnpj_limpo) if cnpj_limpo else None
 
     for p in produtos:
-        # normaliza imagens field
         imagens_field = p.get("imagens")
         imgs = normalize_imagens_field(imagens_field)
-
         chosen = None
 
-        # 1) se o campo imagens contém nomes, prefira o primeiro que exista na pasta
         if imgs and pasta_cnpj and os.path.exists(pasta_cnpj):
             for nome_img in imgs:
                 caminho = os.path.join(pasta_cnpj, nome_img)
@@ -212,37 +211,32 @@ async def produtos_list_template(
                     chosen = nome_img
                     break
 
-        # 2) se não encontrou, tente pelo padrão codigo + extensões conhecidas
         if not chosen:
-            codigo = str(p.get("codigo") or "").strip()
-            if codigo and pasta_cnpj and os.path.exists(pasta_cnpj):
+            codigo_item = str(p.get("codigo") or "").strip()
+            if codigo_item and pasta_cnpj and os.path.exists(pasta_cnpj):
                 for ext in [".jpg", ".jpeg", ".png", ".webp"]:
-                    nome_img = f"{codigo}{ext}"
+                    nome_img = f"{codigo_item}{ext}"
                     caminho = os.path.join(pasta_cnpj, nome_img)
                     if os.path.exists(caminho):
                         chosen = nome_img
                         break
 
-        # 3) monta URL final
         if chosen:
             p["imagem_url"] = f"/{UPLOAD_DIR}/{cnpj_limpo}/{chosen}"
         else:
-            # tenta imagem padrão na pasta do cnpj; se não existir, usa global
             pad_local = os.path.join(UPLOAD_DIR, cnpj_limpo, IMAGEM_PADRAO) if cnpj_limpo else None
             if pad_local and os.path.exists(pad_local):
                 p["imagem_url"] = f"/{UPLOAD_DIR}/{cnpj_limpo}/{IMAGEM_PADRAO}"
             else:
-                # fallback global
                 p["imagem_url"] = f"/{UPLOAD_DIR}/{IMAGEM_PADRAO}"
 
-        # formata preço (garante float safe)
         try:
             prec = float(p.get("precovenda") or 0)
         except Exception:
             prec = 0.0
         p["precovenda_str"] = f"R$ {prec:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    # ------ retorna template (PASSAR token/cnpj para o FORM) ------
+    # ------ retorna template ------
     return templates.TemplateResponse(
         "produto/listar_produtos.html",
         {
@@ -253,3 +247,36 @@ async def produtos_list_template(
             "empresa_token": token,
         }
     )
+
+# =====================================================================================================================|
+#                          UPLOAD DE IMAGEM NA LISTA DE PRODUTOS
+# =====================================================================================================================|
+@upload_imagem_produtos_router.post("/")
+async def upload_imagem_produto(
+    cnpj: str = Form(...),
+    codigo: str = Form(...),
+    file: UploadFile = Form(...)
+):
+    logging.warning(f"Exibir CNPJ: {cnpj}")
+
+    if not cnpj or not codigo:
+        return JSONResponse({"success": False, "msg": "CNPJ ou código ausente"})
+
+    # Remove caracteres não numéricos do CNPJ
+    cnpj_clean = "".join(filter(str.isdigit, cnpj))
+
+    # Cria pasta se não existir
+    pasta = os.path.join("static", "img", cnpj_clean)
+    os.makedirs(pasta, exist_ok=True)
+
+    # Caminho completo do arquivo
+    caminho = os.path.join(pasta, f"{codigo}.jpg")
+
+    try:
+        # Salva o arquivo
+        with open(caminho, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return {"success": True}
+    except Exception as e:
+        logging.error(f"Erro ao salvar imagem: {e}")
+        return JSONResponse({"success": False, "msg": "Erro ao salvar imagem"})
