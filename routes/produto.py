@@ -1,4 +1,4 @@
-import logging
+import ast
 import os
 from datetime import datetime
 from typing import Optional
@@ -6,7 +6,7 @@ import pytz
 from fastapi import APIRouter
 from fastapi import Query, Request
 from starlette.responses import HTMLResponse
-
+from typing import List
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj, limpa_cnpj
 from params.alerta import enviar_alerta
