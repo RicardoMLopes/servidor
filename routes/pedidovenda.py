@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 import hashlib
 import traceback
+import tempfile
 from fastapi import Query
-from datetime import datetime
+from datetime import datetime, date
 from starlette.responses import  StreamingResponse
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj
@@ -23,6 +24,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import shutil
 from decimal import Decimal
+from dateutil.parser import parse
+
 
 
 pedido_router = APIRouter()
@@ -33,47 +36,105 @@ templates = Jinja2Templates(directory="templates")
 templates.env.globals['now'] = datetime.now
 
 
-
-
-# Detecta wkhtmltopdf no PATH
-def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None) -> BytesIO:
+def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None, empresa=None) -> BytesIO:
     """
-    Gera PDF a partir de dados de relatório.
+    Gera PDF a partir de dados de relatório com header e rodapé com número de página.
 
     :param relatorio: lista de dicionários com os dados do relatório
     :param tipo: tipo de relatório ("analitico" ou "sintetico")
-    :param template_path: caminho do template Jinja2 (opcional)
+    :param template_path: caminho do template HTML principal (opcional)
+    :param empresa: dicionário com dados da empresa {"nome": ..., "cnpj": ..., "telefone": ...}
     :return: BytesIO com o PDF gerado
     """
-    # Detecta wkhtmltopdf no PATH
+
+    # Detecta wkhtmltopdf
     wkhtmltopdf_path = shutil.which("wkhtmltopdf")
     if not wkhtmltopdf_path:
         raise RuntimeError("wkhtmltopdf não encontrado no PATH. Instale-o e/ou adicione ao PATH.")
 
     config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
 
-    # Define caminho padrão do template se não for fornecido
+    # Caminho padrão do template
     if template_path is None:
-        template_dir = os.path.join(os.getcwd(), "templates", "pedido")
-        template_path = os.path.join(template_dir, "relatorio_pedido_pdf.html")
+        template_dir = os.path.join(os.getcwd(), "templates")
+        template_name = "pedido/relatorio_pedido_pdf.html"
     else:
         template_dir = os.path.dirname(template_path)
+        template_name = os.path.basename(template_path)
 
     # Verifica se o template existe
-    if not os.path.exists(template_path):
-        raise FileNotFoundError(f"Template não encontrado: {template_path}")
+    full_template_path = os.path.join(template_dir, template_name)
+    if not os.path.exists(full_template_path):
+        raise FileNotFoundError(f"Template não encontrado: {full_template_path}")
 
-    # Configura o ambiente Jinja2
-    env = Environment(loader=FileSystemLoader(template_dir))
-    template = env.get_template(os.path.basename(template_path))
+    # Normaliza campo dataLancamento_html
+    for p in relatorio:
+        cabecalho = p.get("cabecalho", {})
 
-    # Renderiza o HTML
-    html_rendered = template.render(tipo=tipo, relatorio=relatorio)
+        data_raw = cabecalho.get("datalancamento")
+        logging.warning("DATA LANCAMENTO: %s", data_raw)
+        # Tenta converter a data se for string válida
+        if isinstance(data_raw, (datetime, date)):
+            data_formatada = data_raw.strftime("%d/%m/%Y")
+        else:
+            try:
+                # Ignora strings vazias ou nulas
+                if data_raw and str(data_raw).strip():
+                    data_obj = parse(str(data_raw))
+                    data_formatada = data_obj.strftime("%d/%m/%Y")
+                else:
+                    data_formatada = "—"  # Placeholder para datas ausentes
+            except Exception as e:
+                logging.warning("Erro ao converter dataLancamento: %s", e)
+                data_formatada = "—"
 
-    # Gera PDF
-    pdf_bytes = pdfkit.from_string(html_rendered, False, configuration=config)
+        cabecalho["dataLancamento_html"] = data_formatada
+        p["cabecalho"] = cabecalho  # Garante que a alteração reflita no objeto principal
+
+    # Ambiente Jinja
+    env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
+
+    # Renderiza template principal
+    main_template = env.get_template(template_name)
+    html_rendered = main_template.render(
+        tipo=tipo,
+        relatorio=relatorio,
+        empresa=empresa or {},
+        data_atual=datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    )
+
+    # Salva HTML principal em arquivo temporário
+    temp_main = tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w", encoding="utf-8")
+    temp_main.write(html_rendered)
+    temp_main.close()
+
+    # Configurações PDF com rodapé nativo
+    options = {
+        'page-size': 'A4',
+        'margin-top': '20mm',
+        'margin-right': '15mm',
+        'margin-bottom': '20mm',
+        'margin-left': '15mm',
+        'encoding': 'UTF-8',
+        'footer-left': 'desenvolvedora: Data Access Informática Ltda - Tel: (31) 3771-8273 site: https://dataaccess.inf.br/',
+        'footer-right': 'Página [page] de [topage]',
+        'footer-line': True,
+        'footer-font-size': '9'
+    }
+
+    # Gera PDF usando arquivo temporário
+    pdf_bytes = pdfkit.from_file(
+        temp_main.name,
+        False,
+        configuration=config,
+        options=options
+    )
+
+    # Remove arquivo temporário
+    os.unlink(temp_main.name)
 
     return BytesIO(pdf_bytes)
+
 
 
 
@@ -172,6 +233,7 @@ async def relatorio_pedido_template(
                 "agrupamento": "",
                 "status": status,
                 "cnpj": cnpj,
+                "telefone": None,
                 "token": token
             }
         )
@@ -183,8 +245,10 @@ async def relatorio_pedido_template(
     db = get_empresa_session(nome_banco)
     empresa_war = ConsultaEmpresa(db)
     codigo_empresa = int(str(empresa_war[0]).lstrip("0"))
+    empresa_cnpj = str(empresa_war[2]) if len(empresa_war) > 1 else ""
     nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
-
+    telefone_empresa = str(empresa_war[7]) if len(empresa_war) > 7 else ""
+    logging.warning("Mostre a empresa: %s %s %s", nome_empresa, telefone_empresa, empresa_cnpj)
     try:
         numerodocumento = int(numerodocumento) if numerodocumento else None
     except ValueError:
@@ -233,7 +297,8 @@ async def relatorio_pedido_template(
                 "numerodocumento": "",
                 "agrupamento": "",
                 "status": status,
-                "cnpj": cnpj,
+                "cnpj": empresa_cnpj,
+                "telefone": telefone_empresa,  # 🔹 corrigido
                 "token": token
             }
         )
@@ -263,36 +328,59 @@ async def relatorio_pedido_template(
 
     if tipo == "sintetico":
         pedidos_dict_sintetico = {}
+
         for p in pedidos:
-            status_val = p._mapping["status"]
-            cliente_key = p._mapping["nomecliente"]
-            if cliente_key not in pedidos_dict_sintetico:
-                data_lancamento_html = (
-                    p._mapping["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
-                    if isinstance(p._mapping.get("dataLancamento"), datetime)
-                    else p._mapping.get("dataLancamento")
-                )
+            numdoc = p._mapping["numerodocumento"]
+
+            if numdoc not in pedidos_dict_sintetico:
+                # 🔧 Tratamento seguro da data
+                data_raw = p._mapping.get("dataLancamento")
+
+                try:
+                    if data_raw and str(data_raw).strip():
+                        data_obj = parse(str(data_raw))
+                        data_lancamento_html = data_obj.strftime("%d/%m/%Y %H:%M:%S")
+                        logging.warning("DATA LANCAMENTO: %s", data_lancamento_html)
+                    else:
+                        data_lancamento_html = "—"
+                except Exception as e:
+                    logging.warning("Erro ao converter dataLancamento: %s", e)
+                    data_lancamento_html = "—"
+
                 forma_pagamento = p._mapping.get("formapagamento") or ""
 
-                pedidos_dict_sintetico[cliente_key] = {
+                pedidos_dict_sintetico[numdoc] = {
                     "cabecalho": {
-                        "nomecliente": cliente_key,
+                        "numerodocumento": numdoc,
+                        "nomecliente": p._mapping["nomecliente"],
                         "codigovendedor": p._mapping["codigovendedor"],
                         "nomevendedor": p._mapping["nomevendedor"],
                         "dataLancamento_html": data_lancamento_html,
                         "formapagamento": forma_pagamento,
-                        "status": status_val,  # 🔹 incluído para usar depois no gráfico
+                        "status": p._mapping["status"],
                     },
-                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0,"totalPedidos":0, "subtotal": 0.0}
+                    "totalizadores": {
+                        "subtotal": 0.0,
+                        "totalDesconto": 0.0,
+                        "totalAcrescimo": 0.0,
+                        "totalGeral": 0.0,
+                        "qtd_itens": 0,
+                    },
                 }
-            pedidos_dict_sintetico[cliente_key]["totalizadores"]["subtotal"] += (float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0)))
-            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
-            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
-            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
 
-            pedidos_dict_sintetico[cliente_key]["totalizadores"]["totalPedidos"] += 1
+            # 🔹 Acumula totais
+            pedidos_dict_sintetico[numdoc]["totalizadores"]["subtotal"] += (
+                    float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0))
+            )
+            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalDesconto"] += float(
+                p._mapping.get("valorDesconto") or 0)
+            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalAcrescimo"] += float(
+                p._mapping.get("valoracrescimo") or 0)
+            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalGeral"] += float(p._mapping.get("valorTotal") or 0)
+            pedidos_dict_sintetico[numdoc]["totalizadores"]["qtd_itens"] += float(p._mapping.get("quantidade") or 0)
 
         relatorio = list(pedidos_dict_sintetico.values())
+
     else:
         pedidos_dict = {}
         for p in pedidos:
@@ -357,7 +445,8 @@ async def relatorio_pedido_template(
             "numerodocumento": "",
             "agrupamento": "",
             "status": status,
-            "cnpj": cnpj,
+            "cnpj": empresa_cnpj,
+            "telefone": telefone_empresa,  # 🔹 corrigido
             "token": token,
             "status_count": status_count  # ✅ agora correto
         }
@@ -388,27 +477,46 @@ def make_json_serializable(obj):
 async def relatorio_pedido_pdf(request: Request, payload: dict):
     """
     Recebe JSON do front-end e retorna PDF gerado do template HTML.
+    Espera payload no formato:
+    {
+        "tipo": "analitico" | "sintetico",
+        "relatorio": [...],
+        "empresa": {
+            "nome": "...",
+            "cnpj": "...",
+            "telefone": "..."
+        }
+    }
     """
-    tipo = payload.get("tipo", "analitico")
-    relatorio = payload.get("relatorio", [])
+    logging.warning("Payload PDF: %s", payload)
+
+    tipo: str = payload.get("tipo", "analitico")
+    relatorio: list = payload.get("relatorio", [])
+    empresa_dict: Optional[dict] = payload.get("empresa", {})
 
     if not relatorio:
         return {"erro": "Nenhum dado de relatório fornecido."}
 
+
     # Torna os dados serializáveis caso use Decimal ou datas
     relatorio_serializavel = make_json_serializable(relatorio)
 
-    # 🔹 Prepara os dados para PDF (formata datas, forma de pagamento, etc.)
+    # Prepara relatório (formata datas, forma de pagamento, etc.)
     relatorio_formatado = preparar_relatorio_para_pdf(relatorio_serializavel)
 
-    # Gera PDF usando a função reutilizável
-    pdf_io = gerar_pdf_relatorio(relatorio_formatado, tipo)
+    # Gera PDF
+    pdf_io: BytesIO = gerar_pdf_relatorio(
+        relatorio=relatorio_formatado,
+        tipo=tipo,
+        empresa=empresa_dict
+    )
 
     # Retorna PDF como attachment
+    filename = f"relatorio_{tipo}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
     return StreamingResponse(
         pdf_io,
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=relatorio_{tipo}.pdf"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
 

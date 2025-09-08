@@ -117,3 +117,426 @@
 🔹 Verificando catálogo para FFA Dsitribuidora
 [2025-09-05 11:11:27] 🖨️ Gerando catálogo para FFA Dsitribuidora
 [2025-09-05 11:11:30] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-05 14:32:03] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 14:32:06] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 14:32:07] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 14:32:10] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 14:32:11] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 14:32:14] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 14:54:10] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 14:54:14] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 14:54:14] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 14:54:23] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 14:54:23] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 14:54:32] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:00:39] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:00:47] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:00:47] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:00:51] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:00:51] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:00:54] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:02:14] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:02:17] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:02:17] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:02:19] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:02:19] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:02:23] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:08:24] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:08:27] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:08:27] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:08:30] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:08:30] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:08:40] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:10:12] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:10:14] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:10:14] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:10:18] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:10:18] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:10:21] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:16:02] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:16:05] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:16:05] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:16:08] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:16:08] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:16:13] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:20:00] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:20:04] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:20:04] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:20:08] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:20:08] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:20:11] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:26:02] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:26:07] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:26:07] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:26:11] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:26:11] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:26:15] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:27:09] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:27:12] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:27:12] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:27:16] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:27:16] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:27:20] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:31:01] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:31:05] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:31:05] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:31:09] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:31:09] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:31:12] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:39:01] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:39:05] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:39:05] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:39:08] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:39:08] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:39:11] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:43:14] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:43:18] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:43:18] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:43:22] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:43:22] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:43:26] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 15:59:27] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:59:30] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:59:30] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:59:46] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 15:59:50] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 15:59:50] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 15:59:53] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 15:59:53] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 15:59:57] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:02:26] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:02:30] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:02:30] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:02:34] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:02:34] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:02:38] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:04:43] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:04:48] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:04:48] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:04:51] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:04:51] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:04:55] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:12:24] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:12:28] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:12:28] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:12:33] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:12:33] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:12:36] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:25:01] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:25:13] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:25:13] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:25:18] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:25:18] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:25:22] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:27:26] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:27:30] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:27:30] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:27:34] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:27:34] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:27:38] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:28:09] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:28:13] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:28:13] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:28:17] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:28:17] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:28:22] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:30:25] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:30:29] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:30:29] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:30:32] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:30:32] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:30:36] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:32:00] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:32:04] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:32:05] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:32:09] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:32:09] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:32:13] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:33:47] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:33:51] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:33:51] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:33:55] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:33:55] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:34:00] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:34:21] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:34:24] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:34:25] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:34:27] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:34:28] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:34:32] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:38:16] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:38:20] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:38:20] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:38:23] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:38:23] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:38:27] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:40:31] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:40:34] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:40:34] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:40:38] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:40:38] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:40:42] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:42:54] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:42:58] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:42:58] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:43:03] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:43:03] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:43:08] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:45:13] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:45:17] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:45:17] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:45:28] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:45:29] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:45:32] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:45:43] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:45:48] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:45:48] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:45:52] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:45:52] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:45:56] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:46:41] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:46:45] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:46:45] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:46:49] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:46:49] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:46:54] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 16:51:15] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:51:20] 🖨️ Gerando catálogo para Testes
+[2025-09-05 16:51:21] ✅ Catálogo gerado e parâmetro atualizado para Testes
+[2025-09-05 16:51:21] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:51:26] 🖨️ Gerando catálogo para JAM
+[2025-09-05 16:51:57] ✅ Catálogo gerado e parâmetro atualizado para JAM
+[2025-09-05 16:51:57] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:52:01] 🖨️ Gerando catálogo para comercial sorella
+[2025-09-05 16:52:06] ✅ Catálogo gerado e parâmetro atualizado para comercial sorella
+[2025-09-05 16:52:37] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 16:52:41] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 16:52:41] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 16:52:45] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 16:52:45] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 16:52:50] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 17:05:15] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 17:05:19] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 17:05:19] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 17:05:23] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 17:05:23] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 17:05:27] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 17:15:04] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 17:15:08] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 17:15:09] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 17:15:13] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 17:15:13] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 17:15:18] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 17:19:22] 
+🔹 Verificando catálogo para Testes
+[2025-09-05 17:19:26] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-05 17:19:26] 
+🔹 Verificando catálogo para JAM
+[2025-09-05 17:19:31] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-05 17:19:31] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-05 17:19:35] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-05 17:22:07] 
+🔹 Verificando catálogo para RM
+[2025-09-05 17:22:09] 🖨️ Gerando catálogo para RM
+[2025-09-05 17:22:34] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-05 17:22:34] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 17:22:36] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-05 17:22:37] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-05 17:29:04] 
+🔹 Verificando catálogo para RM
+[2025-09-05 17:29:06] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 17:29:06] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 17:29:08] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 17:36:14] 
+🔹 Verificando catálogo para RM
+[2025-09-05 17:36:16] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 17:36:16] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 17:36:18] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:05:36] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:05:38] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:05:38] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:05:40] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:06:42] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:06:44] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:06:44] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:06:46] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:08:47] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:08:49] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:08:49] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:08:51] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:16:38] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:16:40] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:16:40] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:16:42] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:27:37] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:27:39] 🖨️ Gerando catálogo para RM
+[2025-09-05 18:28:16] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-05 18:28:16] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:28:18] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-05 18:28:19] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-05 18:30:28] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:30:30] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:30:30] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:30:32] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:32:14] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:32:17] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:32:17] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:32:19] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:40:24] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:40:26] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:40:26] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:40:28] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:50:48] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:50:51] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:50:51] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:50:53] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 18:55:20] 
+🔹 Verificando catálogo para RM
+[2025-09-05 18:55:23] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 18:55:23] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 18:55:25] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 19:01:02] 
+🔹 Verificando catálogo para RM
+[2025-09-05 19:01:04] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 19:01:04] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 19:01:06] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 19:08:25] 
+🔹 Verificando catálogo para RM
+[2025-09-05 19:08:27] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 19:08:27] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 19:08:29] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-05 19:11:00] 
+🔹 Verificando catálogo para RM
+[2025-09-05 19:11:02] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-05 19:11:02] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-05 19:11:04] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora

@@ -2,28 +2,162 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório de Pedidos - {{ tipo|capitalize }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
-        h2 { text-align: center; color: #0d6efd; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #333; padding: 5px; text-align: left; font-size: 12px; }
-        th { background-color: #f0f0f0; }
-        .totals { margin-top: 15px; font-weight: bold; }
-        .totals span { margin-right: 15px; }
-        .badge { padding: 2px 6px; border-radius: 3px; }
+        /* Cabeçalho estilizado */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0d6efd;
+            padding: 10px 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header-left {
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+
+        .header-right {
+            font-size: 12px;
+            text-align: right;
+            color: #333;
+        }
+
+        .report-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: #0d6efd;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        @page {
+            size: A4;
+            margin: 20mm 15mm 30mm 15mm; /* espaço inferior para rodapé */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 0;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            page-break-inside: auto;
+        }
+
+        th, td {
+            border: 1px solid #333;
+            padding: 5px;
+            font-size: 12px;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            text-align: left;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        .totals {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .totals span {
+            margin-right: 15px;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
         .bg-warning { background-color: #ffc107; color: #000; }
-        .bg-danger { background-color: #dc3545; color: #fff; }
-        .bg-success { background-color: #198754; color: #fff; }
-        .bg-primary { background-color: #0d6efd; color: #fff; }
+        .bg-danger   { background-color: #dc3545; color: #fff; }
+        .bg-success  { background-color: #198754; color: #fff; }
+        .bg-primary  { background-color: #0d6efd; color: #fff; }
+
         .text-center { text-align: center; }
+        .text-right  { text-align: right; }
+
         .mb-2 { margin-bottom: 10px; }
         .mt-2 { margin-top: 10px; }
+
+        .pedido {
+            page-break-inside: avoid;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            font-size: 10px;
+            padding: 5px 10px;
+            border-top: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            color: #333;
+        }
+
+        /* Marca d’água diagonal */
+        .watermark {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .watermark span {
+            position: absolute;
+            white-space: nowrap;
+            color: rgba(0,0,0,0.05);
+            transform: rotate(-30deg);
+        }
     </style>
 </head>
 <body>
 
-<h2>Relatório de Pedidos - {{ tipo|capitalize }}</h2>
+<!-- Marca d’água -->
+<div class="watermark">
+    {% set rows = 15 %}
+    {% set cols = 10 %}
+    {% for i in range(rows) %}
+        {% for j in range(cols) %}
+            {% set top = i * 120 + (range(0, 20)|random) %}
+            {% set left = j * 200 + (range(0, 40)|random) %}
+            {% set size = 14 + (range(0, 12)|random) %}
+            <span style="top: {{ top }}px; left: {{ left }}px; font-size: {{ size }}px;">
+                DATA ACCESS
+            </span>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<div class="report-title">Relatório de Pedidos - {{ tipo|capitalize }}</div>
+
+<div class="header">
+    <div class="header-left">{{ empresa.nome }}</div>
+    <div class="header-right">
+        CNPJ: {{ empresa.cnpj }}<br>
+        Telefone: {{ empresa.telefone }}<br>
+        Data: {{ data_atual }}
+    </div>
+</div>
 
 {% for p in relatorio %}
     <div class="pedido">
@@ -39,11 +173,11 @@
                     <tr>
                         <th>Código</th>
                         <th>Descrição</th>
-                        <th>Qtd</th>
-                        <th>Valor Unit</th>
-                        <th>Desconto</th>
-                        <th>Acréscimo</th>
-                        <th>Total</th>
+                        <th class="text-center">Qtd</th>
+                        <th class="text-right">Valor Unit</th>
+                        <th class="text-right">Desconto</th>
+                        <th class="text-right">Acréscimo</th>
+                        <th class="text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,11 +185,11 @@
                         <tr>
                             <td>{{ i.codigoproduto }}</td>
                             <td>{{ i.descricaoproduto }}</td>
-                            <td>{{ i.quantidade|default(0) }}</td>
-                            <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
-                            <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
-                            <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
-                            <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
+                            <td class="text-center">{{ i.quantidade|default(0) }}</td>
+                            <td class="text-right">{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
+                            <td class="text-right">{{ '%.2f' % i.valorDesconto|default(0) }}</td>
+                            <td class="text-right">{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
+                            <td class="text-right">{{ '%.2f' % i.valorTotal|default(0) }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -66,16 +200,21 @@
                     <tr>
                         <th>Pedido</th>
                         <th>Cliente</th>
-                        <th>Qtd Itens</th>
-                        <th>Total</th>
+                        <th>Data</th>
+                        <th class="text-center">Qtd Itens</th>
+                        <th class="text-right">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>{{ p.cabecalho.numerodocumento }}</td>
                         <td>{{ p.cabecalho.nomecliente }}</td>
-                        <td>{{ p.totalizadores.quantidadeItens }}</td>
-                        <td>{{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}</td>
+                        <td>{{ p.cabecalho.dataLancamento }}</td>
+                        <td class="text-center">{{ p.totalizadores.quantidadeItens }}</td>
+                        <td class="text-right">
+                            {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0)
+                                .replace(",", "X").replace(".", ",").replace("X", ".") }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -95,6 +234,5 @@
 {% if not relatorio %}
     <p class="text-center">Nenhum pedido disponível para gerar PDF.</p>
 {% endif %}
-
 </body>
 </html>

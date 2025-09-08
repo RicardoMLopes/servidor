@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      margin: 0;
+      padding: 5px 10px;
+      color: #333;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9px;
+      padding: 2px 5px;
+      white-space: nowrap;
+    }
+    .left, .right {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .right {
+      text-align: right;
+      font-size: 9px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+   <div class="footer">
+    <div class="left">
+      {{ empresa.nome }} - Tel: {{ empresa.telefone }} - https://dataaccess.inf.br/
+    </div>
+    <div class="right">
+      Página [page] de [topage] | Gerado em {{ data_atual }}
+    </div>
+  </div>
+</body>
+</html>

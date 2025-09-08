@@ -12,9 +12,10 @@
         {{ empresa_nome or "Empresa" }}
     </p>
 
-
-
-    <span style="display:none;" id="empresa">{{ cnpj or '' }}</span>
+    <!-- Campos ocultos para PDF -->
+    <span style="display:none;" id="empresa_nome">{{ empresa_nome or '' }}</span>
+    <span style="display:none;" id="empresa_cnpj">{{ cnpj or '' }}</span>
+    <span style="display:none;" id="empresa_telefone">{{ telefone or '' }}</span>
     <span style="display:none;" id="token">{{ token or '' }}</span>
   </div>
 
@@ -24,7 +25,7 @@
     <form method="get" action="/pedido-relatorios/">
       <input type="hidden" name="token" value="{{ token }}">
       <div class="row g-3 align-items-end">
-        <!-- Campos do filtro (igual ao seu original) -->
+        <!-- Campos do filtro -->
         <div class="col-md-2 form-floating">
           <input type="text" class="form-control" id="numerodocumento" name="numerodocumento"
                  placeholder="Número do Pedido" value="{% if numerodocumento and numerodocumento != 'None' %}{{ numerodocumento }}{% endif %}">
@@ -40,7 +41,7 @@
                  placeholder="Agrupamento" value="{% if agrupamento and agrupamento != 'None' %}{{ agrupamento }}{% endif %}">
           <label for="agrupamento"><i class="bi bi-tags me-1"></i>Agrupamento</label>
         </div>
-       <div class="col-md-2 form-floating">
+        <div class="col-md-2 form-floating">
           <input type="date" class="form-control" id="data_inicio" name="data_inicio"
                  value="{{ data_inicio }}">
           <label for="data_inicio"><i class="bi bi-calendar2-event me-1"></i>Data Início</label>
@@ -50,8 +51,6 @@
                  value="{{ data_fim }}">
           <label for="data_fim"><i class="bi bi-calendar2-event me-1"></i>Data Fim</label>
         </div>
-
-
       </div>
 
       <div class="row g-3 mt-3 align-items-center">
@@ -94,7 +93,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </form>
   </div>
@@ -128,7 +126,6 @@
               <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
               <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
               <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento_html }}</p>
-
 
               {% if tipo == 'analitico' and p.itens %}
                 <div class="table-responsive">
@@ -258,10 +255,44 @@ function gerarPDF() {
         alert("Nenhum pedido disponível para gerar PDF!");
         return;
     }
+
     const tipo = document.getElementById('tipo').value;
+
+    // Captura os dados da empresa dos spans ocultos
+    const empresa_dict = {
+        nome: document.getElementById('empresa_nome').innerText.trim() || '',
+        cnpj: document.getElementById('empresa_cnpj').innerText.trim() || '',
+        telefone: document.getElementById('empresa_telefone').innerText.trim() || ''
+    };
+
     const payload = {
         tipo: tipo,
         relatorio: window.relatorioAtual.map(p => {
+            // --- Trata data de lançamento ---
+            const dataRaw = p.cabecalho?.dataLancamento || p.cabecalho?.dataLancamento_html || '';
+            const d = dataRaw ? new Date(dataRaw) : null;
+
+            const cabecalho = {
+                numerodocumento: p.cabecalho?.numerodocumento || '',
+                nomecliente: p.cabecalho?.nomecliente || '',
+                codigocliente: p.cabecalho?.codigocliente || '',
+                nomevendedor: p.cabecalho?.nomevendedor || '',
+                codigovendedor: p.cabecalho?.codigovendedor || '',
+                formapagamento: p.cabecalho?.formapagamento || '',
+                dataLancamento: d ? d.toISOString() : null,   // ISO para backend
+                dataLancamento_html: d
+                    ? d.toLocaleString('pt-BR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })
+                    : '—' // formatado para exibir no PDF
+            };
+
+            // --- Itens ---
             let itens = [];
             if (tipo === 'analitico') {
                 itens = (p.itens || []).map(i => ({
@@ -275,27 +306,33 @@ function gerarPDF() {
                     unidadeMedida: i.unidadeMedida || ''
                 }));
             } else if (tipo === 'sintetico') {
-                // Para sintético, enviamos apenas um resumo
-                itens = [{ resumo: true }];
+                itens = [{ resumo: true }]; // mantém a estrutura
             }
 
+            // --- Totais ---
             const totalizadores = {
                 subtotal: Number(p.totalizadores?.subtotal || 0),
                 totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
                 totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
                 totalGeral: Number(p.totalizadores?.totalGeral || 0),
-                quantidadeItens: (p.itens || []).length
+                quantidadeItens: Number(p.totalizadores?.qtd_itens || 0)
             };
-            return { cabecalho: p.cabecalho, itens, totalizadores };
-        })
+
+            return { cabecalho, itens, totalizadores };
+        }),
+        empresa: empresa_dict
     };
 
+    // --- Envia requisição ---
     fetch("/pedido-relatorios-pdf/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
     })
-    .then(res => { if (!res.ok) throw new Error("Falha ao gerar PDF"); return res.blob(); })
+    .then(res => {
+        if (!res.ok) throw new Error("Falha ao gerar PDF");
+        return res.blob();
+    })
     .then(blob => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -305,15 +342,15 @@ function gerarPDF() {
     .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
 
-
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hoje = new Date();
     const yyyy = hoje.getFullYear();
-    const mm = String(hoje.getMonth() + 1).padStart(2, '0'); // meses começam do 0
+    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
     const dd = String(hoje.getDate()).padStart(2, '0');
-    const dataLocal = `${yyyy}-${mm}-${dd}`; // formato YYYY-MM-DD para input date
+    const dataLocal = `${yyyy}-${mm}-${dd}`;
 
     const dataInicioInput = document.getElementById('data_inicio');
     const dataFimInput = document.getElementById('data_fim');
@@ -323,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-
 <style>
 .text-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .filter-card, .result-card { border-radius: 1rem; transition: transform 0.3s ease, box-shadow 0.3s ease; }
@@ -332,12 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .btn-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); border: none; color: #fff; border-radius: 0.75rem; transition: all 0.3s ease; }
 .btn-gradient:hover { background: linear-gradient(90deg, #6610f2, #0d6efd); transform: translateY(-2px); }
 .totals .badge { font-size: 0.9rem; margin-right: 0.5rem; }
-.text-highlight {
-    color: #2F4F4F;  /* Laranja queimado */
-    font-weight: bold;
-}
-
-
+.text-highlight { color: #2F4F4F; font-weight: bold; }
 </style>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
