@@ -84,6 +84,51 @@ def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
         traceback.print_exc()
         return []
 
+def ConsultarListaProduto(db):
+    """
+    Consulta produtos na tabela cadproduto.
+    Se filtro_data for fornecido (datetime), retorna apenas produtos
+    com dataRegistro > filtro_data.
+    """
+    try:
+        sql = """
+            SELECT
+                empresa,
+                codigo,
+                descricao,
+                unidadeMedida,
+                codigobarra,
+                agrupamento,
+                marca,
+                modelo,
+                tamanho,
+                cor,
+                peso,
+                precovenda,
+                casasdecimais,
+                percentualdesconto,
+                estoque,
+                reajustacondicaopagamento,
+                percentualComissao,
+                situacaoregistro,
+                dataRegistro,
+                versao,
+                imagens
+            FROM cadproduto
+        """
+
+
+
+        sql += " WHERE situacaoregistro <> 'E' "
+
+
+        resultado = db.execute(text(sql)).fetchall()
+        return resultado
+
+    except Exception as e:
+        traceback.print_exc()
+        return []
+
 
 
 # consulta da parâmetros

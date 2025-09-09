@@ -11,7 +11,7 @@ from typing import List
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj, limpa_cnpj
 from params.alerta import enviar_alerta
-from database.querys import ConsultaProduto, Insert_Produto, ConsultaEmpresa
+from database.querys import ConsultaProduto, Insert_Produto, ConsultaEmpresa, ConsultarListaProduto
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
@@ -123,7 +123,7 @@ async def produtos_list_template(
     empresa_nome = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
 
     # ------ pega produtos (sua consulta existente) ------
-    resultado = ConsultaProduto(db)
+    resultado = ConsultarListaProduto(db)
     colunas = [
         "empresa","codigo","descricao","unidadeMedida","codigobarra",
         "agrupamento","marca","modelo","tamanho","cor","peso",
