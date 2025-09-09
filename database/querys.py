@@ -45,7 +45,31 @@ def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
     com dataRegistro > filtro_data.
     """
     try:
-        sql = "SELECT * FROM cadproduto"
+        sql = """
+            SELECT
+                empresa,
+                codigo,
+                descricao,
+                unidadeMedida,
+                codigobarra,
+                agrupamento,
+                marca,
+                modelo,
+                tamanho,
+                cor,
+                peso,
+                precovenda,
+                casasdecimais,
+                percentualdesconto,
+                estoque,
+                reajustacondicaopagamento,
+                percentualComissao,
+                situacaoregistro,
+                dataRegistro,
+                versao,
+                imagens
+            FROM cadproduto
+        """
         params = {}
 
         if filtro_data:
@@ -53,14 +77,13 @@ def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
             sql += " WHERE dataRegistro > :filtro_data"
             params["filtro_data"] = filtro_str
 
-
         resultado = db.execute(text(sql), params).fetchall()
-       # logger.warning("Resultado: %s", resultado)
         return resultado
 
     except Exception as e:
         traceback.print_exc()
         return []
+
 
 
 # consulta da parâmetros

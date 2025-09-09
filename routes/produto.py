@@ -33,7 +33,6 @@ async def listar_produtos(
     ),
     db: Session = Depends(get_empresa_db)
 ):
-   # logging.warning("Exibir data: %s", last_sync)
     try:
         filtro_data: Optional[datetime] = None
         if last_sync:
@@ -45,36 +44,20 @@ async def listar_produtos(
                     detail="Formato inválido de last_sync. Use ISO 8601 (ex: 2025-08-27T10:15:00)"
                 )
 
-        # Consulta produtos no banco, filtrando por data se last_sync informado
-        resultado = ConsultaProduto(db, filtro_data)
-
-        # Define as colunas do retorno
-        colunas = [
-            "empresa", "codigo", "descricao", "unidadeMedida", "codigobarra",
-            "agrupamento", "marca", "modelo", "tamanho", "cor", "peso",
-            "precovenda", "casasdecimais", "percentualdesconto", "estoque",
-            "reajustacondicaopagamento", "percentualComissao", "situacaoregistro",
-            "dataRegistro", "versao", "imagens"
-        ]
-
-        dados = []
-        for item in resultado:
-            if len(item) != len(colunas):
-                dados.append({col: item[i] if i < len(item) else None for i, col in enumerate(colunas)})
-            else:
-                dados.append(dict(zip(colunas, item)))
+        # Agora já retorna lista de dicts
+        dados = ConsultaProduto(db, filtro_data)
 
         # Usa pytz para pegar hora de São Paulo
         tz_sp = pytz.timezone("America/Sao_Paulo")
-        last_sync_servidor = datetime.now(tz_sp)
+        last_sync_servidor = datetime.now(tz_sp).strftime("%Y-%m-%d %H:%M:%S")
 
         return {
             "produtos": dados,
             "last_sync": last_sync_servidor
         }
 
-    except HTTPException as e:
-        raise e
+    except HTTPException:
+        raise
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(
