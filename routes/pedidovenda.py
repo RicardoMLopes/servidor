@@ -72,7 +72,7 @@ def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None, empresa
         cabecalho = p.get("cabecalho", {})
 
         data_raw = cabecalho.get("datalancamento")
-        logging.warning("DATA LANCAMENTO: %s", data_raw)
+      #  logging.warning("DATA LANCAMENTO: %s", data_raw)
         # Tenta converter a data se for string válida
         if isinstance(data_raw, (datetime, date)):
             data_formatada = data_raw.strftime("%d/%m/%Y")
@@ -248,7 +248,7 @@ async def relatorio_pedido_template(
     empresa_cnpj = str(empresa_war[2]) if len(empresa_war) > 1 else ""
     nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
     telefone_empresa = str(empresa_war[7]) if len(empresa_war) > 7 else ""
-    logging.warning("Mostre a empresa: %s %s %s", nome_empresa, telefone_empresa, empresa_cnpj)
+  #  logging.warning("Mostre a empresa: %s %s %s", nome_empresa, telefone_empresa, empresa_cnpj)
     try:
         numerodocumento = int(numerodocumento) if numerodocumento else None
     except ValueError:
@@ -340,7 +340,7 @@ async def relatorio_pedido_template(
                     if data_raw and str(data_raw).strip():
                         data_obj = parse(str(data_raw))
                         data_lancamento_html = data_obj.strftime("%d/%m/%Y %H:%M:%S")
-                        logging.warning("DATA LANCAMENTO: %s", data_lancamento_html)
+                #        logging.warning("DATA LANCAMENTO: %s", data_lancamento_html)
                     else:
                         data_lancamento_html = "—"
                 except Exception as e:
@@ -488,7 +488,7 @@ async def relatorio_pedido_pdf(request: Request, payload: dict):
         }
     }
     """
-    logging.warning("Payload PDF: %s", payload)
+ #   logging.warning("Payload PDF: %s", payload)
 
     tipo: str = payload.get("tipo", "analitico")
     relatorio: list = payload.get("relatorio", [])

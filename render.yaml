@@ -1,1 +1,13 @@
-uvicorn manager:app --host=0.0.0.0 --port=10000
+services:
+  - type: web
+    name: minha-api-fastapi
+    env: python
+    plan: free   # ou starter/pro dependendo do seu plano
+    buildCommand: |
+      apt-get update && \
+      apt-get install -y wget xfonts-base xfonts-75dpi && \
+      wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.jammy_amd64.deb && \
+      apt install -y ./wkhtmltox_0.12.6-1.jammy_amd64.deb && \
+      pip install --upgrade pip && \
+      pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
