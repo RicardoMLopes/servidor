@@ -3,6 +3,9 @@ import unicodedata
 import re
 import os
 import time
+
+from fastapi import HTTPException
+
 from database.connection import DB_CHAVE
 from fastapi.templating import Jinja2Templates
 from datetime import datetime
@@ -140,6 +143,20 @@ def formatar_data_brasileira(data):
 
 def to_float(valor):
     return float(valor or 0)
+
+
+# Função para converter last_sync
+def parse_last_sync(last_sync: str) -> datetime:
+    """
+    Converte string last_sync para datetime no formato do banco.
+    """
+    try:
+        return datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Formato inválido de last_sync. Use 'YYYY-MM-DD HH:MM:SS'"
+        )
 
 templates.env.filters["formata_cnpj"] = formata_cnpj
 

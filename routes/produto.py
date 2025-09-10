@@ -9,7 +9,7 @@ from fastapi import Query, Request, UploadFile, Form
 from starlette.responses import HTMLResponse
 from typing import List
 from database.connection import get_empresa_session, DB_CHAVE
-from function.funtions import gerar_token_cnpj, limpa_cnpj
+from function.funtions import gerar_token_cnpj, limpa_cnpj, parse_last_sync
 from params.alerta import enviar_alerta
 from database.querys import ConsultaProduto, Insert_Produto, ConsultaEmpresa, ConsultarListaProduto
 from fastapi import Depends, HTTPException
@@ -25,29 +25,32 @@ products_router = APIRouter()
 list_products_router = APIRouter()
 upload_imagem_produtos_router = APIRouter()
 
+
 @products_router.get("")
 async def listar_produtos(
     last_sync: Optional[str] = Query(
         None,
-        description="Data/hora da última sincronização (ISO 8601)"
+        description="Data/hora da última sincronização no formato 'YYYY-MM-DD HH:MM:SS'"
     ),
     db: Session = Depends(get_empresa_db)
 ):
+    logging.warning("ENTROU AQUI")
     try:
-        filtro_data: Optional[datetime] = None
-        if last_sync:
-            try:
-                filtro_data = datetime.fromisoformat(last_sync)
-            except ValueError:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Formato inválido de last_sync. Use ISO 8601 (ex: 2025-08-27T10:15:00)"
-                )
+        # Validação de formato sem conversão de fuso
+        # filtro_data = None
+        # if last_sync:
+        #     try:
+        #         datetime.strptime(last_sync, "%Y-%m-%d %H:%M:%S")
+        #         filtro_data = last_sync
+        #         logging.warning("DATA RECEBIDA: %s", filtro_data)
+        #     except ValueError:
+        #         raise HTTPException(status_code=400, detail="Formato inválido para last_sync")
 
-        # Agora já retorna lista de dicts
-        dados = ConsultaProduto(db, filtro_data)
+        # Consulta produtos
+        dados = ConsultaProduto(db, last_sync)
+       # logging.info("PRODUTOS RETORNADOS: %s", len(dados))
 
-        # Usa pytz para pegar hora de São Paulo
+        # Hora atual no fuso de São Paulo
         tz_sp = pytz.timezone("America/Sao_Paulo")
         last_sync_servidor = datetime.now(tz_sp).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -64,6 +67,8 @@ async def listar_produtos(
             status_code=500,
             detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
         )
+
+
 
 
 @products_router.post("/")

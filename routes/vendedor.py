@@ -21,6 +21,7 @@ async def listar_vendedores(
     db: Session = Depends(get_empresa_db)
 ):
     try:
+        # 1️⃣ Converte last_sync recebido em datetime
         filtro_data: Optional[datetime] = None
         if last_sync:
             try:
@@ -31,22 +32,16 @@ async def listar_vendedores(
                     detail="Formato inválido de last_sync. Use ISO 8601 (ex: 2025-08-27T10:15:00)"
                 )
 
+        # 2️⃣ Consulta vendedores usando padrão ConsultaVendedor
         resultado = ConsultaVendedor(db, filtro_data)
 
-        colunas = [
-            "empresa", "codigo", "codigorota", "nome",
-            "situacaoRegistro", "dataRegistro", "versao"
-        ]
+        # 3️⃣ Converte cada Row em dict
+        dados = [dict(item) for item in resultado]
 
-        dados = []
-        for item in resultado:
-            if len(item) != len(colunas):
-                dados.append({col: item[i] if i < len(item) else None for i, col in enumerate(colunas)})
-            else:
-                dados.append(dict(zip(colunas, item)))
-        # Usa pytz para pegar hora de São Paulo
-        tz_sp = pytz.timezone("America/Sao_Paulo")
-        last_sync_servidor = datetime.now(tz_sp)
+        # 4️⃣ Define last_sync para o cliente como string "YYYY-MM-DD HH:mm:ss"
+        last_sync_servidor = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print("📅 last_sync enviado ao cliente:", last_sync_servidor)
+
         return {
             "vendedores": dados,
             "last_sync": last_sync_servidor

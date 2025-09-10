@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -13,12 +14,16 @@ import traceback
 
 condicao_pagamento_router = APIRouter()
 
+
 @condicao_pagamento_router.get("")
 async def listar_condicoes_pagamento(
-    last_sync: Optional[str] = Query(None, description="Data/hora da última sincronização (ISO 8601)"),
-    db: Session = Depends(get_empresa_db)
+        last_sync: Optional[str] = Query(None, description="Data/hora da última sincronização (ISO 8601)"),
+        db: Session = Depends(get_empresa_db)
 ):
     try:
+        logging.warning("DATA recebida do cliente: %s", last_sync)
+
+        # 1️⃣ Converte last_sync recebido em datetime
         filtro_data: Optional[datetime] = None
         if last_sync:
             try:
@@ -29,24 +34,18 @@ async def listar_condicoes_pagamento(
                     detail="Formato inválido de last_sync. Use ISO 8601 (ex: 2025-08-27T10:15:00)"
                 )
 
-        # Consulta condições de pagamento, filtrando por data se informado
+        # 2️⃣ Consulta condições de pagamento
         resultado = ConsultaCondicoesPagamento(db, filtro_data)
 
-        colunas = [
-            "empresa", "codigo", "descricao", "acrescimo", "desconto",
-            "situacaoRegistro", "dataRegistro", "versao"
-        ]
+        # 3️⃣ Converte cada Row do SQLAlchemy em dict
+        dados = [dict(item) for item in resultado]
 
-        dados = []
-        for item in resultado:
-            if len(item) != len(colunas):
-                # Preenche apenas os campos correspondentes se houver diferença
-                dados.append({col: item[i] if i < len(item) else None for i, col in enumerate(colunas)})
-            else:
-                dados.append(dict(zip(colunas, item)))
-        # Usa pytz para pegar hora de São Paulo
-        tz_sp = pytz.timezone("America/Sao_Paulo")
-        last_sync_servidor = datetime.now(tz_sp)
+        # 4️⃣ Gera last_sync como string no formato desejado
+        last_sync_servidor = datetime.now().strftime("%Y-%m-%d %H:%M:%S") if dados else None
+
+        # 5️⃣ Log antes de retornar
+        logging.info("📦 last_sync enviado para o cliente: %s", last_sync_servidor)
+
         return {
             "condicoes": dados,
             "last_sync": last_sync_servidor

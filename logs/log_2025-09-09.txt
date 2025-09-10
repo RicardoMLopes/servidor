@@ -16,3 +16,437 @@
 [2025-09-09 09:33:59] 
 🔹 Verificando catálogo para comercial sorella
 [2025-09-09 09:34:03] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-09 16:17:49] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:17:52] 🖨️ Gerando catálogo para RM
+[2025-09-09 16:18:31] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-09 16:18:31] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:18:33] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-09 16:18:35] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-09 16:28:38] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:28:40] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:28:40] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:28:42] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:29:00] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:29:02] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:29:02] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:29:04] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:30:07] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:30:09] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:30:09] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:30:11] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:30:16] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:30:18] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:30:18] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:30:20] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:31:10] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:31:12] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:31:12] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:31:14] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:31:17] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:31:20] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:31:20] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:31:22] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:33:06] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:33:09] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:33:09] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:33:11] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:36:36] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:36:38] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:36:38] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:36:40] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:36:46] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:36:48] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:36:48] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:36:50] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:37:22] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:37:24] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:37:24] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:37:26] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:37:29] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:37:31] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:37:31] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:37:34] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:38:15] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:38:17] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:38:17] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:38:19] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:39:23] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:39:25] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:39:25] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:39:27] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:43:17] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:43:19] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:43:19] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:43:21] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:45:02] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:45:04] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:45:04] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:45:06] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:54:03] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:54:05] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:54:05] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:54:07] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 16:58:25] 
+🔹 Verificando catálogo para RM
+[2025-09-09 16:58:27] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 16:58:27] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 16:58:29] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:00:28] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:00:30] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:00:30] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:00:32] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:01:57] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:01:59] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:01:59] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:02:01] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:03:24] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:03:26] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:03:26] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:03:28] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:17:21] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:17:23] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:17:23] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:17:25] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:28:28] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:28:31] 🖨️ Gerando catálogo para RM
+[2025-09-09 17:28:58] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-09 17:28:58] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:29:00] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-09 17:29:01] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-09 17:36:15] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:36:17] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:36:17] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:36:19] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:49:55] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:49:58] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:49:58] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:50:00] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:52:46] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:52:48] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:52:48] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:52:50] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:53:54] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:53:56] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:53:56] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:53:58] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:56:03] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:56:05] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:56:05] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:56:07] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 17:59:15] 
+🔹 Verificando catálogo para RM
+[2025-09-09 17:59:17] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 17:59:17] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 17:59:19] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:03:32] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:03:34] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:03:34] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:03:36] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:05:55] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:05:57] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:05:57] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:05:59] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:12:31] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:12:33] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:12:33] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:12:35] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:14:25] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:14:28] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:14:28] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:14:30] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:18:13] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:18:15] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:18:15] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:18:17] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:19:41] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:19:43] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:19:43] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:19:45] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:23:22] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:23:24] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:23:24] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:23:26] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:25:57] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:25:59] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:25:59] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:26:02] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:27:04] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:27:06] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:27:06] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:27:08] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:32:46] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:32:48] 🖨️ Gerando catálogo para RM
+[2025-09-09 18:33:18] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-09 18:33:18] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:33:20] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-09 18:33:21] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-09 18:36:25] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:36:28] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:36:28] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:36:30] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:43:26] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:43:28] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:43:28] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:43:30] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:45:11] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:45:13] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:45:13] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:45:15] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:48:57] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:48:59] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:48:59] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:49:01] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:50:33] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:50:35] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:50:35] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:50:37] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:53:09] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:53:11] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:53:11] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:53:13] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 18:58:38] 
+🔹 Verificando catálogo para RM
+[2025-09-09 18:58:40] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 18:58:40] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 18:58:42] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:00:54] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:00:56] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:00:56] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:00:58] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:02:44] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:02:46] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:02:46] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:02:48] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:10:28] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:10:30] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:10:30] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:10:32] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:24:24] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:24:27] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:24:27] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:24:29] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:33:48] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:33:51] 🖨️ Gerando catálogo para RM
+[2025-09-09 19:34:29] ✅ Catálogo gerado e parâmetro atualizado para RM
+[2025-09-09 19:34:29] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:34:31] 🖨️ Gerando catálogo para FFA Dsitribuidora
+[2025-09-09 19:34:33] ✅ Catálogo gerado e parâmetro atualizado para FFA Dsitribuidora
+[2025-09-09 19:41:36] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:41:38] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:41:38] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:41:40] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:44:25] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:44:27] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:44:27] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:44:29] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:47:04] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:47:07] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:47:07] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:47:09] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:50:41] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:50:43] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:50:43] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:50:45] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:53:29] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:53:31] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:53:31] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:53:33] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 19:56:32] 
+🔹 Verificando catálogo para RM
+[2025-09-09 19:56:34] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 19:56:34] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 19:56:36] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:01:27] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:01:29] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:01:29] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:01:31] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:03:38] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:03:40] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:03:40] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:03:42] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:07:10] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:07:13] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:07:13] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:07:15] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:08:51] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:08:53] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:08:53] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:08:55] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:13:22] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:13:24] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:13:24] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:13:26] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:17:50] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:17:52] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:17:52] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:17:54] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:19:39] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:19:42] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:19:42] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:19:44] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:20:15] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:20:17] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:20:17] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:20:19] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:23:16] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:23:18] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:23:18] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:23:20] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:26:30] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:26:32] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:26:32] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:26:34] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:29:07] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:29:09] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:29:09] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:29:11] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:30:57] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:30:59] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:30:59] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:31:01] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:31:27] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:31:29] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:31:29] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:31:31] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-09 20:32:33] 
+🔹 Verificando catálogo para RM
+[2025-09-09 20:32:36] ⏱️ Ainda não passou 1 hora desde a última geração para RM
+[2025-09-09 20:32:36] 
+🔹 Verificando catálogo para FFA Dsitribuidora
+[2025-09-09 20:32:38] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora

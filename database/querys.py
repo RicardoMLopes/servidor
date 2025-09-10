@@ -1,13 +1,8 @@
-from sqlalchemy import text
-import traceback
+import traceback, logging
 from typing import Dict, Any, Optional
-
 from params.alerta import enviar_alerta
 from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
 from datetime import datetime
-
-from params.logger_config import logger
-
 
 # consulta da empresa
 def ConsultaEmpresa(db):
@@ -38,14 +33,9 @@ def ConsultaProdutoCatalogo(db):
         traceback.print_exc()
         return []
 
-def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
-    """
-    Consulta produtos na tabela cadproduto.
-    Se filtro_data for fornecido (datetime), retorna apenas produtos
-    com dataRegistro > filtro_data.
-    """
+def ConsultaProduto(db, filtro_data: Optional[str] = None):
     try:
-        sql = """
+        sql_str = """
             SELECT
                 empresa,
                 codigo,
@@ -59,7 +49,6 @@ def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
                 cor,
                 peso,
                 precovenda,
-                casasdecimais,
                 percentualdesconto,
                 estoque,
                 reajustacondicaopagamento,
@@ -70,19 +59,33 @@ def ConsultaProduto(db, filtro_data: Optional[datetime] = None):
                 imagens
             FROM cadproduto
         """
+
         params = {}
 
+        # aplica filtro apenas se houver last_sync
         if filtro_data:
-            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
-            sql += " WHERE dataRegistro > :filtro_data"
-            params["filtro_data"] = filtro_str
+            filtro = datetime.strptime(filtro_data, "%Y-%m-%d %H:%M:%S")
+            sql_str += " WHERE dataRegistro >= :filtro_data"
+            params["filtro_data"] = filtro
 
-        resultado = db.execute(text(sql), params).fetchall()
+        sql = text(sql_str)
+        resultado = db.execute(sql, params).mappings().all()
+
+        logging.warning("📊 Total de produtos retornados: %d", len(resultado))
+        if resultado:
+            logging.warning("🧾 Exemplo de produto retornado: %s", resultado[0])
+
         return resultado
 
     except Exception as e:
         traceback.print_exc()
+        logging.error("❌ Erro na consulta de produtos: %s", str(e))
         return []
+
+
+
+
+
 
 def ConsultarListaProduto(db):
     """
@@ -104,8 +107,7 @@ def ConsultarListaProduto(db):
                 tamanho,
                 cor,
                 peso,
-                precovenda,
-                casasdecimais,
+                precovenda,               
                 percentualdesconto,
                 estoque,
                 reajustacondicaopagamento,
@@ -186,28 +188,50 @@ def ConsultaRotaCliente(db):
         traceback.print_exc()
     return resultado
 
-# consulta de clientes
-def ConsultaCliente(db, filtro_data: Optional[datetime] = None):
-    """
-    Consulta clientes na tabela cadcliente.
-    Se filtro_data for fornecido (datetime), retorna apenas clientes
-    com dataRegistro > filtro_data.
-    """
+def ConsultaCliente(db, filtro_data: Optional[str] = None):
     try:
-        sql = "SELECT * FROM cadcliente"
+        sql = text("""
+            SELECT
+                empresa,
+                codigo,
+                codigovendedor,
+                nome,
+                contato,
+                cpfCnpj,
+                rua,
+                numero,
+                bairro,
+                cidade,
+                estado,
+                telefone,
+                limiteCredito,
+                observacao,
+                restricao,
+                reajuste,
+                situacaoRegistro,
+                dataRegistro,
+                versao
+            FROM cadcliente          
+        """)
+
         params = {}
-
         if filtro_data:
-            # Formata datetime para string compatível com SQL
-            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
-            sql += " WHERE dataRegistro > :filtro_data"
-            params["filtro_data"] = filtro_str
+            sql = text(str(sql) + " WHERE dataRegistro >= :filtro_data")
+            # transforma string em datetime antes de mandar pro banco
+            filtro = datetime.strptime(filtro_data, "%Y-%m-%d %H:%M:%S")
+            params["filtro_data"] = filtro
 
-        resultado = db.execute(text(sql), params).fetchall()
+        resultado = db.execute(sql, params).mappings().all()
+
+        logging.warning("📊 Total de clientes retornados: %d", len(resultado))
+        if resultado:
+            logging.warning("🧾 Exemplo de cliente retornado: %s", resultado[0])
+
         return resultado
 
     except Exception as e:
         traceback.print_exc()
+        logging.error("❌ Erro na consulta de clientes: %s", str(e))
         return []
 
 
@@ -222,36 +246,57 @@ def ConsultaVendedor(db, filtro_data: Optional[datetime] = None):
         params = {}
 
         if filtro_data:
-            # Formata datetime para string compatível com SQL
-            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
+            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")  # string compatível com SQL
             sql += " WHERE dataRegistro > :filtro_data"
             params["filtro_data"] = filtro_str
 
-        resultado = db.execute(text(sql), params).fetchall()
+        resultado = db.execute(text(sql), params).mappings().all()
+        print("📊 Total de vendedores retornados:", len(resultado))
+        if resultado:
+            print("🧾 Exemplo de vendedor retornado:", resultado[0])
+
         return resultado
     except Exception as e:
         traceback.print_exc()
+        print("❌ Erro na consulta de vendedores:", str(e))
         return []
 
 
 
 
-# consulta de forma de pagamento
 def ConsultaCondicoesPagamento(db, filtro_data: Optional[datetime] = None):
+    """
+    Consulta condições de pagamento na tabela cadcondicaopagamento.
+    Se filtro_data for fornecido (datetime), retorna apenas registros
+    com dataRegistro >= filtro_data e situacaoRegistro <> 'E'.
+    """
     try:
-        sql = "SELECT * FROM cadcondicaopagamento"
+        sql = """
+            SELECT
+                empresa,
+                codigo,
+                descricao,
+                acrescimo,
+                desconto,
+                situacaoRegistro,
+                dataRegistro,
+                versao
+            FROM cadcondicaopagamento             
+        """
         params = {}
-
         if filtro_data:
-            # Formata datetime para string compatível com SQL
-            filtro_str = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
-            sql += " WHERE dataRegistro > :filtro_data"
-            params["filtro_data"] = filtro_str
+            sql += " WHERE dataRegistro >= :filtro_data"
+            params["filtro_data"] = filtro_data.strftime("%Y-%m-%d %H:%M:%S")
 
-        resultado = db.execute(text(sql), params).fetchall()
+        resultado = db.execute(text(sql), params).mappings().all()
+        logging.warning("📊 Total de condições de pagamento retornadas: %d", len(resultado))
+        if resultado:
+            logging.warning("🧾 Exemplo de condição retornada: %s", resultado[0])
         return resultado
+
     except Exception as e:
         traceback.print_exc()
+        logging.error("❌ Erro na consulta de condições de pagamento: %s", str(e))
         return []
 
 
