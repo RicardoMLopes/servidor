@@ -194,7 +194,7 @@ def ConsultaCliente(db, filtro_data: Optional[str] = None):
             SELECT
                 empresa,
                 codigo,
-                codigovendedor,
+                cd_vendedor AS codigovendedor,
                 nome,
                 contato,
                 cpfCnpj,
@@ -211,7 +211,7 @@ def ConsultaCliente(db, filtro_data: Optional[str] = None):
                 situacaoRegistro,
                 dataRegistro,
                 versao
-            FROM cadcliente          
+            FROM cadcliente
         """)
 
         params = {}

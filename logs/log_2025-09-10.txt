@@ -116,3 +116,24 @@
 [2025-09-10 09:15:41] 
 🔹 Verificando catálogo para FFA Dsitribuidora
 [2025-09-10 09:15:43] ⏱️ Ainda não passou 1 hora desde a última geração para FFA Dsitribuidora
+[2025-09-10 09:22:55] 
+🔹 Verificando catálogo para Testes
+[2025-09-10 09:22:58] 🖨️ Gerando catálogo para Testes
+[2025-09-10 09:22:59] ✅ Catálogo gerado e parâmetro atualizado para Testes
+[2025-09-10 09:22:59] 
+🔹 Verificando catálogo para JAM
+[2025-09-10 09:23:02] 🖨️ Gerando catálogo para JAM
+[2025-09-10 09:23:41] ✅ Catálogo gerado e parâmetro atualizado para JAM
+[2025-09-10 09:23:41] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-10 09:23:45] 🖨️ Gerando catálogo para comercial sorella
+[2025-09-10 09:23:52] ✅ Catálogo gerado e parâmetro atualizado para comercial sorella
+[2025-09-10 09:37:26] 
+🔹 Verificando catálogo para Testes
+[2025-09-10 09:37:38] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-10 09:37:38] 
+🔹 Verificando catálogo para JAM
+[2025-09-10 09:37:42] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-10 09:37:43] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-10 09:37:45] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
