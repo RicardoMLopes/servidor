@@ -108,7 +108,7 @@ async def produtos_list_template(
     codigo: Optional[str] = Query(None),
     codigobarra: Optional[str] = Query(None),
 ):
-    # ------ autenticação / token (igual ao seu fluxo) ------
+    # ------ autenticação / token ------
     if not token and cnpj:
         token = gerar_token_cnpj(cnpj, DB_CHAVE)
 
@@ -127,14 +127,14 @@ async def produtos_list_template(
     empresa_war = ConsultaEmpresa(db)
     empresa_nome = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
 
-    # ------ pega produtos (sua consulta existente) ------
+    # ------ pega produtos ------
     resultado = ConsultarListaProduto(db)
     colunas = [
         "empresa","codigo","descricao","unidadeMedida","codigobarra",
         "agrupamento","marca","modelo","tamanho","cor","peso",
         "precovenda","casasdecimais","percentualdesconto","estoque",
         "reajustacondicaopagamento","percentualComissao","situacaoregistro",
-        "dataRegistro","versao","imagens"
+        "dataRegistro","versao"
     ]
 
     produtos = []
@@ -147,26 +147,6 @@ async def produtos_list_template(
             else:
                 p = dict(zip(colunas, item))
         produtos.append(p)
-
-    # ------ NORMALIZAÇÕES úteis ------
-    def normalize_imagens_field(imagens_field) -> List[str]:
-        if not imagens_field:
-            return []
-        if isinstance(imagens_field, (list, tuple)):
-            return [str(x).strip() for x in imagens_field if str(x).strip()]
-        if isinstance(imagens_field, bytes):
-            imagens_field = imagens_field.decode('utf-8', errors='ignore')
-        if isinstance(imagens_field, str):
-            s = imagens_field.strip()
-            try:
-                parsed = ast.literal_eval(s)
-                if isinstance(parsed, (list, tuple)):
-                    return [str(x).strip() for x in parsed if str(x).strip()]
-            except Exception:
-                pass
-            parts = [p.strip() for p in s.split(',') if p.strip()]
-            return parts
-        return []
 
     # ------ APLICA FILTROS em Python ------
     descricao_q = descricao.strip().lower() if descricao else None
@@ -183,41 +163,34 @@ async def produtos_list_template(
     if codigobarra_q:
         produtos = [p for p in produtos if codigobarra_q in str(p.get("codigobarra") or "").strip().lower()]
 
-    # ------ IMAGENS: monta imagem URL ------
+    # ------ IMAGENS: monta imagem URL a partir da pasta ------
+    extensoes = [".jpg", ".jpeg", ".png", ".webp", ".JPG", ".JPEG", ".PNG", ".WEBP"]
+
     cnpj_limpo = limpa_cnpj(cnpj) if cnpj else ""
     pasta_cnpj = os.path.join(UPLOAD_DIR, cnpj_limpo) if cnpj_limpo else None
 
     for p in produtos:
-        imagens_field = p.get("imagens")
-        imgs = normalize_imagens_field(imagens_field)
         chosen = None
+        codigo_item = str(p.get("codigo") or "").strip()
 
-        if imgs and pasta_cnpj and os.path.exists(pasta_cnpj):
-            for nome_img in imgs:
-                caminho = os.path.join(pasta_cnpj, nome_img)
-                if os.path.exists(caminho):
-                    chosen = nome_img
+        if codigo_item and pasta_cnpj and os.path.exists(pasta_cnpj):
+            arquivos = os.listdir(pasta_cnpj)
+            for ext in extensoes:
+                for arquivo in arquivos:
+                    nome_base, arquivo_ext = os.path.splitext(arquivo)
+                    if nome_base.lower() == codigo_item.lower() and arquivo_ext.lower() == ext.lower():
+                        chosen = arquivo
+                        break
+                if chosen:
                     break
 
-        if not chosen:
-            codigo_item = str(p.get("codigo") or "").strip()
-            if codigo_item and pasta_cnpj and os.path.exists(pasta_cnpj):
-                for ext in [".jpg", ".jpeg", ".png", ".webp"]:
-                    nome_img = f"{codigo_item}{ext}"
-                    caminho = os.path.join(pasta_cnpj, nome_img)
-                    if os.path.exists(caminho):
-                        chosen = nome_img
-                        break
-
+        # Se não encontrou, usa imagem padrão
         if chosen:
             p["imagem_url"] = f"/{UPLOAD_DIR}/{cnpj_limpo}/{chosen}"
         else:
-            pad_local = os.path.join(UPLOAD_DIR, cnpj_limpo, IMAGEM_PADRAO) if cnpj_limpo else None
-            if pad_local and os.path.exists(pad_local):
-                p["imagem_url"] = f"/{UPLOAD_DIR}/{cnpj_limpo}/{IMAGEM_PADRAO}"
-            else:
-                p["imagem_url"] = f"/{UPLOAD_DIR}/{IMAGEM_PADRAO}"
+            p["imagem_url"] = f"/{UPLOAD_DIR}/{cnpj_limpo}/{IMAGEM_PADRAO}"
 
+        # ------ Formata preço ------
         try:
             prec = float(p.get("precovenda") or 0)
         except Exception:
