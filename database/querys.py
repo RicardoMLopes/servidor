@@ -117,12 +117,8 @@ def ConsultarListaProduto(db):
                 versao,
                 imagens
             FROM cadproduto
+            WHERE situacaoregistro <> 'E' ORDER BY descricao
         """
-
-
-
-        sql += " WHERE situacaoregistro <> 'E' "
-
 
         resultado = db.execute(text(sql)).fetchall()
         return resultado
