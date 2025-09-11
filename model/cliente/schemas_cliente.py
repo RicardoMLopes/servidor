@@ -1,10 +1,12 @@
-from pydantic import BaseModel, constr, condecimal
+from pydantic import BaseModel, condecimal
 from typing import Optional
+from datetime import datetime
 
-class ClienteCreate(BaseModel):
+# Base que todas herdam
+class ClienteBase(BaseModel):
     empresa: str
     codigo: str
-    codigovendedor: str
+    codigovendedor: Optional[str] = None
     nome: str
     contato: Optional[str] = None
     cpfCnpj: Optional[str] = None
@@ -19,5 +21,19 @@ class ClienteCreate(BaseModel):
     restricao: Optional[str] = None
     reajuste: Optional[condecimal(max_digits=5, decimal_places=2)] = 0
     situacaoRegistro: Optional[str] = "A"
-    dataRegistro: Optional[str] = None  # pode ser datetime se quiser
-    versao: Optional[str] = "1.0"
+    dataRegistro: Optional[datetime] = None
+    versao: Optional[int] = 1
+
+    class Config:
+        from_attributes = True  # ⚠️ Pydantic v2
+
+# Agora define ClienteCreate
+class ClienteCreate(ClienteBase):
+    pass
+
+# Outras classes
+class ClienteOutComId(ClienteBase):
+    id: int
+
+class ClienteOutSemId(ClienteBase):
+    pass

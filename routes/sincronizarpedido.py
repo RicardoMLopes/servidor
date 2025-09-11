@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 import traceback, json
-from model import pedido, schemas_pedido
+from model import pedido
+from model.pedido import schemas_pedido
 from typing import List
 from sqlalchemy.orm import Session, joinedload
 from database.dependencies import get_empresa_db

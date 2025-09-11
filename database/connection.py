@@ -3,9 +3,11 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import quote_plus
-from model.pedido import Base
 
-
+from model.empresa.cadempresa import empresa_Base
+from model.empresa.models import MODELS_EMPRESA
+from model.pedido.pedido import Base
+from model.registration import validar_tabela
 
 # ✅ Carrega variáveis de ambiente
 load_dotenv()
@@ -54,5 +56,12 @@ def get_empresa_session(db_name: str):
 
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
     Base.metadata.bind = engine
+
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    return SessionLocal()
+    db = SessionLocal()
+
+    # Cria tabela de Empresa
+    empresa_Base.metadata.create_all(bind=db.bind)
+    validar_tabela(db, "cadempresa", MODELS_EMPRESA["cadempresa"])
+
+    return db

@@ -4,7 +4,7 @@ import logging
 from params.alerta import enviar_alerta
 from typing import List
 from database.dependencies import get_empresa_db
-from model.schemas_cliente import ClienteCreate
+from model.cliente.schemas_cliente import ClienteCreate
 from database.querys import ConsultaCliente, Insert_Cliente
 from datetime import datetime
 from fastapi import Query

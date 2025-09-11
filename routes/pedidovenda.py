@@ -14,8 +14,6 @@ from datetime import datetime, date
 from starlette.responses import  StreamingResponse
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj
-from model.dictionary import criar_tabela_cadusers_se_nao_existir
-from model.pedido import colunas_movnota, colunas_movnotaitem, pks_movnotaitem, pks_movnota
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
 from database.querys import inserir_pedido, ConsultaEmpresa  # função separada que faz a inserção
 from params.alerta import enviar_alerta
@@ -135,14 +133,8 @@ def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None, empresa
 
     return BytesIO(pdf_bytes)
 
-
-
-
 @pedido_router.post("")
 async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
-    # 🔹 Cria/atualiza tabelas se necessário
-    criar_tabela_cadusers_se_nao_existir(db, "movnota", colunas_movnota, pks_movnota)
-    criar_tabela_cadusers_se_nao_existir(db, "movnotaitem", colunas_movnotaitem, pks_movnotaitem)
 
     try:
         # 🔹 Gerar hash único do pedido

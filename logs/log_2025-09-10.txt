@@ -191,3 +191,21 @@
 [2025-09-10 10:30:07] 
 🔹 Verificando catálogo para comercial sorella
 [2025-09-10 10:30:10] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-10 10:32:29] 
+🔹 Verificando catálogo para Testes
+[2025-09-10 10:32:32] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-10 10:32:32] 
+🔹 Verificando catálogo para JAM
+[2025-09-10 10:32:35] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-10 10:32:36] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-10 10:32:39] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-10 14:17:23] 
+🔹 Verificando catálogo para Testes
+[2025-09-10 14:17:26] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-10 14:17:26] 
+🔹 Verificando catálogo para JAM
+[2025-09-10 14:17:30] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-10 14:17:31] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-10 14:17:35] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella

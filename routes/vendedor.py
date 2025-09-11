@@ -40,7 +40,7 @@ async def listar_vendedores(
 
         # 4️⃣ Define last_sync para o cliente como string "YYYY-MM-DD HH:mm:ss"
         last_sync_servidor = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print("📅 last_sync enviado ao cliente:", last_sync_servidor)
+        print("📅 last_sync enviado ao VENDEDOR:", last_sync_servidor)
 
         return {
             "vendedores": dados,

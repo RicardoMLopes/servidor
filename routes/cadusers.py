@@ -42,7 +42,6 @@ def buscar_vendedores(request: Request, cnpj: str = Form(...)):
     # cria sessão empresa
     session_empresa = get_empresa_session(nome_banco)
     with session_empresa as db:
-        criar_tabela_cadusers_se_nao_existir(db, "cadusers", colunas_cadusers)
 
         empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
         if not empresa_raw:

@@ -117,7 +117,7 @@ def ConsultarListaProduto(db):
                 versao,
                 imagens
             FROM cadproduto
-            WHERE situacaoregistro <> 'E' ORDER BY descricao
+            WHERE situacaoregistro <> 'E' ORDER BY trim(descricao)
         """
 
         resultado = db.execute(text(sql)).fetchall()
@@ -190,7 +190,7 @@ def ConsultaCliente(db, filtro_data: Optional[str] = None):
             SELECT
                 empresa,
                 codigo,
-                cd_vendedor AS codigovendedor,
+                codigovendedor,
                 nome,
                 contato,
                 cpfCnpj,
@@ -275,8 +275,7 @@ def ConsultaCondicoesPagamento(db, filtro_data: Optional[datetime] = None):
                 acrescimo,
                 desconto,
                 situacaoRegistro,
-                dataRegistro,
-                versao
+                dataRegistro               
             FROM cadcondicaopagamento             
         """
         params = {}
@@ -571,8 +570,8 @@ def Insert_Cliente(db, cliente):
                 restricao = :restricao,
                 reajuste = :reajuste,
                 situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro,
-                versao = :versao
+                dataRegistro = :dataRegistro
+                
             WHERE empresa = :empresa AND codigo = :codigo
             """)
             db.execute(sql_update, cliente_dict)  # usar cliente_dict, não cliente.dict()
@@ -588,7 +587,7 @@ def Insert_Cliente(db, cliente):
                 :empresa, :codigo, :codigovendedor, :nome, :contato, :cpfCnpj,
                 :rua, :numero, :bairro, :cidade, :estado, :telefone,
                 :limiteCredito, :observacao, :restricao, :reajuste,
-                :situacaoRegistro, :dataRegistro, :versao
+                :situacaoRegistro, :dataRegistro
             )
             """)
             db.execute(sql_insert, cliente_dict)  # também usar cliente_dict
@@ -627,9 +626,7 @@ def Insert_Produto(db, produto):
                 reajustacondicaopagamento = :reajustacondicaopagamento,
                 percentualcomissao = :percentualcomissao,
                 situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro,
-                versao = :versao,
-                imagens = :imagens
+                dataRegistro = :dataRegistro
             WHERE empresa = :empresa AND codigo = :codigo
             """
             db.execute(sql_update, produto.dict())
@@ -640,12 +637,12 @@ def Insert_Produto(db, produto):
                 empresa, codigo, descricao, unidademedida, codigobarra,
                 agrupamento, marca, modelo, tamanho, cor, peso,
                 precoVenda, casasdecimais, percentualdesconto, estoque, reajustacondicaopagamento,
-                percentualcomissao, situacaoRegistro, dataRegistro, versao, imagens
+                percentualcomissao, situacaoRegistro, dataRegistro
             ) VALUES (
                 :empresa, :codigo, :descricao, :unidademedida, :codigobarra,
                 :agrupamento, :marca, :modelo, :tamanho, :cor, :peso,
                 :precoVenda, :casasdecimais, :percentualdesconto, :estoque, :reajustacondicaopagamento,
-                :percentualcomissao, :situacaoRegistro, :dataRegistro, :versao, :imagens
+                :percentualcomissao, :situacaoRegistro, :dataRegistro
             )
             """
             db.execute(sql_insert, produto.dict())
@@ -684,7 +681,7 @@ def Insert_Vendedor(db, vendedor):
                 situacaoRegistro, dataRegistro, versao
             ) VALUES (
                 :empresa, :codigo, :cd_rota, :nome,
-                :situacaoRegistro, :dataRegistro, :versao
+                :situacaoRegistro, :dataRegistro
             )
             """
             db.execute(sql_insert, vendedor.dict())
@@ -711,8 +708,7 @@ def Insert_Condicao_Pagamento(db, condicao):
                 acrescimo = :acrescimo,
                 desconto = :desconto,
                 situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro,
-                versao = :versao
+                dataRegistro = :dataRegistro
             WHERE empresa = :empresa AND codigo = :codigo
             """
             db.execute(sql_update, condicao.dict())
@@ -724,7 +720,7 @@ def Insert_Condicao_Pagamento(db, condicao):
                 situacaoRegistro, dataRegistro, versao
             ) VALUES (
                 :empresa, :codigo, :descricao, :acrescimo, :desconto,
-                :situacaoRegistro, :dataRegistro, :versao
+                :situacaoRegistro, :dataRegistro
             )
             """
             db.execute(sql_insert, condicao.dict())
@@ -748,33 +744,14 @@ def Insert_Parametro(db, parametro):
             # Atualiza registro existente
             sql_update = """
             UPDATE parametros SET
-                vendedorPadrao = :vendedorPadrao,
-                atualizaCliente = :atualizaCliente,
-                atualizaCondPagamento = :atualizaCondPagamento,
-                atualizaParametro = :atualizaParametro,
-                atualizaProduto = :atualizaProduto,
-                atualizaVendedor = :atualizaVendedor,
+                vendedorPadrao = :vendedorPadrao,              
                 controlaSaldoEstoque = :controlaSaldoEstoque,
                 casaDecimalQuantidade = :casaDecimalQuantidade,
-                casaDecimalValor = :casaDecimalValor,
-                controlaFormaPagamento = :controlaFormaPagamento,
-                percentualDescontoVenda = :percentualDescontoVenda,
-                mostrarFinanceiro = :mostrarFinanceiro,
-                mostrarFinanceiroVencido = :mostrarFinanceiroVencido,
-                dataUltimaAtualizacao = :dataUltimaAtualizacao,
+                casaDecimalValor = :casaDecimalValor,               
+                percentualDescontoVenda = :percentualDescontoVenda,                
                 situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro,
-                versaoGeral = :versaoGeral,
-                versaoVendedor = :versaoVendedor,
-                versaoCliente = :versaoCliente,
-                versaoCondicaoPagamento = :versaoCondicaoPagamento,
-                versaoCheckListPergunta = :versaoCheckListPergunta,
-                versaoCheckListResposta = :versaoCheckListResposta,
-                versaoFinanceiro = :versaoFinanceiro,
-                versaoRotaCondicaoPagamento = :versaoRotaCondicaoPagamento,
-                versaoRotaCliente = :versaoRotaCliente,
-                versaoProduto = :versaoProduto,
-                versaoParametro = :versaoParametro
+                dataRegistro = :dataRegistro
+               
             WHERE empresa = :empresa
             """
             db.execute(sql_update, parametro.dict())
@@ -782,23 +759,13 @@ def Insert_Parametro(db, parametro):
             # Insere novo registro
             sql_insert = """
             INSERT INTO parametros (
-                empresa, vendedorPadrao, atualizaCliente, atualizaCondPagamento,
-                atualizaParametro, atualizaProduto, atualizaVendedor, controlaSaldoEstoque,
-                casaDecimalQuantidade, casaDecimalValor, controlaFormaPagamento,
-                percentualDescontoVenda, mostrarFinanceiro, mostrarFinanceiroVencido,
-                dataUltimaAtualizacao, situacaoRegistro, dataRegistro, versaoGeral,
-                versaoVendedor, versaoCliente, versaoCondicaoPagamento, versaoCheckListPergunta,
-                versaoCheckListResposta, versaoFinanceiro, versaoRotaCondicaoPagamento,
-                versaoRotaCliente, versaoProduto, versaoParametro
+                empresa, vendedorPadrao,controlaSaldoEstoque,
+                casaDecimalQuantidade,
+                percentualDescontoVenda, situacaoRegistro, dataRegistro
             ) VALUES (
-                :empresa, :vendedorPadrao, :atualizaCliente, :atualizaCondPagamento,
-                :atualizaParametro, :atualizaProduto, :atualizaVendedor, :controlaSaldoEstoque,
-                :casaDecimalQuantidade, :casaDecimalValor, :controlaFormaPagamento,
-                :percentualDescontoVenda, :mostrarFinanceiro, :mostrarFinanceiroVencido,
-                :dataUltimaAtualizacao, :situacaoRegistro, :dataRegistro, :versaoGeral,
-                :versaoVendedor, :versaoCliente, :versaoCondicaoPagamento, :versaoCheckListPergunta,
-                :versaoCheckListResposta, :versaoFinanceiro, :versaoRotaCondicaoPagamento,
-                :versaoRotaCliente, :versaoProduto, :versaoParametro
+                :empresa, :vendedorPadrao, :controlaSaldoEstoque,
+                :casaDecimalQuantidade, :casaDecimalValor, 
+                :percentualDescontoVenda, :situacaoRegistro, :dataRegistro
             )
             """
             db.execute(sql_insert, parametro.dict())

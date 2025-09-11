@@ -24,6 +24,7 @@ def get_nome_banco_por_token(token: str) -> str:
             # logging.warning("resultado do banco", result)
             if not result:
                 raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
+
             return result[0]
     except Exception as e:
         db.rollback()
@@ -55,8 +56,6 @@ def todos_nome_banco() -> List[Dict]:
 
     finally:
         db.close()
-
-
 
 # Dependência principal usada nas rotas
 def get_empresa_db(request: Request) -> Session:
