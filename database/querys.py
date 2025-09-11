@@ -506,7 +506,7 @@ def inserir_pedido(db, nota):
                 "numerodocumento": prox_numerodoc,
                 "codigovendedor": item.get("codigovendedor"),
                 "codigoproduto": item.get("codigoproduto"),
-                "idpedido": item.get("idpedido"),
+                "idpedido": nota.get("idpedido"),
                 "descricaoproduto": item.get("descricaoproduto"),
                 "valorUnitario": item.get("valorUnitario"),
                 "valorunitariovenda": item.get("valorunitariovenda"),
