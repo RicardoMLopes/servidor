@@ -67,6 +67,7 @@ def get_empresa_session(db_name: str):
     # Cria tabela de Empresa
     # Inicializa tabelas apenas na primeira conexão com este banco
     if not tabelas_inicializadas.get(db_name):
+        tabelas_inicializadas[db_name] = True
         empresa_Base.metadata.create_all(bind=db.bind)
         validar_tabela(db, "cadempresa", MODELS_EMPRESA["cadempresa"])
 

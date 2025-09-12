@@ -49,6 +49,7 @@ async def buscar_empresa(db: Session = Depends(get_empresa_db)):
             # Verifica se as tabelas desse banco já foram inicializadas
             db_nome = db.bind.url.database
             if not tabelas_inicializadas.get(db_nome):
+                tabelas_inicializadas[db_nome] = True
                 # Cria tabela do usuário
                 criar_tabela_cadusers_se_nao_existir(db, "cadusers", colunas_cadusers)
 
