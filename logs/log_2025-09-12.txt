@@ -124,3 +124,12 @@
 [2025-09-12 11:04:51] 
 🔹 Verificando catálogo para comercial sorella
 [2025-09-12 11:04:56] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
+[2025-09-12 15:35:52] 
+🔹 Verificando catálogo para Testes
+[2025-09-12 15:35:55] ⏱️ Ainda não passou 1 hora desde a última geração para Testes
+[2025-09-12 15:35:55] 
+🔹 Verificando catálogo para JAM
+[2025-09-12 15:35:59] ⏱️ Ainda não passou 1 hora desde a última geração para JAM
+[2025-09-12 15:35:59] 
+🔹 Verificando catálogo para comercial sorella
+[2025-09-12 15:36:03] ⏱️ Ainda não passou 1 hora desde a última geração para comercial sorella
