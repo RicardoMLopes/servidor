@@ -36,6 +36,9 @@ from params.alerta import enviar_alerta
 
 empresa_router = APIRouter()
 
+# Flags globais para controlar criação/verificação de tabelas
+tabelas_inicializadas = {}
+
 # requisição do cadastro de empresa
 @empresa_router.get("")
 async def buscar_empresa(db: Session = Depends(get_empresa_db)):
@@ -43,32 +46,35 @@ async def buscar_empresa(db: Session = Depends(get_empresa_db)):
 
         resultado = ConsultaEmpresa(db)
         if resultado:
-            # Cria tabela do usuário
-            criar_tabela_cadusers_se_nao_existir(db, "cadusers", colunas_cadusers)
+            # Verifica se as tabelas desse banco já foram inicializadas
+            db_id = id(db.bind)  # identifica o banco pela engine
+            if not tabelas_inicializadas.get(db_id):
+                # Cria tabela do usuário
+                criar_tabela_cadusers_se_nao_existir(db, "cadusers", colunas_cadusers)
 
-            # Cria tabela de parâmetro
-            param_Base.metadata.create_all(bind=db.bind)
-            validar_tabela(db, "cadparametro", MODELS_PARAMETRO["cadparametro"])
+                # Cria tabela de parâmetro
+                param_Base.metadata.create_all(bind=db.bind)
+                validar_tabela(db, "cadparametro", MODELS_PARAMETRO["cadparametro"])
 
-            # 🔹 Cria/atualiza tabelas se necessário
-            criar_tabela_cadusers_se_nao_existir(db, "movnota", colunas_movnota, pks_movnota)
-            criar_tabela_cadusers_se_nao_existir(db, "movnotaitem", colunas_movnotaitem, pks_movnotaitem)
+                # 🔹 Cria/atualiza tabelas se necessário
+                criar_tabela_cadusers_se_nao_existir(db, "movnota", colunas_movnota, pks_movnota)
+                criar_tabela_cadusers_se_nao_existir(db, "movnotaitem", colunas_movnotaitem, pks_movnotaitem)
 
-            # Cria tabela de cliente
-            c_Base.metadata.create_all(bind=db.bind)
-            validar_tabela(db, "cadcliente", MODELS_CLIENT["cadcliente"])
+                # Cria tabela de cliente
+                c_Base.metadata.create_all(bind=db.bind)
+                validar_tabela(db, "cadcliente", MODELS_CLIENT["cadcliente"])
 
-            # Cria tabela de produto
-            p_Base.metadata.create_all(bind=db.bind)
-            validar_tabela(db, "cadproduto", MODELS_PROD["cadproduto"])
+                # Cria tabela de produto
+                p_Base.metadata.create_all(bind=db.bind)
+                validar_tabela(db, "cadproduto", MODELS_PROD["cadproduto"])
 
-            # Cria tabela de vendedor
-            v_Base.metadata.create_all(bind=db.bind)
-            validar_tabela(db, "cadvendedor", MODELS_VEND["cadvendedor"])
+                # Cria tabela de vendedor
+                v_Base.metadata.create_all(bind=db.bind)
+                validar_tabela(db, "cadvendedor", MODELS_VEND["cadvendedor"])
 
-            # Cria tabela de forma pagto
-            f_Base.metadata.create_all(bind=db.bind)
-            validar_tabela(db, "cadcondicaopagamento", MODELS_FORMA["cadcondicaopagamento"])
+                # Cria tabela de forma pagto
+                f_Base.metadata.create_all(bind=db.bind)
+                validar_tabela(db, "cadcondicaopagamento", MODELS_FORMA["cadcondicaopagamento"])
 
             return {"codigo": resultado[0], "nome": resultado[1], "cnpj": resultado[2], "rua": resultado[3],
                     "numero": resultado[4], "bairro": resultado[5], "cidade": resultado[6], "telefone": resultado[7],

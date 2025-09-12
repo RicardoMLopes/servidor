@@ -13,7 +13,7 @@ from fastapi import Query
 from datetime import datetime, date
 from starlette.responses import  StreamingResponse
 from database.connection import get_empresa_session, DB_CHAVE
-from function.funtions import gerar_token_cnpj
+from function.funtions import gerar_token_cnpj, moeda_br
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
 from database.querys import inserir_pedido, ConsultaEmpresa  # função separada que faz a inserção
 from params.alerta import enviar_alerta
@@ -32,6 +32,7 @@ pedido_relatorios_PDF_router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 templates.env.globals['now'] = datetime.now
+templates.env.filters['moeda_br'] = moeda_br
 
 
 def gerar_pdf_relatorio(relatorio, tipo="analitico", template_path=None, empresa=None) -> BytesIO:
@@ -397,17 +398,20 @@ async def relatorio_pedido_template(
             pedidos_dict[numdoc]["itens"].append({
                 "codigoproduto": p._mapping["codigoproduto"],
                 "descricaoproduto": p._mapping["descricaoproduto"],
-                "quantidade": p._mapping["quantidade"] or 0,
-                "valorunitariovenda": float(p._mapping["valorunitariovenda"] or 0),
-                "valorDesconto": float(p._mapping["valorDesconto"] or 0),
-                "valoracrescimo": float(p._mapping["valoracrescimo"] or 0),
-                "valorTotal": float(p._mapping["valorTotal"] or 0),
+                "quantidade": to_float(p._mapping.get("quantidade", 0)),
+                "valorunitariovenda": to_float(p._mapping.get("valorunitariovenda", 0)),
+                "valorDesconto": to_float(p._mapping.get("valorDesconto", 0)),
+                "valoracrescimo": to_float(p._mapping.get("valoracrescimo", 0)),
+                "valorTotal": to_float(p._mapping.get("valorTotal", 0))
             })
 
-            pedidos_dict[numdoc]["totalizadores"]["totalDesconto"] += float(p._mapping["valorDesconto"] or 0)
-            pedidos_dict[numdoc]["totalizadores"]["totalAcrescimo"] += float(p._mapping["valoracrescimo"] or 0)
-            pedidos_dict[numdoc]["totalizadores"]["totalGeral"] += float(p._mapping["valorTotal"] or 0)
-            pedidos_dict[numdoc]["totalizadores"]["subtotal"] += (float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0)))
+            # Atualiza totalizadores
+            tot = pedidos_dict[numdoc]["totalizadores"]
+            tot["subtotal"] += to_float(p._mapping.get("valorunitariovenda", 0)) * to_float(
+                p._mapping.get("quantidade", 0))
+            tot["totalDesconto"] += to_float(p._mapping.get("valorDesconto", 0))
+            tot["totalAcrescimo"] += to_float(p._mapping.get("valoracrescimo", 0))
+            tot["totalGeral"] += to_float(p._mapping.get("valorTotal", 0))
 
         relatorio = list(pedidos_dict.values())
 

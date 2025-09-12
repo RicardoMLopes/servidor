@@ -28,17 +28,17 @@
         <!-- Campos do filtro -->
         <div class="col-md-2 form-floating">
           <input type="text" class="form-control" id="numerodocumento" name="numerodocumento"
-                 placeholder="Número do Pedido" value="{% if numerodocumento and numerodocumento != 'None' %}{{ numerodocumento }}{% endif %}">
+                 placeholder="Número do Pedido" value="{{ numerodocumento or '' }}">
           <label for="numerodocumento"><i class="bi bi-receipt me-1"></i>Pedido</label>
         </div>
         <div class="col-md-3 form-floating">
           <input type="text" class="form-control" id="cliente" name="cliente"
-                 placeholder="Cliente" value="{% if cliente and cliente != 'None' %}{{ cliente }}{% endif %}">
+                 placeholder="Cliente" value="{{ cliente or '' }}">
           <label for="cliente"><i class="bi bi-person-badge me-1"></i>Cliente</label>
         </div>
         <div class="col-md-3 form-floating">
           <input type="text" class="form-control" id="agrupamento" name="agrupamento"
-                 placeholder="Agrupamento" value="{% if agrupamento and agrupamento != 'None' %}{{ agrupamento }}{% endif %}">
+                 placeholder="Agrupamento" value="{{ agrupamento or '' }}">
           <label for="agrupamento"><i class="bi bi-tags me-1"></i>Agrupamento</label>
         </div>
         <div class="col-md-2 form-floating">
@@ -128,17 +128,17 @@
               <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento_html }}</p>
 
               {% if tipo == 'analitico' and p.itens %}
-                <div class="table-responsive">
+                <div class="table-responsive modern-table">
                   <table class="table table-hover table-sm align-middle">
                     <thead class="table-light">
                       <tr>
                         <th>Código</th>
                         <th>Descrição</th>
-                        <th>Qtd</th>
-                        <th>Valor Unit</th>
-                        <th>Desconto</th>
-                        <th>Acréscimo</th>
-                        <th>Total</th>
+                        <th class="text-end">Qtd</th>
+                        <th class="text-end">Valor Unit</th>
+                        <th class="text-end">Desconto</th>
+                        <th class="text-end">Acréscimo</th>
+                        <th class="text-end">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -146,11 +146,11 @@
                         <tr>
                           <td>{{ i.codigoproduto }}</td>
                           <td>{{ i.descricaoproduto }}</td>
-                          <td>{{ i.quantidade|default(0) }}</td>
-                          <td>{{ '%.2f' % i.valorunitariovenda|default(0) }}</td>
-                          <td>{{ '%.2f' % i.valorDesconto|default(0) }}</td>
-                          <td>{{ '%.2f' % i.valoracrescimo|default(0) }}</td>
-                          <td>{{ '%.2f' % i.valorTotal|default(0) }}</td>
+                          <td class="text-end">{{ i.quantidade|default(0)|float|moeda_br }}</td>
+                          <td class="text-end">{{ i.valorunitariovenda|default(0)|float|moeda_br }}</td>
+                          <td class="text-end">{{ i.valorDesconto|default(0)|float|moeda_br }}</td>
+                          <td class="text-end">{{ i.valoracrescimo|default(0)|float|moeda_br }}</td>
+                          <td class="text-end">{{ i.valorTotal|default(0)|float|moeda_br }}</td>
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -159,18 +159,28 @@
               {% endif %}
 
               <div class="mt-3 fw-bold totals">
-                <span class="badge bg-warning text-dark">
-                  SubTotal: {{ "{:,.2f}".format(p.totalizadores.subtotal or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-                </span>
-                <span class="badge bg-danger">
-                  Desconto: {{ "{:,.2f}".format(p.totalizadores.totalDesconto or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-                </span>
-                <span class="badge bg-success">
-                  Acréscimo: {{ "{:,.2f}".format(p.totalizadores.totalAcrescimo or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-                </span>
-                <span class="badge bg-primary">
-                  Total: {{ "{:,.2f}".format(p.totalizadores.totalGeral or 0).replace(",", "X").replace(".", ",").replace("X", ".") }}
-                </span>
+                <div class="row g-2 justify-content-start">
+                  <div class="col-6 col-md-auto">
+                    <span class="badge bg-warning text-dark w-100">
+                      SubTotal: {{ p.totalizadores.subtotal|default(0)|float|moeda_br }}
+                    </span>
+                  </div>
+                  <div class="col-6 col-md-auto">
+                    <span class="badge bg-danger w-100">
+                      Desconto: {{ p.totalizadores.totalDesconto|default(0)|float|moeda_br }}
+                    </span>
+                  </div>
+                  <div class="col-6 col-md-auto">
+                    <span class="badge bg-success w-100">
+                      Acréscimo: {{ p.totalizadores.totalAcrescimo|default(0)|float|moeda_br }}
+                    </span>
+                  </div>
+                  <div class="col-6 col-md-auto">
+                    <span class="badge bg-primary w-100">
+                      Total: {{ p.totalizadores.totalGeral|default(0)|float|moeda_br }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -211,11 +221,7 @@
       plugins: {
         legend: {
           position: 'bottom',
-          labels: {
-            boxWidth: 10,
-            padding: 5,
-            font: { size: 11 }
-          }
+          labels: { boxWidth: 10, padding: 5, font: { size: 11 } }
         }
       }
     }
@@ -230,15 +236,11 @@
 <script>
 function exportToExcel() {
     const tables = document.querySelectorAll('table');
-    if (tables.length === 0) {
-        alert("Não há dados para exportar.");
-        return;
-    }
+    if (tables.length === 0) { alert("Não há dados para exportar."); return; }
     const wb = XLSX.utils.book_new();
     const ws_data = [];
     tables.forEach((table) => {
-        const rows = table.querySelectorAll('tr');
-        rows.forEach((row) => {
+        table.querySelectorAll('tr').forEach((row) => {
             const rowData = [];
             row.querySelectorAll('th, td').forEach(cell => rowData.push(cell.innerText.trim()));
             ws_data.push(rowData);
@@ -258,7 +260,6 @@ function gerarPDF() {
 
     const tipo = document.getElementById('tipo').value;
 
-    // Captura os dados da empresa dos spans ocultos
     const empresa_dict = {
         nome: document.getElementById('empresa_nome').innerText.trim() || '',
         cnpj: document.getElementById('empresa_cnpj').innerText.trim() || '',
@@ -266,64 +267,52 @@ function gerarPDF() {
     };
 
     const payload = {
-        tipo: tipo,
-        relatorio: window.relatorioAtual.map(p => {
-            // --- Trata data de lançamento ---
-            const dataRaw = p.cabecalho?.dataLancamento || p.cabecalho?.dataLancamento_html || '';
-            const d = dataRaw ? new Date(dataRaw) : null;
+    tipo: tipo,
+    relatorio: window.relatorioAtual.map(p => {
+        // --- Verifica data mesmo para sintético ---
+        let dataRaw = p.cabecalho?.dataLancamento || p.cabecalho?.dataLancamento_html || '';
+        let d = dataRaw ? new Date(dataRaw) : null;
 
-            const cabecalho = {
-                numerodocumento: p.cabecalho?.numerodocumento || '',
-                nomecliente: p.cabecalho?.nomecliente || '',
-                codigocliente: p.cabecalho?.codigocliente || '',
-                nomevendedor: p.cabecalho?.nomevendedor || '',
-                codigovendedor: p.cabecalho?.codigovendedor || '',
-                formapagamento: p.cabecalho?.formapagamento || '',
-                dataLancamento: d ? d.toISOString() : null,   // ISO para backend
-                dataLancamento_html: d
-                    ? d.toLocaleString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                      })
-                    : '—' // formatado para exibir no PDF
-            };
+        const cabecalho = {
+            numerodocumento: p.cabecalho?.numerodocumento || '',
+            nomecliente: p.cabecalho?.nomecliente || '',
+            codigocliente: p.cabecalho?.codigocliente || '',
+            nomevendedor: p.cabecalho?.nomevendedor || '',
+            codigovendedor: p.cabecalho?.codigovendedor || '',
+            formapagamento: p.cabecalho?.formapagamento || '',
+            dataLancamento: d ? d.toISOString() : null,
+            dataLancamento_html: d
+                ? d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' })
+                : (p.cabecalho?.dataLancamento_html || '—')
+        };
 
-            // --- Itens ---
-            let itens = [];
-            if (tipo === 'analitico') {
-                itens = (p.itens || []).map(i => ({
-                    codigoproduto: i.codigoproduto,
-                    descricaoproduto: i.descricaoproduto,
-                    quantidade: Number(i.quantidade || 0),
-                    valorunitariovenda: Number(i.valorunitariovenda || 0),
-                    valorDesconto: Number(i.valorDesconto || 0),
-                    valoracrescimo: Number(i.valoracrescimo || 0),
-                    valorTotal: Number(i.valorTotal || 0),
-                    unidadeMedida: i.unidadeMedida || ''
-                }));
-            } else if (tipo === 'sintetico') {
-                itens = [{ resumo: true }]; // mantém a estrutura
-            }
 
-            // --- Totais ---
-            const totalizadores = {
-                subtotal: Number(p.totalizadores?.subtotal || 0),
-                totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
-                totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
-                totalGeral: Number(p.totalizadores?.totalGeral || 0),
-                quantidadeItens: Number(p.totalizadores?.qtd_itens || 0)
-            };
 
-            return { cabecalho, itens, totalizadores };
-        }),
-        empresa: empresa_dict
-    };
+        let itens = tipo === 'analitico' ? (p.itens || []).map(i => ({
+            codigoproduto: i.codigoproduto,
+            descricaoproduto: i.descricaoproduto,
+            quantidade: Number(i.quantidade || 0),
+            valorunitariovenda: Number(i.valorunitariovenda || 0),
+            valorDesconto: Number(i.valorDesconto || 0),
+            valoracrescimo: Number(i.valoracrescimo || 0),
+            valorTotal: Number(i.valorTotal || 0),
+            unidadeMedida: i.unidadeMedida || ''
+        })) : [{ resumo:true }];
 
-    // --- Envia requisição ---
+        const totalizadores = {
+            subtotal: Number(p.totalizadores?.subtotal || 0),
+            totalDesconto: Number(p.totalizadores?.totalDesconto || 0),
+            totalAcrescimo: Number(p.totalizadores?.totalAcrescimo || 0),
+            totalGeral: Number(p.totalizadores?.totalGeral || 0),
+            quantidadeItens: Number(p.totalizadores?.qtd_itens || 0)
+        };
+
+        return { cabecalho, itens, totalizadores };
+    }),
+    empresa: empresa_dict
+};
+
+
     fetch("/pedido-relatorios-pdf/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -341,22 +330,19 @@ function gerarPDF() {
     })
     .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
-
 </script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hoje = new Date();
     const yyyy = hoje.getFullYear();
-    const mm = String(hoje.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoje.getDate()).padStart(2, '0');
+    const mm = String(hoje.getMonth()+1).padStart(2,'0');
+    const dd = String(hoje.getDate()).padStart(2,'0');
     const dataLocal = `${yyyy}-${mm}-${dd}`;
-
     const dataInicioInput = document.getElementById('data_inicio');
     const dataFimInput = document.getElementById('data_fim');
-
-    if (!dataInicioInput.value) dataInicioInput.value = dataLocal;
-    if (!dataFimInput.value) dataFimInput.value = dataLocal;
+    if(!dataInicioInput.value) dataInicioInput.value = dataLocal;
+    if(!dataFimInput.value) dataFimInput.value = dataLocal;
 });
 </script>
 
@@ -367,7 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
 .filter-card:hover, .result-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
 .btn-gradient { background: linear-gradient(90deg, #0d6efd, #6610f2); border: none; color: #fff; border-radius: 0.75rem; transition: all 0.3s ease; }
 .btn-gradient:hover { background: linear-gradient(90deg, #6610f2, #0d6efd); transform: translateY(-2px); }
-.totals .badge { font-size: 0.9rem; margin-right: 0.5rem; }
+.totals .badge { font-size: 0.95rem; padding: 0.9rem 1.2rem; border-radius: 0.75rem; display: flex; justify-content: center; align-items: center; min-width: 130px; height: 50px; box-shadow: 0 3px 8px rgba(0,0,0,0.12); transition: transform 0.2s ease, box-shadow 0.2s ease; margin-right:0.5rem; }
+.totals .badge:hover { transform: scale(1.07); box-shadow: 0 6px 15px rgba(0,0,0,0.25); cursor:pointer; }
+.totals .bg-warning { background: linear-gradient(135deg, #FFD65A, #FFC107); color:#5c4300; }
+.totals .bg-danger { background: linear-gradient(135deg, #FF6B6B, #E63946); color:#fff; }
+.totals .bg-success { background: linear-gradient(135deg, #38ef7d, #11998e); color:#fff; }
+.totals .bg-primary { background: linear-gradient(135deg, #4facfe, #0d6efd); color:#fff; }
 .text-highlight { color: #2F4F4F; font-weight: bold; }
 </style>
 

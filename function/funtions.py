@@ -158,7 +158,17 @@ def parse_last_sync(last_sync: str) -> datetime:
             detail="Formato inválido de last_sync. Use 'YYYY-MM-DD HH:MM:SS'"
         )
 
+# Defina a função de formatação
+def moeda_br(valor):
+    try:
+        valor_float = float(valor)
+        return f"{valor_float:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except:
+        return "0,00"
+
+
 templates.env.filters["formata_cnpj"] = formata_cnpj
+
 
 
 
