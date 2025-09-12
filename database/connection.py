@@ -21,6 +21,10 @@ DB_CHAVE = os.getenv("DB_CHAVE", "")
 
 DB_PASSWORD = quote_plus(DB_PASSWORD)
 
+
+# Dicionário para controlar quais engines/bancos já tiveram tabelas inicializadas
+tabelas_inicializadas = {}
+
 # Sessão para o banco central de controle (fixo)
 def get_controle_session():
     print("nome database controle_session: ", DB_NAME)
@@ -61,7 +65,10 @@ def get_empresa_session(db_name: str):
     db = SessionLocal()
 
     # Cria tabela de Empresa
-    empresa_Base.metadata.create_all(bind=db.bind)
-    validar_tabela(db, "cadempresa", MODELS_EMPRESA["cadempresa"])
+    # Inicializa tabelas apenas na primeira conexão com este banco
+    db_id = id(engine)
+    if not tabelas_inicializadas.get(db_id):
+        empresa_Base.metadata.create_all(bind=db.bind)
+        validar_tabela(db, "cadempresa", MODELS_EMPRESA["cadempresa"])
 
     return db
