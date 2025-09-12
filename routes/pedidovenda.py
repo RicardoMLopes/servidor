@@ -300,7 +300,7 @@ async def relatorio_pedido_template(
 
     sql = f"""
         SELECT A.numerodocumento, A.codigovendedor, V.nome as nomevendedor, A.codigocliente, A.nomecliente, A.dataLancamento,
-               A.codigocondPagamento, F.descricao as formapagamento, A.status,
+               A.codigocondPagamento, F.descricao as formapagamento, A.status,A.observacao,
                B.codigoproduto, B.descricaoproduto, B.quantidade,
                B.valorunitariovenda, B.valorDesconto, B.valoracrescimo, B.valorTotal,
                P.unidadeMedida
@@ -348,6 +348,7 @@ async def relatorio_pedido_template(
                         "nomecliente": p._mapping["nomecliente"],
                         "codigovendedor": p._mapping["codigovendedor"],
                         "nomevendedor": p._mapping["nomevendedor"],
+                        "observacao": p._mapping["observacao"],
                         "dataLancamento_html": data_lancamento_html,
                         "formapagamento": forma_pagamento,
                         "status": p._mapping["status"],

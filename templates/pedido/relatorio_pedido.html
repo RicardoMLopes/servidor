@@ -125,7 +125,21 @@
 
               <p class="mb-1"><strong>Cliente:</strong> {{ p.cabecalho.codigocliente }} - {{ p.cabecalho.nomecliente }}</p>
               <p class="mb-1"><strong>Vendedor:</strong> {{ p.cabecalho.codigovendedor }} - {{ p.cabecalho.nomevendedor }}</p>
-              <p class="mb-2"><strong>Data:</strong> {{ p.cabecalho.dataLancamento_html }}</p>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+              <span>
+                <strong>Data Lançamento:</strong> {{ p.cabecalho.dataLancamento_html }}
+              </span>
+              {% if p.cabecalho.observacao %}
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                      data-bs-toggle="popover" data-bs-placement="right"
+                      data-bs-trigger="hover focus"
+                      data-bs-html="true"
+                      data-bs-content="{{ p.cabecalho.observacao|escape }}">
+                <i class="bi bi-info-circle"></i>
+              </button>
+              {% endif %}
+            </div>
+
 
               {% if tipo == 'analitico' and p.itens %}
                 <div class="table-responsive modern-table">
@@ -148,9 +162,15 @@
                           <td>{{ i.descricaoproduto }}</td>
                           <td class="text-end">{{ i.quantidade|default(0)|float|moeda_br }}</td>
                           <td class="text-end">{{ i.valorunitariovenda|default(0)|float|moeda_br }}</td>
-                          <td class="text-end">{{ i.valorDesconto|default(0)|float|moeda_br }}</td>
-                          <td class="text-end">{{ i.valoracrescimo|default(0)|float|moeda_br }}</td>
-                          <td class="text-end">{{ i.valorTotal|default(0)|float|moeda_br }}</td>
+                          <td class="text-end text-danger fw-bold">
+                            {{ i.valorDesconto|default(0)|float|moeda_br }}
+                          </td>
+                          <td class="text-end text-success fw-bold">
+                            {{ i.valoracrescimo|default(0)|float|moeda_br }}
+                          </td>
+                          <td class="text-end text-warning fw-bold">
+                            {{ i.valorTotal|default(0)|float|moeda_br }}
+                          </td>
                         </tr>
                       {% endfor %}
                     </tbody>
@@ -330,6 +350,14 @@ function gerarPDF() {
     })
     .catch(err => alert("Erro ao gerar PDF: " + err.message));
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+  popoverTriggerList.map(function (popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+  })
+});
+
 </script>
 
 <script>
