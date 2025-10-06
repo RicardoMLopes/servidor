@@ -1,0 +1,52 @@
+# Arquivos de ambiente
+.env
+*.env
+
+# Cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+logs/
+
+# Banco de dados local
+*.sqlite3
+*.db
+
+# Diretórios de ambiente virtual
+venv/
+.venv/
+ENV/
+env/
+
+# Arquivos de configuração do sistema
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Arquivos de IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Arquivos do Windows
+Thumbs.db
+Desktop.ini
+
+# Arquivos de deploy
+*.egg-info/
+dist/
+build/
+
+# Arquivos de testes
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Arquivos de pacotes
+*.tar.gz
+*.whl
