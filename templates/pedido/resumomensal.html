@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Resumo Mensal - IBVendas{% endblock %}
+
+{% block content %}
+
+<style>
+  .container {
+    padding: 20px;
+  }
+
+  h2 {
+    margin-bottom: 20px;
+  }
+
+  .filtro {
+    margin-bottom: 20px;
+  }
+
+  select {
+    padding: 10px;
+    width: 320px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .card {
+    padding: 18px;
+    border-radius: 12px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  .bruto { background: #1e3c72; }
+  .liquido { background: #2a5298; }
+  .desconto { background: #c0392b; }
+  .acrescimo { background: #27ae60; }
+  .limite { background: #8e44ad; }
+
+  .alerta {
+    background: #ffe5e5;
+    color: #a00;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
+  .valor {
+    font-size: 20px;
+    margin-top: 5px;
+  }
+
+  .erro {
+    background: #fff3cd;
+    color: #856404;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+  }
+
+</style>
+
+<div class="container">
+
+  <h2>📊 Resumo Mensal</h2>
+
+  <!-- FILTRO -->
+  <div class="filtro">
+    <label>Vendedor:</label><br>
+
+    <select id="vendedor" onchange="filtrar()">
+      <option value="">Selecione um vendedor</option>
+
+      {% for v in vendedores %}
+        <option value="{{ v.id }}">{{ v.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- ALERTA -->
+  <div id="alerta"></div>
+
+  <!-- ERRO -->
+  <div id="erro"></div>
+
+  <!-- CARDS -->
+  <div id="cards" class="grid"></div>
+
+</div>
+
+<script>
+
+// 🔥 CNPJ vindo do backend
+const CNPJ = "{{ cnpj }}";
+
+// ==========================
+// BUSCA RESUMO
+// ==========================
+async function filtrar() {
+  const vendedor = document.getElementById("vendedor").value;
+
+  // limpa tela
+  document.getElementById("cards").innerHTML = "";
+  document.getElementById("alerta").innerHTML = "";
+  document.getElementById("erro").innerHTML = "";
+
+  if (!vendedor) return;
+
+  try {
+
+    const res = await fetch(
+      `/resumomensal/dados?codigovendedor=${vendedor}&cnpj=${CNPJ}`
+    );
+
+    if (!res.ok) {
+      throw new Error("Erro ao consultar servidor");
+    }
+
+    const data = await res.json();
+    const r = data.resumo;
+
+    const percentual = r.percentual_desconto.toFixed(2);
+
+    // ALERTA
+    if (percentual > 10) {
+      document.getElementById("alerta").innerHTML = `
+        <div class="alerta">
+          ⚠️ Você já usou ${percentual}% de desconto no mês
+        </div>
+      `;
+    }
+
+    // CARDS
+    document.getElementById("cards").innerHTML = `
+      <div class="card bruto">
+        💰 Bruto
+        <div class="valor">R$ ${r.bruto.toFixed(2)}</div>
+      </div>
+
+      <div class="card liquido">
+        📦 Líquido
+        <div class="valor">R$ ${r.liquido.toFixed(2)}</div>
+      </div>
+
+      <div class="card desconto">
+        🔻 Desconto
+        <div class="valor">
+          R$ ${r.desconto.toFixed(2)} (${percentual}%)
+        </div>
+      </div>
+
+      <div class="card acrescimo">
+        🔺 Acréscimo
+        <div class="valor">R$ ${r.acrescimo.toFixed(2)}</div>
+      </div>
+
+      <div class="card limite">
+        💡 Limite disponível
+        <div class="valor">R$ ${r.restante_desconto.toFixed(2)}</div>
+      </div>
+    `;
+
+  } catch (e) {
+    console.error("Erro ao buscar resumo", e);
+
+    document.getElementById("erro").innerHTML = `
+      <div class="erro">
+        ⚠️ Não foi possível carregar o resumo. Verifique a conexão ou tente novamente.
+      </div>
+    `;
+  }
+}
+
+</script>
+
+{% endblock %}

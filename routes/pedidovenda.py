@@ -2,7 +2,7 @@ from io import BytesIO
 import logging
 import os
 import pdfkit
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, Request
 from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -11,11 +11,12 @@ import traceback
 import tempfile
 from fastapi import Query
 from datetime import datetime, date
-from starlette.responses import  StreamingResponse
+from starlette.responses import StreamingResponse, JSONResponse
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj, moeda_br
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
-from database.querys import inserir_pedido, ConsultaEmpresa  # função separada que faz a inserção
+from database.querys import inserir_pedido, ConsultaEmpresa, ConsultaVendedor, \
+    Consultar_vendedor_user, ConsultaVendedores, ConsultaEmpresaPorCNPJ  # função separada que faz a inserção
 from params.alerta import enviar_alerta
 from typing import Optional
 from fastapi.responses import HTMLResponse
@@ -23,12 +24,14 @@ from fastapi.templating import Jinja2Templates
 import shutil
 from decimal import Decimal
 from dateutil.parser import parse
-
+from fastapi import Query, HTTPException
+from sqlalchemy.sql import text
 
 
 pedido_router = APIRouter()
 pedido_relatorios_router = APIRouter()
 pedido_relatorios_PDF_router = APIRouter()
+resumomensal_router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
 templates.env.globals['now'] = datetime.now
@@ -181,6 +184,8 @@ async def inserir_pedido_api(nota: dict, db: Session = Depends(get_empresa_db)):
 # ==========================================================================================|
 #                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |
 #===========================================================================================|
+
+
 def to_float(valor):
     return float(valor or 0)
 
@@ -189,7 +194,8 @@ def to_decimal(valor):
         return Decimal("0")
     if isinstance(valor, Decimal):
         return valor
-    return Decimal(str(valor))  # converte float ou int para Decimal
+    return Decimal(str(valor))  # Converte float ou int para Decimal
+
 
 @pedido_relatorios_router.get("/", response_class=HTMLResponse)
 async def relatorio_pedido_template(
@@ -241,7 +247,7 @@ async def relatorio_pedido_template(
     empresa_cnpj = str(empresa_war[2]) if len(empresa_war) > 1 else ""
     nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
     telefone_empresa = str(empresa_war[7]) if len(empresa_war) > 7 else ""
-  #  logging.warning("Mostre a empresa: %s %s %s", nome_empresa, telefone_empresa, empresa_cnpj)
+
     try:
         numerodocumento = int(numerodocumento) if numerodocumento else None
     except ValueError:
@@ -258,7 +264,6 @@ async def relatorio_pedido_template(
         filtros.append("(A.codigocliente = :cliente OR A.nomecliente LIKE :cliente_like)")
         parametros["cliente"] = cliente
         parametros["cliente_like"] = f"%{cliente}%"
-
 
     if data_inicio and data_fim and data_inicio.strip() and data_fim.strip():
         filtros.append("A.dataLancamento BETWEEN :data_inicio AND :data_fim")
@@ -291,7 +296,7 @@ async def relatorio_pedido_template(
                 "agrupamento": "",
                 "status": status,
                 "cnpj": empresa_cnpj,
-                "telefone": telefone_empresa,  # 🔹 corrigido
+                "telefone": telefone_empresa,
                 "token": token
             }
         )
@@ -300,7 +305,7 @@ async def relatorio_pedido_template(
 
     sql = f"""
         SELECT A.numerodocumento, A.codigovendedor, V.nome as nomevendedor, A.codigocliente, A.nomecliente, A.dataLancamento,
-               A.codigocondPagamento, F.descricao as formapagamento, A.status,A.observacao,
+               A.codigocondPagamento, F.descricao as formapagamento, A.status, A.observacao,
                B.codigoproduto, B.descricaoproduto, B.quantidade,
                B.valorunitariovenda, B.valorDesconto, B.valoracrescimo, B.valorTotal,
                P.unidadeMedida
@@ -319,28 +324,22 @@ async def relatorio_pedido_template(
 
     pedidos = db.execute(text(sql), parametros).fetchall()
 
+    # ===================== SINTÉTICO =====================
     if tipo == "sintetico":
         pedidos_dict_sintetico = {}
-
         for p in pedidos:
             numdoc = p._mapping["numerodocumento"]
 
             if numdoc not in pedidos_dict_sintetico:
-                # 🔧 Tratamento seguro da data
                 data_raw = p._mapping.get("dataLancamento")
-
                 try:
                     if data_raw and str(data_raw).strip():
                         data_obj = parse(str(data_raw))
                         data_lancamento_html = data_obj.strftime("%d/%m/%Y %H:%M:%S")
-                #        logging.warning("DATA LANCAMENTO: %s", data_lancamento_html)
                     else:
                         data_lancamento_html = "—"
-                except Exception as e:
-                    logging.warning("Erro ao converter dataLancamento: %s", e)
+                except Exception:
                     data_lancamento_html = "—"
-
-                forma_pagamento = p._mapping.get("formapagamento") or ""
 
                 pedidos_dict_sintetico[numdoc] = {
                     "cabecalho": {
@@ -350,7 +349,7 @@ async def relatorio_pedido_template(
                         "nomevendedor": p._mapping["nomevendedor"],
                         "observacao": p._mapping["observacao"],
                         "dataLancamento_html": data_lancamento_html,
-                        "formapagamento": forma_pagamento,
+                        "formapagamento": p._mapping.get("formapagamento") or "",
                         "status": p._mapping["status"],
                     },
                     "totalizadores": {
@@ -362,27 +361,31 @@ async def relatorio_pedido_template(
                     },
                 }
 
-            # 🔹 Acumula totais
-            pedidos_dict_sintetico[numdoc]["totalizadores"]["subtotal"] += (
-                    float(p._mapping.get("valorunitariovenda", 0)) * float(p._mapping.get("quantidade", 0))
-            )
-            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalDesconto"] += float(
-                p._mapping.get("valorDesconto") or 0)
-            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalAcrescimo"] += float(
-                p._mapping.get("valoracrescimo") or 0)
-            pedidos_dict_sintetico[numdoc]["totalizadores"]["totalGeral"] += float(p._mapping.get("valorTotal") or 0)
-            pedidos_dict_sintetico[numdoc]["totalizadores"]["qtd_itens"] += float(p._mapping.get("quantidade") or 0)
+            # 🔹 Arredondamento antes do cálculo
+            preco = round(to_float(p._mapping.get("valorunitariovenda", 0)), 2)
+            quant = round(to_float(p._mapping.get("quantidade", 0)), 2)
+            desconto = round(to_float(p._mapping.get("valorDesconto", 0)), 2)
+            acresc = round(to_float(p._mapping.get("valoracrescimo", 0)), 2)
+            total = round(to_float(p._mapping.get("valorTotal", 0)), 2)
+
+            tot = pedidos_dict_sintetico[numdoc]["totalizadores"]
+            tot["subtotal"] += round(preco * quant, 2)
+            tot["totalDesconto"] += desconto
+            tot["totalAcrescimo"] += acresc
+            tot["totalGeral"] += total
+            tot["qtd_itens"] += quant
 
         relatorio = list(pedidos_dict_sintetico.values())
 
+    # ===================== ANALÍTICO =====================
     else:
         pedidos_dict = {}
         for p in pedidos:
             numdoc = p._mapping["numerodocumento"]
-            status_val = p._mapping["status"]
+
             if numdoc not in pedidos_dict:
                 cabecalho = dict(p._mapping)
-                if isinstance(cabecalho.get("dataLancamento"), (datetime, datetime)):
+                if isinstance(cabecalho.get("dataLancamento"), datetime):
                     cabecalho["dataLancamento_html"] = cabecalho["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
                 else:
                     cabecalho["dataLancamento_html"] = cabecalho.get("dataLancamento", "")
@@ -393,41 +396,42 @@ async def relatorio_pedido_template(
                 pedidos_dict[numdoc] = {
                     "cabecalho": cabecalho,
                     "itens": [],
-                    "totalizadores": {"totalDesconto":0,"totalAcrescimo":0,"totalGeral":0, "subtotal":0.0},
+                    "totalizadores": {"totalDesconto": 0, "totalAcrescimo": 0, "totalGeral": 0, "subtotal": 0.0},
                 }
+
+            preco = round(to_float(p._mapping.get("valorunitariovenda", 0)), 2)
+            quant = round(to_float(p._mapping.get("quantidade", 0)), 2)
+            desconto = round(to_float(p._mapping.get("valorDesconto", 0)), 2)
+            acresc = round(to_float(p._mapping.get("valoracrescimo", 0)), 2)
+            total = round(to_float(p._mapping.get("valorTotal", 0)), 2)
 
             pedidos_dict[numdoc]["itens"].append({
                 "codigoproduto": p._mapping["codigoproduto"],
                 "descricaoproduto": p._mapping["descricaoproduto"],
-                "quantidade": to_float(p._mapping.get("quantidade", 0)),
-                "valorunitariovenda": to_float(p._mapping.get("valorunitariovenda", 0)),
-                "valorDesconto": to_float(p._mapping.get("valorDesconto", 0)),
-                "valoracrescimo": to_float(p._mapping.get("valoracrescimo", 0)),
-                "valorTotal": to_float(p._mapping.get("valorTotal", 0))
+                "quantidade": quant,
+                "valorunitariovenda": preco,
+                "valorDesconto": desconto,
+                "valoracrescimo": acresc,
+                "valorTotal": total
             })
 
-            # Atualiza totalizadores
             tot = pedidos_dict[numdoc]["totalizadores"]
-            tot["subtotal"] += to_float(p._mapping.get("valorunitariovenda", 0)) * to_float(
-                p._mapping.get("quantidade", 0))
-            tot["totalDesconto"] += to_float(p._mapping.get("valorDesconto", 0))
-            tot["totalAcrescimo"] += to_float(p._mapping.get("valoracrescimo", 0))
-            tot["totalGeral"] += to_float(p._mapping.get("valorTotal", 0))
+            tot["subtotal"] += round(preco * quant, 2)
+            tot["totalDesconto"] += desconto
+            tot["totalAcrescimo"] += acresc
+            tot["totalGeral"] += total
 
         relatorio = list(pedidos_dict.values())
 
-    # 🔹 Converte datas e Decimals antes de passar pro Jinja
+    # 🔹 Converte para JSON serializável
     relatorio_serializavel = make_json_serializable(relatorio)
 
-    # 🔹 Novo cálculo de status_count baseado no relatório final
+    # 🔹 Cálculo de status_count
     status_count = {"P": 0, "R": 0}
     for pedido in relatorio_serializavel:
         status_val = pedido.get("cabecalho", {}).get("status")
         if status_val in status_count:
             status_count[status_val] += 1
-
-    # logging.warning(f"Pedidos exibidos no relatório: {len(relatorio_serializavel)}")
-    # logging.warning(f"Status count atualizado: {status_count}")
 
     return templates.TemplateResponse(
         "pedido/relatorio_pedido.html",
@@ -443,11 +447,12 @@ async def relatorio_pedido_template(
             "agrupamento": "",
             "status": status,
             "cnpj": empresa_cnpj,
-            "telefone": telefone_empresa,  # 🔹 corrigido
+            "telefone": telefone_empresa,
             "token": token,
-            "status_count": status_count  # ✅ agora correto
+            "status_count": status_count
         }
     )
+
 
 # ==========================================================================================|
 #                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |
@@ -544,3 +549,171 @@ def preparar_relatorio_para_pdf(relatorio):
         relatorio_formatado.append(item_formatado)
 
     return relatorio_formatado
+
+
+# =========================
+# 📄 VIEW (abre a tela HTML)
+# =========================
+
+
+@resumomensal_router.api_route(
+    "/view",
+    methods=["GET", "POST"],
+    response_class=HTMLResponse
+)
+async def view_resumo_mensal(request: Request):
+
+    try:
+        print("\n========== RESUMO MENSAL ==========")
+
+        # 🔹 identifica método
+        metodo = request.method
+        print(f"[0] Método: {metodo}")
+
+        # 🔹 se for POST → pega do form
+        if metodo == "POST":
+            form = await request.form()
+            cnpj = form.get("cnpj")
+        else:
+            # 🔹 se for GET → pega da query (opcional)
+            cnpj = request.query_params.get("cnpj")
+
+        print(f"[1] CNPJ recebido: {cnpj}")
+
+        # 🔹 se não tem CNPJ → só abre tela
+        if not cnpj:
+            print("[INFO] Abrindo tela vazia")
+            return templates.TemplateResponse(
+                "pedido/resumomensal.html",
+                {
+                    "request": request,
+                    "empresa": None,
+                    "vendedores": [],
+                    "cnpj": ""
+                }
+            )
+
+        # 🔹 fluxo normal (igual seu)
+        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+        print(f"[2] Token: {token}")
+
+        nome_banco = get_nome_banco_por_token(token)
+        print(f"[3] Banco: {nome_banco}")
+
+        if not nome_banco:
+            return HTMLResponse("Banco não encontrado", status_code=400)
+
+        session_empresa = get_empresa_session(nome_banco)
+
+        with session_empresa as db:
+
+            empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
+            if not empresa_raw:
+                return HTMLResponse("Empresa não encontrada", status_code=404)
+
+            empresa = empresa_raw[0]
+            print(f"[4] Empresa: {empresa.get('nome')}")
+
+            vendedores_raw = ConsultaVendedores(db)
+            print(f"[5] Vendedores: {len(vendedores_raw)}")
+
+            vendedores = [
+                {"id": v["codigo"], "nome": v["nome"]}
+                for v in vendedores_raw
+            ]
+
+        print("[6] Renderizando template")
+        print("===================================\n")
+
+        return templates.TemplateResponse(
+            "pedido/resumomensal.html",
+            {
+                "request": request,
+                "empresa": empresa,
+                "vendedores": vendedores,
+                "cnpj": cnpj
+            }
+        )
+
+    except Exception as e:
+        print("\n❌ ERRO NO RESUMO MENSAL")
+        traceback.print_exc()
+        return HTMLResponse(f"Erro interno: {str(e)}", status_code=500)
+# =========================
+# 📊 API (dados financeiros)
+# =========================
+@resumomensal_router.get("/dados")
+def resumo_dados(
+    codigovendedor: str,
+    cnpj: str
+):
+    try:
+        print("\n====== DADOS RESUMO ======")
+        print(f"Vendedor: {codigovendedor}")
+        print(f"CNPJ: {cnpj}")
+
+        # 🔥 1. Gerar token
+        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+
+        # 🔥 2. Descobrir banco
+        nome_banco = get_nome_banco_por_token(token)
+
+        if not nome_banco:
+            return JSONResponse({"erro": "Banco não encontrado"}, status_code=400)
+
+        # 🔥 3. Criar sessão
+        session_empresa = get_empresa_session(nome_banco)
+
+        with session_empresa as db:
+
+            # 🔥 4. Sua query
+            hoje = datetime.now()
+            mes = str(hoje.month).zfill(2)
+            ano = str(hoje.year)
+
+            result = db.execute(text("""
+                SELECT 
+                    COALESCE(SUM(i.valorTotal), 0) AS bruto,
+                    COALESCE(SUM(i.valorDesconto), 0) + COALESCE(SUM(n.valorDesconto), 0) AS desconto,
+                    COALESCE(SUM(i.valoracrescimo), 0) AS acrescimo
+                FROM movnotaitem i
+                JOIN movnota n 
+                    ON n.numerodocumento = i.numerodocumento
+                WHERE DATE_FORMAT(n.dataLancamento, '%m') = :mes
+                  AND DATE_FORMAT(n.dataLancamento, '%Y') = :ano
+                  AND (n.status IS NULL OR n.status <> 'C')
+                  AND n.codigovendedor = :codigovendedor
+            """), {
+                "mes": mes,
+                "ano": ano,
+                "codigovendedor": codigovendedor
+            }).fetchone()
+
+        bruto = float(result.bruto or 0)
+        desconto = float(result.desconto or 0)
+        acrescimo = float(result.acrescimo or 0)
+        liquido = bruto - desconto + acrescimo
+
+        percentual = (desconto / bruto * 100) if bruto > 0 else 0
+        limite = bruto * 0.1
+        restante = limite - desconto
+
+        print("✔ Dados calculados com sucesso")
+
+        return {
+            "resumo": {
+                "bruto": bruto,
+                "desconto": desconto,
+                "acrescimo": acrescimo,
+                "liquido": liquido,
+                "percentual_desconto": percentual,
+                "restante_desconto": restante
+            }
+        }
+
+    except Exception as e:
+        traceback.print_exc()
+        return JSONResponse(
+            {"erro": str(e)},
+            status_code=500
+        )

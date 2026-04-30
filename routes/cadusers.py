@@ -68,9 +68,6 @@ def buscar_vendedores(request: Request, cnpj: str = Form(...)):
     })
 
 
-
-
-
 # Passo 2: Cadastro do usuário
 @cadusers_router.post("/cadastrar", response_class=HTMLResponse)
 async def cadastrar_usuario(
@@ -79,13 +76,15 @@ async def cadastrar_usuario(
     vendedor_id: str = Form(...),
     usuario: str = Form(...),
     senha: str = Form(...),
+    email: str = Form(...),
     confirmar_senha: str = Form(...)
 ):
     errors = {}
     form_data = {
         "cnpj": cnpj,
         "vendedor_id": vendedor_id,
-        "usuario": usuario
+        "usuario": usuario,
+        "email": email
     }
 
     # Validação básica
@@ -134,7 +133,7 @@ async def cadastrar_usuario(
 
         senha_hash = hash_password(senha)
         token = gerar_token_usuario(usuario, vendedor_id, empresa["codigo"])
-        sucesso = inserir_usuario(db, empresa["codigo"], vendedor_id, usuario, senha_hash, token)
+        sucesso = inserir_usuario(db, empresa["codigo"], vendedor_id, usuario, email, senha_hash, token)
 
         if not sucesso:
             errors["db"] = "Erro ao salvar usuário no banco."

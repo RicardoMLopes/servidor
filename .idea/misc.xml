@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.8 (apifast)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 virtualenv at C:\Projeto\ibvendas\trunk\servidor\.venv" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Ibvendas" project-jdk-type="Python SDK" />
 </project>

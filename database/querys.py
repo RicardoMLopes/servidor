@@ -2,7 +2,10 @@ import traceback, logging
 from typing import Dict, Any, Optional
 from params.alerta import enviar_alerta
 from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
+from backports.zoneinfo import ZoneInfo
 from datetime import datetime
+
+
 
 # consulta da empresa
 def ConsultaEmpresa(db):
@@ -304,6 +307,7 @@ def Consultar_vendedor_user(db):
                 FROM cadvendedor v
                 WHERE v.situacaoregistro <> "E"
                   AND v.codigo NOT IN (SELECT u.codigovendedor FROM cadusers u)
+                ORDER BY v.nome ASC
             ''')
         ).mappings().all()
         return resultado
@@ -315,7 +319,9 @@ def Consultar_vendedor_user(db):
 def ConsultaVendedores(db):
     try:
         resultado = db.execute(
-            text('SELECT codigo, nome FROM cadvendedor WHERE situacaoregistro <> "E" ')
+            text('SELECT codigo, nome FROM cadvendedor '
+                 'WHERE situacaoregistro <> "E" '
+                 'ORDER BY nome ASC')
         ).mappings().all()
        # print(resultado)
         return resultado
@@ -323,17 +329,18 @@ def ConsultaVendedores(db):
         traceback.print_exc()
         return []
 
-def inserir_usuario(db, empresa_id: int, vendedor_id: str, usuario: str, senha_hash: str, token: str) -> bool:
+def inserir_usuario(db, empresa_id: int, vendedor_id: str, usuario: str, email: str, senha_hash: str, token: str) -> bool:
     try:
         sql_insert = text("""
             INSERT INTO cadusers 
-            (empresa, codigovendedor, usuario, senha, novasenha, token, situacaoregistro, dataregistro)
-            VALUES (:empresa, :codigovendedor, :usuario, :senha, :novasenha, :token, 'I', NOW())
+            (empresa, codigovendedor, usuario, email, senha, novasenha, token, situacaoregistro, dataregistro)
+            VALUES (:empresa, :codigovendedor, :usuario, :email, :senha, :novasenha, :token, 'I', NOW())
         """)
         db.execute(sql_insert, {
             "empresa": empresa_id,
             "codigovendedor": vendedor_id,
             "usuario": usuario,
+            "email": email,
             "senha": senha_hash,
             "novasenha": senha_hash,
             "token": token
@@ -423,6 +430,7 @@ def atualizar_senha_usuario(db, usuario, hash):
 
 # Recuperar o usuário
 def ConsultaUsuarioPorVendedor(db, vendedor):
+
   #  logger.warning("Monstra o vendedor: ", vendedor)
     try:
   #      logger.warning("Vendedor recebido na função:", repr(vendedor))
@@ -432,7 +440,7 @@ def ConsultaUsuarioPorVendedor(db, vendedor):
             WHERE situacaoregistro <> 'E' AND codigovendedor = :vendedor       
         """)
         resultado = db.execute(sql, {"vendedor": vendedor}).mappings().all()
-        print("Resultado da query:", resultado)
+      #  print("Resultado da query:", resultado)
         return resultado
     except Exception as e:
         traceback.print_exc()
@@ -443,7 +451,14 @@ from datetime import datetime
 
 def inserir_pedido(db, nota):
     try:
-        print("Entrou na rotina de inserção")
+        try:
+            data_atual = datetime.now(ZoneInfo("America/Sao_Paulo"))
+        except Exception:
+            data_atual = datetime.now()
+
+        data_formatada = data_atual.strftime("%Y-%m-%d %H:%M:%S")
+
+        # print("Entrou na rotina de inserção")
 
         # 🔹 Gera o próximo numerodocumento
         result = db.execute(
@@ -451,7 +466,7 @@ def inserir_pedido(db, nota):
             {"empresa": nota["empresa"]}
         ).mappings().fetchone()
         prox_numerodoc = result["prox"] if result else 1
-        print("Numerodocumento gerado:", prox_numerodoc)
+      #  print("Numerodocumento gerado:", prox_numerodoc)
 
         # 🔹 Inserir movnota (incluindo pedido_hash)
         sql_insert_nota = text("""
@@ -480,14 +495,14 @@ def inserir_pedido(db, nota):
             "pesoTotal": nota.get("pesoTotal", 0),
             "observacao": nota.get("observacao", ""),
             "status": nota.get("status", "P"),
-            "dataLancamento": datetime.now(),
+            "dataLancamento": nota.get("dataLancamento"),
             "situacaoRegistro": nota.get("situacaoRegistro", "I"),
-            "dataRegistro": datetime.now(),
+            "dataRegistro": data_formatada,
             "pedido_hash": nota.get("pedido_hash")  # <- aqui grava o hash
         })
 
         movnota_id = result_nota.lastrowid
-        print("movnota_id gerado:", movnota_id)
+     #   print("movnota_id gerado:", movnota_id)
 
         # 🔹 Inserir itens vinculando movnota_id
         for item in nota.get("itens", []):
@@ -515,13 +530,13 @@ def inserir_pedido(db, nota):
                 "valorTotal": item.get("valorTotal"),
                 "quantidade": item.get("quantidade"),
                 "codigocliente": item.get("codigocliente"),
-                "dataRegistro": datetime.now(),
+                "dataRegistro": data_formatada,
                 "situacaoRegistro": item.get("situacaoRegistro", "I"),
                 "movnota_id": movnota_id
             })
 
         db.commit()
-        print("Pedido inserido com sucesso:", prox_numerodoc)
+   #     print("Pedido inserido com sucesso:", prox_numerodoc)
         return prox_numerodoc
 
     except Exception as e:
@@ -538,7 +553,7 @@ def proximo_codigo(db, empresa: int) -> int:
         text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
         {"empresa": empresa}
     ).mappings().fetchone()
-    print("Resultado proximo nro: ", result)
+#    print("Resultado proximo nro: ", result)
     return result["prox"] if result else 1
 
 

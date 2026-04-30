@@ -8,7 +8,8 @@ import asyncio
 from routes import parameter_router, sincronizaruser_router, pedido_router, alterarsenha_router, email_router, \
     home_router, list_products_router, upload_imagem_produtos_router
 from routes.cadusers import cadusers_router
-from routes.pedidovenda import pedido_relatorios_router, pedido_router, pedido_relatorios_PDF_router
+from routes.pedidovenda import pedido_relatorios_router, pedido_router, pedido_relatorios_PDF_router, \
+    resumomensal_router
 from routes.recuperar_password import recuperaruser_router
 from routes.gerar_catalogo_diario import gerar_catalogo_diario
 from routes.produto import products_router
@@ -23,7 +24,7 @@ from routes.sincronizarpedido import sincronizar_pedidos
 
 app = FastAPI()
 
-gerar_catalogo_diario()
+# gerar_catalogo_diario()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -89,6 +90,7 @@ app.include_router(pedido_router, prefix="/pedidos", tags=["Pedido"])
 app.include_router(pedido_relatorios_router, prefix="/pedido-relatorios", tags=["Pedido Relatório"])
 app.include_router(pedido_relatorios_PDF_router, prefix="/pedido-relatorios-pdf", tags=["Pedido PDF"])
 app.include_router(sincronizar_pedidos, prefix="/sincronizarpedidos",tags=["Sincronizar Pedidos"])
+app.include_router(resumomensal_router, prefix="/resumomensal", tags=["Resumomensal"])
 
 # E-MAIL
 app.include_router(email_router, prefix="/enviar-email", tags=["Email"])

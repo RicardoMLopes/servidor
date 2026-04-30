@@ -39,7 +39,7 @@ def get_controle_session():
     )
     print("DATABASE_URL:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
-    engine = create_engine(DATABASE_URL, echo=True)
+    engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True, pool_recycle=3600)
     Base.metadata.bind = engine
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()
@@ -54,11 +54,11 @@ def get_empresa_session(db_name: str):
         raise ValueError(f"Variáveis de ambiente ausentes: {', '.join(missing_vars)}")
 
     DATABASE_URL = (
-        f"mysql+pymysql://{db_name}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}?charset=utf8"
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}?charset=utf8"
     )
     print("🔗 Conectando no banco:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+    engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True, pool_recycle=3600)
     Base.metadata.bind = engine
 
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
