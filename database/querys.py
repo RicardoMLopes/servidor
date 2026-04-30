@@ -2,8 +2,13 @@ import traceback, logging
 from typing import Dict, Any, Optional
 from params.alerta import enviar_alerta
 from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
-from backports.zoneinfo import ZoneInfo
 from datetime import datetime
+
+
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    from backports.zoneinfo import ZoneInfo
 
 
 
