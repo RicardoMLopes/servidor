@@ -107,39 +107,67 @@ async def dashboard(request: Request):
 UPLOAD_DIR = "static/img"
 
 @home_router.post("/upload")
-async def upload_image(cnpj: str = Form(...), files: List[UploadFile] = File(...)):
-    cnpj = limpa_cnpj(cnpj)
-    logger.warning(f"Exibir CNPJ:  {cnpj}")
+async def upload_image(
+    cnpj: str = Form(...),
+    files: List[UploadFile] = File(...)
+):
+    try:
+        cnpj = limpa_cnpj(cnpj.strip())
+        print(f"📌 CNPJ: {cnpj}")
 
-    pasta_empresa = os.path.join(UPLOAD_DIR, cnpj)
-    os.makedirs(pasta_empresa, exist_ok=True)
+        pasta_empresa = os.path.join(UPLOAD_DIR, cnpj)
+        os.makedirs(pasta_empresa, exist_ok=True)
 
-    arquivos_processados = []
+        arquivos_processados = []
 
-    for file in files:
-        # Caminho temporário
-        temp_path = os.path.join(pasta_empresa, file.filename)
-        with open(temp_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        for file in files:
+            try:
+                # 🔹 Nome seguro
+                nome_original = file.filename.replace(" ", "_").lower()
 
-        # Nome final sempre .jpg
-        nome_final = os.path.splitext(file.filename)[0] + ".jpg"
-        destino = os.path.join(pasta_empresa, nome_final)
+                # 🔹 Caminho temporário
+                temp_path = os.path.join(pasta_empresa, nome_original)
 
-        # Processar imagem
-        processar_imagem(temp_path, destino, largura=800, altura=800, qualidade=85)
+                with open(temp_path, "wb") as buffer:
+                    shutil.copyfileobj(file.file, buffer)
 
-        # Remover arquivo original se não for jpg
-        if temp_path != destino and os.path.exists(temp_path):
-            os.remove(temp_path)
+                # 🔹 Nome final padronizado (.jpg)
+                nome_base = os.path.splitext(nome_original)[0]
+                nome_final = f"{nome_base}.jpg"
+                destino = os.path.join(pasta_empresa, nome_final)
 
-        arquivos_processados.append(nome_final)
+                print(f"🖼️ Processando: {temp_path} → {destino}")
 
-    return {
-        "success": True,
-        "msg": f"{len(arquivos_processados)} imagem(ns) processada(s) com sucesso!",
-        "arquivos": arquivos_processados
-    }
+                # 🔹 Processar imagem
+                processar_imagem(
+                    temp_path,
+                    destino,
+                    largura=800,
+                    altura=800,
+                    qualidade=85
+                )
+
+                # 🔹 Remove original se diferente
+                if temp_path != destino and os.path.exists(temp_path):
+                    os.remove(temp_path)
+
+                arquivos_processados.append(nome_final)
+
+            except Exception as e:
+                print(f"Erro ao processar {file.filename}: {e}")
+
+        return {
+            "success": True,
+            "msg": f"{len(arquivos_processados)} imagem(ns) processada(s) com sucesso!",
+            "arquivos": arquivos_processados
+        }
+
+    except Exception as e:
+        print(f"Erro geral no upload: {e}")
+        return {
+            "success": False,
+            "msg": "Erro ao processar upload"
+        }
 
 
 @home_router.post("/home")

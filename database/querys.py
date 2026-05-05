@@ -689,7 +689,8 @@ def Insert_Vendedor(db, vendedor):
                 nome = :nome,
                 situacaoRegistro = :situacaoRegistro,
                 dataRegistro = :dataRegistro,
-                versao = :versao
+                versao = :versao,
+                limitedesconto = :limitedesconto
             WHERE empresa = :empresa AND codigo = :codigo
             """
             db.execute(sql_update, vendedor.dict())
@@ -698,10 +699,10 @@ def Insert_Vendedor(db, vendedor):
             sql_insert = """
             INSERT INTO vendedores (
                 empresa, codigo, cd_rota, nome,
-                situacaoRegistro, dataRegistro, versao
+                situacaoRegistro, dataRegistro, limitedesconto, versao
             ) VALUES (
                 :empresa, :codigo, :cd_rota, :nome,
-                :situacaoRegistro, :dataRegistro
+                :situacaoRegistro, :dataRegistro, :limitedesconto
             )
             """
             db.execute(sql_insert, vendedor.dict())

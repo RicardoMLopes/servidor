@@ -652,33 +652,48 @@ def resumo_dados(
         print(f"Vendedor: {codigovendedor}")
         print(f"CNPJ: {cnpj}")
 
-        # 🔥 1. Gerar token
-        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+        # 🔹 1. Validar entrada
+        if not codigovendedor:
+            return JSONResponse({"erro": "Código do vendedor não informado"}, status_code=400)
 
-        # 🔥 2. Descobrir banco
+        if not cnpj:
+            return JSONResponse({"erro": "CNPJ não informado"}, status_code=400)
+
+        # 🔹 2. Gerar token
+        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+        print(f"[TOKEN] {token}")
+
+        # 🔹 3. Descobrir banco
         nome_banco = get_nome_banco_por_token(token)
+        print(f"[BANCO] {nome_banco}")
 
         if not nome_banco:
             return JSONResponse({"erro": "Banco não encontrado"}, status_code=400)
 
-        # 🔥 3. Criar sessão
+        # 🔹 4. Criar sessão
         session_empresa = get_empresa_session(nome_banco)
 
         with session_empresa as db:
 
-            # 🔥 4. Sua query
+            # 🔹 5. Data atual
             hoje = datetime.now()
             mes = str(hoje.month).zfill(2)
             ano = str(hoje.year)
 
+            print(f"[PERÍODO] {mes}/{ano}")
+
+            # 🔹 6. Query com limite do vendedor
             result = db.execute(text("""
                 SELECT 
                     COALESCE(SUM(i.valorTotal), 0) AS bruto,
                     COALESCE(SUM(i.valorDesconto), 0) + COALESCE(SUM(n.valorDesconto), 0) AS desconto,
-                    COALESCE(SUM(i.valoracrescimo), 0) AS acrescimo
+                    COALESCE(SUM(i.valoracrescimo), 0) AS acrescimo,
+                    MAX(v.limitedesconto) AS limitedesconto
                 FROM movnotaitem i
                 JOIN movnota n 
                     ON n.numerodocumento = i.numerodocumento
+                LEFT JOIN cadvendedor v
+                    ON v.codigo = n.codigovendedor
                 WHERE DATE_FORMAT(n.dataLancamento, '%m') = :mes
                   AND DATE_FORMAT(n.dataLancamento, '%Y') = :ano
                   AND (n.status IS NULL OR n.status <> 'C')
@@ -689,30 +704,58 @@ def resumo_dados(
                 "codigovendedor": codigovendedor
             }).fetchone()
 
+        # 🔹 7. Garantir retorno seguro
+        if not result:
+            print("[INFO] Nenhum dado encontrado")
+            result = {
+                "bruto": 0,
+                "desconto": 0,
+                "acrescimo": 0,
+                "limitedesconto": 0
+            }
+
+        # 🔹 8. Conversões seguras
         bruto = float(result.bruto or 0)
         desconto = float(result.desconto or 0)
         acrescimo = float(result.acrescimo or 0)
-        liquido = bruto - desconto + acrescimo
 
-        percentual = (desconto / bruto * 100) if bruto > 0 else 0
-        limite = bruto * 0.1
+        # 🔥 percentual do vendedor (do banco)
+        percentual_limite = float(result.limitedesconto or 0)
+
+        # 🔹 9. Cálculos
+        liquido = bruto - desconto + acrescimo
+        percentual_desconto = (desconto / bruto * 100) if bruto > 0 else 0
+
+        limite = bruto * (percentual_limite / 100)
         restante = limite - desconto
+
+        print(f"[BRUTO] {bruto}")
+        print(f"[DESCONTO] {desconto}")
+        print(f"[ACRESCIMO] {acrescimo}")
+        print(f"[LIMITE %] {percentual_limite}")
+        print(f"[LIMITE R$] {limite}")
+        print(f"[RESTANTE] {restante}")
 
         print("✔ Dados calculados com sucesso")
 
+        # 🔹 10. Retorno completo
         return {
             "resumo": {
                 "bruto": bruto,
                 "desconto": desconto,
                 "acrescimo": acrescimo,
                 "liquido": liquido,
-                "percentual_desconto": percentual,
+                "percentual_desconto": percentual_desconto,
+                "percentual_limite": percentual_limite,
+                "limite_desconto": limite,
                 "restante_desconto": restante
             }
         }
 
     except Exception as e:
+        print("\n❌ ERRO NO RESUMO")
         traceback.print_exc()
+
         return JSONResponse(
             {"erro": str(e)},
             status_code=500

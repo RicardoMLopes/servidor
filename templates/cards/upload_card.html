@@ -45,35 +45,44 @@ formUpload.addEventListener('submit', async (e) => {
     const inputFiles = formUpload.querySelector('input[name="files"]').files;
     if (!inputFiles.length) return;
 
-    // Limpa pré-visualização anterior
     preview.innerHTML = '';
     msgUpload.style.display = 'none';
-
     loader.style.display = 'block';
 
-    // Remove máscara do CNPJ
     const cnpjOriginal = formUpload.querySelector('input[name="cnpj"]').value;
     const cnpj = cnpjOriginal.replace(/\D/g, '');
 
-    const formData = new FormData();
-    formData.append('cnpj', cnpj);
-    for (let file of inputFiles) formData.append('files', file);
+    const chunkSize = 50; // 🔥 quantidade por lote
+    let totalEnviados = 0;
 
     try {
-        const response = await fetch('/image/upload', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
+        for (let i = 0; i < inputFiles.length; i += chunkSize) {
 
-        loader.style.display = 'none';
+            const chunk = Array.from(inputFiles).slice(i, i + chunkSize);
 
-        if (data.success) {
-            msgUpload.textContent = data.msg;
-            msgUpload.className = 'alert alert-success mt-3';
-            msgUpload.style.display = 'block';
+            const formData = new FormData();
+            formData.append('cnpj', cnpj);
 
-            // Pré-visualiza as imagens processadas
+            chunk.forEach(file => {
+                formData.append('files', file);
+            });
+
+            console.log(`📦 Enviando lote ${Math.floor(i / chunkSize) + 1}`);
+
+            const response = await fetch('/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.msg || "Erro no upload");
+            }
+
+            totalEnviados += data.arquivos.length;
+
+            // 🔥 adiciona preview aos poucos
             data.arquivos.forEach(arquivo => {
                 const img = document.createElement('img');
                 img.src = `/static/img/${cnpj}/${arquivo}`;
@@ -83,17 +92,21 @@ formUpload.addEventListener('submit', async (e) => {
                 img.classList.add('border', 'shadow-sm', 'rounded');
                 preview.appendChild(img);
             });
-
-            formUpload.reset();
-        } else {
-            msgUpload.textContent = data.msg || 'Erro ao processar imagens.';
-            msgUpload.className = 'alert alert-danger mt-3';
-            msgUpload.style.display = 'block';
         }
+
+        loader.style.display = 'none';
+
+        msgUpload.textContent = `${totalEnviados} imagens enviadas com sucesso!`;
+        msgUpload.className = 'alert alert-success mt-3';
+        msgUpload.style.display = 'block';
+
+        formUpload.reset();
+
     } catch (err) {
         console.error(err);
         loader.style.display = 'none';
-        msgUpload.textContent = 'Erro ao processar imagens.';
+
+        msgUpload.textContent = 'Erro ao enviar algumas imagens.';
         msgUpload.className = 'alert alert-danger mt-3';
         msgUpload.style.display = 'block';
     }

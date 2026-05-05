@@ -166,6 +166,15 @@ async function filtrar() {
       <div class="card limite">
         💡 Limite disponível
         <div class="valor">R$ ${r.restante_desconto.toFixed(2)}</div>
+
+        <div style="font-size:12px; opacity:0.8;">
+          Limite: ${r.percentual_limite.toFixed(2)}%
+          (R$ ${r.limite_desconto.toFixed(2)})
+        </div>
+
+        <div style="font-size:12px; opacity:0.8;">
+          Utilizado: ${r.percentual_desconto.toFixed(2)}%
+        </div>
       </div>
     `;
 
