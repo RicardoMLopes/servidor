@@ -50,3 +50,6 @@ htmlcov/
 # Arquivos de pacotes
 *.tar.gz
 *.whl
+
+# Arquivos pdf
+*.pdf
