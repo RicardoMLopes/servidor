@@ -1,0 +1,30 @@
+<div class="card shadow-sm mb-4 border-0 p-3 filter-card">
+          <h5 class="fw-bold text-primary mb-3"><i class="bi bi-box-seam me-2"></i>Lançamento do Item</h5>
+          <div class="row g-3 align-items-end">
+            <div class="col-md-3 form-floating">
+              <input type="text" class="form-control" id="inputCodigo" placeholder="Cód / Cód. Barras" maxlength="20" onchange="buscarProdutoPorCodigo(this.value)">
+              <label for="inputCodigo">Cód / Cód. Barras</label>
+            </div>
+            <div class="col-md-5 form-floating">
+              <input type="text" class="form-control" id="inputDescricao" placeholder="Descrição ou Consulta" oninput="consultarProdutosDescricao(this.value)">
+              <label for="inputDescricao">Descrição (Consulte aqui)</label>
+            </div>
+            <div class="col-md-2 form-floating">
+              <input type="number" step="0.000001" class="form-control" id="inputQtd" value="1" placeholder="Qtd">
+              <label for="inputQtd">Quantidade</label>
+            </div>
+            <div class="col-md-2 form-floating">
+              <input type="number" step="0.000001" class="form-control" id="inputUnitario" value="0.00" placeholder="Vlr Unit">
+              <label for="inputUnitario">Vlr. Unitário</label>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+              <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
+                <i class="bi bi-percent me-1"></i> Desconto / Acréscimo (<span id="lblTipoDescontoInfo">Valor</span>)
+              </button>
+              <button type="button" class="btn btn-primary px-4 fw-semibold" onclick="adicionarItemNaTabela()">
+                <i class="bi bi-plus-lg me-1"></i> Adicionar Item
+              </button>
+            </div>
+          </div>
+        </div>

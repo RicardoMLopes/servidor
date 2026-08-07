@@ -10,74 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-    <style>
+    <!-- CSS customizado -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/dashboard/base.css') }}">
 
-    body {
-        font-family: 'Inter', sans-serif;
-        padding-top: 70px;
-        margin: 0;
-        min-height: 100vh;
-        position: relative;
-        background-color: #f8f9fa;
-        overflow-x: hidden;
-    }
-
-    main, nav, footer {
-        position: relative;
-        z-index: 1;
-    }
-
-    .navbar { z-index: 2; }
-
-    footer {
-        padding: 1rem 0;
-        background-color: #212529;
-        color: #fff;
-        text-align: center;
-        margin-top: 3rem;
-    }
-
-    /* Marca d'água */
-    .watermark-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 0;
-        overflow: hidden;
-    }
-
-    .watermark-container span {
-        position: absolute;
-        font-weight: bold;
-        white-space: nowrap;
-        user-select: none;
-        transform: rotate(-30deg);
-        background: linear-gradient(90deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: float 30s linear infinite;
-    }
-
-    @keyframes float {
-        0% { transform: translateY(0) rotate(-30deg); }
-        50% { transform: translateY(15px) rotate(-30deg); }
-        100% { transform: translateY(0) rotate(-30deg); }
-    }
-    @media (max-width: 768px) { /* ajusta o breakpoint conforme seu layout */
-      .disable-mobile {
-        pointer-events: none;
-        cursor: default; /* opcional, para não parecer clicável */
-      }
-    }
-
-    </style>
-
-    {% block head %}{% endblock %}
+    {% block styles %}
+    {% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
+
     <!-- Marca d'água animada -->
     <div class="watermark-container" id="watermarks"></div>
 
@@ -85,7 +25,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
         <div class="container-fluid">
             <a class="navbar-brand fw-bold disable-mobile" href="/dashboard">
-              <span class="text-danger">IB</span><span class="text-white">Vendas</span>
+                <span class="text-danger">IB</span><span class="text-white">Vendas</span>
             </a>
 
             <button
@@ -111,46 +51,23 @@
     </nav>
 
     <!-- Conteúdo principal -->
-    <main class="container-fluid mt-4 mb-5 flex-grow-1 d-flex flex-column">
+    <main class="container-fluid mt-5 mb-5 flex-grow-1 d-flex flex-column">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Rodapé -->
-    <footer>
-        <div class="container">
-            <small>© {{ now().year }} Data Access Informática Ltda - Todos os direitos reservados</small>
+    <footer class="bg-light py-3 mt-auto border-top">
+        <div class="container text-center">
+            <small>© {{ year }} Data Access Informática Ltda - Todos os direitos reservados</small>
         </div>
     </footer>
 
-    <!-- Bootstrap JS e Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS (bundle já inclui Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-    <!-- Script para criar marca d'água -->
-    <script>
-    const container = document.getElementById('watermarks');
-    const cols = Math.ceil(window.innerWidth / 150); // largura do texto
-    const rows = Math.ceil(window.innerHeight / 70);
+    <!-- JS customizado -->
+    <script src="{{ url_for('static', path='js/dashboard/base.js') }}"></script>
 
-    for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-            const span = document.createElement('span');
-            const size = 14 + Math.random() * 12; // 14px a 26px
-            const top = i * 60 + Math.random() * 20;
-            const left = j * 130 + Math.random() * 40;
-            const delay = Math.random() * 30;
-
-            span.textContent = "DATA ACCESS";
-            span.style.fontSize = `${size}px`;
-            span.style.top = `${top}px`;
-            span.style.left = `${left}px`;
-            span.style.animationDelay = `${delay}s`;
-
-            container.appendChild(span);
-        }
-    }
-    </script>
-
-    {% block scripts %}{% endblock %}
+    {% block scripts %} {% endblock %}
 </body>
 </html>

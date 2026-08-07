@@ -1,0 +1,65 @@
+
+body {
+    font-family: 'Inter', sans-serif;
+    padding-top: 70px;
+    margin: 0;
+    min-height: 100vh;
+    position: relative;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+main, nav, footer {
+    position: relative;
+    z-index: 1;
+}
+
+.navbar {
+    z-index: 2;
+}
+
+footer {
+    padding: 1rem 0;
+    background-color: #212529;
+    color: #fff;
+    text-align: center;
+    margin-top: 3rem;
+}
+
+/* Marca d'água */
+.watermark-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.watermark-container span {
+    position: absolute;
+    font-weight: bold;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none; /* Garante que os spans não bloqueiem cliques nos modais/botões */
+    transform: rotate(-30deg);
+    background: linear-gradient(90deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: float 30s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(-30deg); }
+    50% { transform: translateY(15px) rotate(-30deg); }
+    100% { transform: translateY(0) rotate(-30deg); }
+}
+
+@media (max-width: 768px) {
+    .disable-mobile {
+        pointer-events: none;
+        cursor: default;
+    }
+}

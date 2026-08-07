@@ -1,0 +1,30 @@
+<div class="modal fade" id="modalDescontoAcrescimoItem" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-secondary text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-percent me-2"></i>Desconto e Acréscimo no Item</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Tipo de Aplicação</label>
+          <select class="form-select" id="tipoDescontoAcrescimo" onchange="alternarTipoDesconto(this.value)">
+            <option value="valor">Em Valor (R$)</option>
+            <option value="percentual">Em Percentual (%)</option>
+          </select>
+        </div>
+        <div class="mb-3 form-floating">
+          <input type="number" step="0.01" class="form-control" id="modalItemDesconto" value="0.00" placeholder="Desconto">
+          <label for="modalItemDesconto" id="labelDescontoInput">Desconto (R$)</label>
+        </div>
+        <div class="mb-3 form-floating">
+          <input type="number" step="0.01" class="form-control" id="modalItemAcrescimo" value="0.00" placeholder="Acréscimo">
+          <label for="modalItemAcrescimo" id="labelAcrescimoInput">Acréscimo (R$)</label>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -12,14 +12,21 @@
 
     <!-- Cards (mantendo o layout original) -->
     <div class="row g-4">
-            {% include 'cards/produto_card.html' %}
-            {% include 'cards/pedidovendas_card.html' %}
 
+        <!-- Relatórios -->
+        {% include 'cards/pedidovendas_card.html' %}
 
-            {% include 'cards/upload_card.html' %}
+        <!-- listagens dos produtos -->
+        {% include 'cards/produto_card.html' %}
 
-            {% include 'cards/cadusers_card.html' %}
-            {% include 'cards/cardresumomensal.html' %}
+        <!-- upload das imagens -->
+        {% include 'cards/upload_card.html' %}
+
+        <!-- cadastros dos usuários -->
+        {% include 'cards/cadusers_card.html' %}
+
+        <!-- Resumo do pedido -->
+        {% include 'cards/cardresumomensal.html' %}
 
     </div>
 

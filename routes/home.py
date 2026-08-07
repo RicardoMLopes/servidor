@@ -22,6 +22,8 @@ async def home(request: Request, msg: str = None):
 
 @home_router.post("/identificar-empresa/")
 async def identificar_empresa(request: Request, cnpj: str = Form(...)):
+
+    print("identificar empresa", cnpj)
     # Limpa o CNPJ/CPF
     cnpj = re.sub(r"\D", "", cnpj)
 

@@ -1,0 +1,31 @@
+<!-- MODAL: Faturar -->
+<div class="modal fade" id="modalFaturar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-cash-coin me-2"></i>Faturamento do Pedido</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="mb-3 form-floating">
+          <select class="form-select" id="selectCondPagamento">
+            <option value="01">01 - À Vista</option>
+            <option value="02">02 - 30 Dias</option>
+            <option value="03">03 - 30/60 Dias</option>
+          </select>
+          <label for="selectCondPagamento">Condição de Pagamento</label>
+        </div>
+        <div class="mb-3 form-floating">
+          <textarea class="form-control" id="observacaoPedido" placeholder="Observações" style="height: 100px;"></textarea>
+          <label for="observacaoPedido">Observações da Venda</label>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success px-4 fw-bold" onclick="finalizarSalvarPedido()">
+          <i class="bi bi-check-circle me-1"></i> Confirmar Faturamento
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

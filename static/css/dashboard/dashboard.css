@@ -1,0 +1,28 @@
+.card-empresa{
+    border-radius:1rem;
+}
+
+.logo-empresa{
+    width:80px;
+}
+
+.grupo-cnpj{
+    border-radius:.5rem;
+    overflow:hidden;
+}
+
+.btn-gradient{
+    background:linear-gradient(90deg,#4e54c8,#8f94fb);
+    color:#fff;
+    border:none;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.btn-gradient:hover{
+    transform:translateY(-2px);
+}
+
+.bg-gradient-primary{
+    background:linear-gradient(90deg,#4e54c8,#8f94fb);
+}

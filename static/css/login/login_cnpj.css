@@ -1,0 +1,78 @@
+
+/* Centraliza conteúdo vertical e horizontal */
+.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    background: linear-gradient(135deg, #f0f2f5, #d9e2ec);
+}
+
+/* Card moderno mantendo tamanho original */
+.empresa-card {
+    max-width: 400px; /* mantém tamanho proporcional */
+    width: auto; /* evita expandir para 100% */
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff;
+    margin: 0 auto; /* centraliza */
+}
+
+.empresa-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+}
+
+.empresa-card .card-header {
+    background: linear-gradient(90deg, #4e54c8, #8f94fb);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-align: center;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.empresa-card .form-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.empresa-card .form-control {
+    border-radius: 0.5rem;
+    border: 1px solid rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
+.empresa-card .form-control:focus {
+    border-color: #4e54c8;
+    box-shadow: 0 0 0 0.2rem rgba(78,84,200,0.25);
+}
+
+.empresa-card .btn-primary {
+    background: linear-gradient(90deg, #4e54c8, #8f94fb);
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.empresa-card .btn-primary:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+.icon-animate {
+    display: inline-block;
+    animation: bounce 1.2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}

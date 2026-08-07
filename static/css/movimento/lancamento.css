@@ -1,0 +1,146 @@
+body {
+    background-color: #f8fafc;
+}
+
+
+/* Cards do pedido */
+.card {
+    border-radius: 0.75rem;
+}
+
+
+/* Cabeçalhos dos cards */
+.card-header {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* Campos */
+.form-label {
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+
+/* Campos somente leitura */
+input[readonly] {
+    background-color: #f9fafb;
+}
+
+
+/* Código do produto */
+#codigoProduto {
+    font-weight: 600;
+}
+
+
+/* Descrição */
+#descricaoProduto {
+    cursor: default;
+}
+
+
+/* Tabela de itens */
+#listaItens tr {
+    transition: background-color .2s;
+}
+
+
+#listaItens tr:hover {
+    background-color: #f8fafc;
+}
+
+
+.table th {
+    font-size: .85rem;
+    white-space: nowrap;
+}
+
+
+.table td {
+    vertical-align: middle;
+}
+
+
+/* Valores */
+.valor {
+    text-align: right;
+    font-weight: 600;
+}
+
+
+/* Totais */
+#totalPedido {
+    font-size: 1.5rem;
+}
+
+
+/* Badge quantidade itens */
+#quantidadeItens {
+    font-size: .85rem;
+}
+
+
+/* Botões */
+.btn {
+    border-radius: .5rem;
+}
+
+
+/* Botão adicionar item */
+#btnAdicionarItem {
+    height: 38px;
+}
+
+
+/* Modal produto */
+#modalProduto .modal-header {
+    background-color: #f8fafc;
+}
+
+
+#modalProduto .table tbody tr {
+    cursor: pointer;
+}
+
+
+#modalProduto .table tbody tr:hover {
+    background-color: #f1f5f9;
+}
+
+
+/* Rodapé */
+.card-body hr {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+
+/* Destaque do total */
+.total-destaque {
+    font-size: 1.8rem;
+    font-weight: 800;
+}
+
+
+/* Área dos botões finais */
+.acoes-pedido {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+
+/* Responsividade */
+@media (max-width: 768px) {
+
+    .acoes-pedido {
+        flex-direction: column;
+    }
+
+
+    .acoes-pedido button {
+        width: 100%;
+    }
+
+}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Lançamento de Pedido{% endblock %}
+
+{% block content %}
+<!-- Link para o CSS separado -->
+<link rel="stylesheet" href="/static/css//movimento/lancamento.css">
+
+<div class="container-fluid px-4 mt-4">
+
+  <!-- Cabeçalho Superior / Voltar -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-gradient mb-1">Lançamento de Pedido</h2>
+      <p class="text-muted small mb-0">Insira os itens, informe o cliente e finalize o faturamento.</p>
+    </div>
+    <a href="/pedido-relatorios/?token={{ token }}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Voltar ao Relatório
+    </a>
+  </div>
+
+  <form id="formPedido">
+    <input type="hidden" id="token" value="{{ token }}">
+
+    <!-- Campos ocultos de controle do cabeçalho -->
+    <input type="hidden" id="empresa" value="{{ empresa }}">
+    <input type="hidden" id="codigovendedor" value="{{ codigo_vendedor }}">
+    <input type="hidden" id="codigocliente" value="">
+    <input type="hidden" id="codigocondPagamento" value="">
+
+    <div class="row g-4">
+
+      <!-- COLUNA ESQUERDA: Lançamento de Itens e Tabela -->
+      <div class="col-lg-8">
+
+        <!-- Card de Lançamento de Item -->
+        {% include 'pedido/movimento/adicionar_itens.html' %}
+
+        <!-- Tabela dos Itens Lançados -->
+        {% include 'pedido/movimento/tabela_lancamento.html' %}
+
+      </div>
+
+      <!-- COLUNA DIREITA: Card do Cliente e Botão Faturar -->
+      {% include 'pedido/movimento/card_cliente_faturar.html' %}
+
+    </div>
+  </form>
+</div>
+<!-- MODAL: Faturamento -->
+{% include 'pedido/movimento/modal/faturamento.html' %}
+
+<!-- MODAL: Pesquisar Cliente -->
+{% include 'pedido/movimento/modal/cliente.html' %}
+
+<!-- MODAL: Desconto e Acréscimo do Item -->
+{% include 'pedido/movimento/modal/tipo_acresc_desc.html' %}
+
+<!-- Chamada do arquivo JavaScript separado -->
+<script src="/static/js/movimento/lancamento.js"></script>
+{% endblock %}

@@ -19,12 +19,15 @@ from routes.vendedor import vendedor_router
 from routes.cliente import cliente_router
 from routes.formaparameto import condicao_pagamento_router
 from routes.sincronizarpedido import sincronizar_pedidos
+from routes.lancamento_pedido import mov_pedido_router
+
+
 # from fastapi.middleware.wsgi import WSGIMiddleware
 # from markupsafe import escape
 
 app = FastAPI()
 
-# gerar_catalogo_diario()
+# Middleware CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,13 +36,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Rota arquivos estáticos
+# Caminho absoluto da pasta static
 static_dir = os.path.join(os.path.dirname(__file__), "static")
+
+# Monta rota /static
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.on_event("startup")
 async def startup_event():
-    # Gera catálogo diário assim que o app inicia
     asyncio.create_task(gerar_catalogo_diario())
 
 # Registrando os routers
@@ -82,6 +86,7 @@ app.include_router(alterarsenha_router, prefix="/alterar-senha", tags=["Alterars
 app.include_router(sincronizaruser_router, prefix="/sincronizausers", tags=["users"])
 app.include_router(recuperaruser_router, prefix="/recuperar-senha", tags=["Recuperar"])
 app.include_router(recuperaruser_router, prefix="/esqueci-senha", tags=["Recuperar"])
+# Rota do login
 app.include_router(alterarsenha_router, prefix="/buscar-usuario-vendedor", tags=["Recuperar"])
 app.include_router(cadusers_router)
 
@@ -92,5 +97,20 @@ app.include_router(pedido_relatorios_PDF_router, prefix="/pedido-relatorios-pdf"
 app.include_router(sincronizar_pedidos, prefix="/sincronizarpedidos",tags=["Sincronizar Pedidos"])
 app.include_router(resumomensal_router, prefix="/resumomensal", tags=["Resumomensal"])
 
+# Lancamento dos pedidos de venda
+app.include_router(mov_pedido_router, prefix="/novo-pedido", tags=["MovPedido"])
+app.include_router(mov_pedido_router, prefix="/insert-pedido", tags=["MovPedido"])
+app.include_router(mov_pedido_router, prefix="/buscar-produtos", tags=["MovPedido"])
+app.include_router(mov_pedido_router, prefix="/buscar-clientes", tags=["MovPedido"])
+
+
+
 # E-MAIL
 app.include_router(email_router, prefix="/enviar-email", tags=["Email"])
+
+# print("=" * 80)
+# print("ROTAS REGISTRADAS")
+# print("=" * 80)
+#
+# for route in app.routes:
+#     print(route.path, getattr(route, "methods", "SEM METHODS"))

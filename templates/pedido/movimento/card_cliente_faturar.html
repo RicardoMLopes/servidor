@@ -1,0 +1,26 @@
+<div class="col-lg-4">
+
+  <!-- Card do Cliente -->
+  <div class="card shadow-sm border-0 p-4 mb-4 filter-card">
+    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-person-badge me-2"></i>Cliente</h5>
+    <div class="mb-3">
+      <span class="text-muted small d-block">Cliente Selecionado:</span>
+      <div class="p-3 bg-light rounded border mt-1">
+        <span id="infoClienteNome" class="fw-bold text-dark">Nenhum cliente selecionado</span>
+        <small id="infoClienteDoc" class="text-muted d-block">CPF/CNPJ: —</small>
+      </div>
+    </div>
+    <!-- Link que abre o modal de pesquisa de cliente -->
+    <a href="#" class="text-decoration-none fw-semibold text-primary" data-bs-toggle="modal" data-bs-target="#modalSelecionarCliente">
+      <i class="bi bi-search me-1"></i> Selecionar / Alterar Cliente...
+    </a>
+  </div>
+
+  <!-- Botão Faturar -->
+  <div class="d-grid">
+    <button type="button" class="btn btn-success btn-lg fw-bold py-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#modalFaturar">
+      <i class="bi bi-cart-check-fill me-2"></i> FATURAR PEDIDO
+    </button>
+  </div>
+
+</div>

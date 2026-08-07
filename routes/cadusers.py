@@ -25,7 +25,7 @@ alterarsenha_router = APIRouter()
 # Passo 1: Tela para digitar o CNPJ
 @cadusers_router.get("/", response_class=HTMLResponse)
 def tela_cnpj(request: Request):
-    return templates.TemplateResponse("cnpj.html", {
+    return templates.TemplateResponse("login/cnpj.html", {
         "request": request,
         "error": None
     })
