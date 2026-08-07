@@ -71,8 +71,8 @@
         <div class="col-md-8">
           <div class="row g-2 justify-content-end">
             <div class="col-6 col-md-auto">
-              <a href="/novo-pedido/novo?token={{ token }}" class="btn btn-success fw-semibold py-2 w-100">
-                <i class="bi bi-plus-circle"></i> Novo Pedido
+              <a href="/novo-pedido/novo?token={{ token }}" onclick="localStorage.removeItem('pedidoEmAndamento');" class="btn btn-primary">
+                  <i class="bi bi-plus-circle me-1"></i> Novo Pedido
               </a>
             </div>
 

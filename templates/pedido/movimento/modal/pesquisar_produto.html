@@ -1,0 +1,54 @@
+<!-- Modal Selecionar Produto Profissional -->
+<div class="modal fade" id="modalSelecionarProduto" tabindex="-1" aria-labelledby="modalSelecionarProdutoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+
+      <!-- Cabeçalho refinado -->
+      <div class="modal-header bg-white border-bottom px-4 py-3">
+        <div class="d-flex align-items-center">
+          <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-search fs-5"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold text-dark m-0" id="modalSelecionarProdutoLabel">Pesquisa de Produtos</h5>
+            <small class="text-muted">Busque por código, código de barras ou nome</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <div class="modal-body bg-light p-4">
+        <!-- Input de busca moderno com ícone embutido -->
+        <div class="input-group input-group-lg shadow-sm mb-4">
+          <span class="input-group-text bg-white border-end-0 rounded-start-3 text-muted ps-3">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-start-0 rounded-end-3 ps-0 fs-6" id="buscaProdutoInput" placeholder="Digite para pesquisar o produto..." oninput="filtrarProdutosModal(this.value)">
+        </div>
+
+        <!-- Tabela de Resultados Profissional -->
+        <div class="table-responsive bg-white rounded-4 shadow-sm border p-1">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase fs-7" style="font-size: 0.75rem;">
+              <tr>
+                <th class="py-3 ps-3" style="width: 15%;">Código</th>
+                <th class="py-3" style="width: 20%;">Cód. Barras</th>
+                <th class="py-3" style="width: 40%;">Descrição</th>
+                <th class="py-3 text-end" style="width: 15%;">Preço (R$)</th>
+                <th class="py-3 text-center pe-3" style="width: 10%;">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="listaProdutosResultado">
+              <tr>
+                <td colspan="5" class="text-center text-muted py-5">
+                  <i class="bi bi-info-circle me-1"></i> Digite ao menos 3 caracteres para iniciar a busca...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

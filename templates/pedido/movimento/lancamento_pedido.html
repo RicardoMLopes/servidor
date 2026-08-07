@@ -1,10 +1,12 @@
+{% set sem_marca_dagua = true %}
 {% extends "base.html" %}
+
 
 {% block title %}Lançamento de Pedido{% endblock %}
 
 {% block content %}
 <!-- Link para o CSS separado -->
-<link rel="stylesheet" href="/static/css//movimento/lancamento.css">
+<link rel="stylesheet" href="/static/css/movimento/lancamento.css">
 
 <div class="container-fluid px-4 mt-4">
 
@@ -32,30 +34,51 @@
 
       <!-- COLUNA ESQUERDA: Lançamento de Itens e Tabela -->
       <div class="col-lg-8">
-
+        {% include 'pedido/movimento/documento.html' %}
         <!-- Card de Lançamento de Item -->
         {% include 'pedido/movimento/adicionar_itens.html' %}
-
-        <!-- Tabela dos Itens Lançados -->
-        {% include 'pedido/movimento/tabela_lancamento.html' %}
-
       </div>
+       <!-- COLUNA DIREITA: Card do Cliente e Botão Faturar -->
+       {% include 'pedido/movimento/card_cliente_faturar.html' %}
 
-      <!-- COLUNA DIREITA: Card do Cliente e Botão Faturar -->
-      {% include 'pedido/movimento/card_cliente_faturar.html' %}
-
+       <!-- Tabela dos Itens Lançados -->
+        {% include 'pedido/movimento/tabela_lancamento.html' %}
     </div>
   </form>
 </div>
+
+
 <!-- MODAL: Faturamento -->
 {% include 'pedido/movimento/modal/faturamento.html' %}
 
 <!-- MODAL: Pesquisar Cliente -->
 {% include 'pedido/movimento/modal/cliente.html' %}
 
+<!-- MODAL: Pesquisar produto -->
+{% include 'pedido/movimento/modal/pesquisar_produto.html' %}
+
 <!-- MODAL: Desconto e Acréscimo do Item -->
 {% include 'pedido/movimento/modal/tipo_acresc_desc.html' %}
 
+<!-- Variáveis injetadas pelo FastAPI/Jinja2 para o JS utilizar -->
+<script>
+    window.dadosIniciais = {
+        empresa: {{ empresa | default(1) }},
+        numerodocumento: {{ pedido_existente | tojson }},
+        codigoVendedor: "{{ codigo_vendedor }}",
+        codigoClientePadrao: "{{ codigo_cliente_padrao }}",
+        nomeClientePadrao: "{{ nome_cliente_padrao }}",
+        docClientePadrao: "{{ doc_cliente_padrao }}"
+    };
+</script>
+
 <!-- Chamada do arquivo JavaScript separado -->
-<script src="/static/js/movimento/lancamento.js"></script>
+<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}"></script>
+<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}"></script>
+<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}"></script>
 {% endblock %}
+
+
+

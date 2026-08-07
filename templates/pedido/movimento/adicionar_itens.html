@@ -1,30 +1,61 @@
-<div class="card shadow-sm mb-4 border-0 p-3 filter-card">
-          <h5 class="fw-bold text-primary mb-3"><i class="bi bi-box-seam me-2"></i>Lançamento do Item</h5>
-          <div class="row g-3 align-items-end">
-            <div class="col-md-3 form-floating">
-              <input type="text" class="form-control" id="inputCodigo" placeholder="Cód / Cód. Barras" maxlength="20" onchange="buscarProdutoPorCodigo(this.value)">
-              <label for="inputCodigo">Cód / Cód. Barras</label>
-            </div>
-            <div class="col-md-5 form-floating">
-              <input type="text" class="form-control" id="inputDescricao" placeholder="Descrição ou Consulta" oninput="consultarProdutosDescricao(this.value)">
-              <label for="inputDescricao">Descrição (Consulte aqui)</label>
-            </div>
-            <div class="col-md-2 form-floating">
-              <input type="number" step="0.000001" class="form-control" id="inputQtd" value="1" placeholder="Qtd">
-              <label for="inputQtd">Quantidade</label>
-            </div>
-            <div class="col-md-2 form-floating">
-              <input type="number" step="0.000001" class="form-control" id="inputUnitario" value="0.00" placeholder="Vlr Unit">
-              <label for="inputUnitario">Vlr. Unitário</label>
-            </div>
+<div class="card shadow border-0 rounded-4 mb-4 overflow-hidden" style="background-color: #f8f9fa; border-left: 5px solid var(--bs-primary) !important;">
 
-            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
-              <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
-                <i class="bi bi-percent me-1"></i> Desconto / Acréscimo (<span id="lblTipoDescontoInfo">Valor</span>)
-              </button>
-              <button type="button" class="btn btn-primary px-4 fw-semibold" onclick="adicionarItemNaTabela()">
-                <i class="bi bi-plus-lg me-1"></i> Adicionar Item
-              </button>
-            </div>
-          </div>
+  <!-- Cabeçalho do Card -->
+  <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+      <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
+        <i class="bi bi-box-seam fs-5"></i>
+      </div>
+      <div>
+        <h5 class="fw-bold text-dark m-0">Lançamento do Item</h5>
+        <small class="text-muted">Informe o código ou clique na lupa para buscar o produto</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-4">
+    <div class="row g-3 align-items-end">
+
+      <!-- 1. Código / Código de Barras com Botão de Lupa Embutido -->
+      <div class="col-xl-3 col-lg-4">
+        <label for="inputCodigo" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Cód / Cód. Barras</label>
+        <div class="input-group shadow-sm">
+          <input type="text" class="form-control form-control-lg fs-6 rounded-start-3 bg-white border-end-0" id="inputCodigo" placeholder="Ex: 1020" maxlength="20" onchange="buscarProdutoPorCodigo(this.value)">
+          <button type="button" class="btn btn-primary px-3 rounded-end-3" id="btnAbrirModalProduto" title="Pesquisar Produtos">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
+      </div>
+
+      <!-- 2. Descrição (Somente Leitura) -->
+      <div class="col-xl-5 col-lg-4">
+        <label for="inputDescricao" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Descrição do Produto</label>
+        <input type="text" class="form-control form-control-lg fs-6 bg-white text-secondary rounded-3 shadow-sm" id="inputDescricao" placeholder="Aguardando seleção..." readonly>
+      </div>
+
+      <!-- 3. Quantidade -->
+      <div class="col-xl-2 col-lg-2 col-md-6">
+        <label for="inputQtd" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Quantidade</label>
+        <input type="number" step="0.000001" class="form-control form-control-lg fs-6 text-center fw-bold text-dark rounded-3 shadow-sm bg-white" id="inputQtd" value="1">
+      </div>
+
+      <!-- 4. Valor Unitário -->
+      <div class="col-xl-2 col-lg-2 col-md-6">
+        <label for="inputUnitario" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Vlr. Unitário (R$)</label>
+        <input type="number" step="0.000001" class="form-control form-control-lg fs-6 text-end fw-bold text-success rounded-3 shadow-sm bg-white" id="inputUnitario" value="0.00">
+      </div>
+
+      <!-- Linha Inferior: Ações e Modificadores -->
+      <div class="col-12 d-flex flex-wrap justify-content-between align-items-center mt-4 pt-3 border-top border-2 gap-2">
+        <button type="button" class="btn btn-white text-dark border btn-sm fw-semibold rounded-pill px-3 py-2 shadow-sm bg-white" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
+          <i class="bi bi-percent text-primary me-1"></i> Desconto / Acréscimo: <span id="lblTipoDescontoInfo" class="text-primary">Valor</span>
+        </button>
+
+        <button type="button" class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow" onclick="adicionarItemNaTabela()">
+          <i class="bi bi-plus-lg me-1"></i> Adicionar Item
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

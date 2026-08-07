@@ -1,4 +1,3 @@
-
 const container = document.getElementById('watermarks');
 const cols = Math.ceil(window.innerWidth / 150);
 const rows = Math.ceil(window.innerHeight / 70);
@@ -16,6 +15,9 @@ for (let i = 0; i < rows; i++) {
         span.style.top = `${top}px`;
         span.style.left = `${left}px`;
         span.style.animationDelay = `${delay}s`;
+
+        // CORREÇÃO CRUCIAL: Força cada span gerado a ignorar qualquer evento de mouse
+        span.style.pointerEvents = 'none';
 
         container.appendChild(span);
     }

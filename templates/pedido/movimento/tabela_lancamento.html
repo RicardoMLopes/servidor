@@ -1,41 +1,51 @@
-<div class="card shadow-sm border-0 p-3 mb-4">
-    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-list-check me-2"></i>Itens do Pedido</h5>
-    <div class="table-responsive modern-table" style="max-height: 350px; overflow-y: auto;">
-      <table class="table table-hover align-middle mb-0" id="tabelaItens">
-        <thead class="table-light sticky-top">
-          <tr>
-            <th>Cód</th>
-            <th>Produto</th>
-            <th class="text-end">Qtd</th>
-            <th class="text-end">Unitário</th>
-            <th class="text-end">Desc/Acres</th>
-            <th class="text-end">Total</th>
-            <th class="text-center" style="width: 60px;">Ação</th>
-          </tr>
-        </thead>
-        <tbody id="listaItens"></tbody>
-      </table>
-    </div>
-  </div>
+<div class="container-fluid px-4">
 
-  <!-- Totalizadores -->
-  <div class="card shadow-sm border-0 bg-light p-3">
-    <div class="row text-center g-2">
-      <div class="col-3">
-        <small class="text-muted d-block fw-semibold">Valor Bruto</small>
-        <span id="lblBruto" class="fs-5 fw-bold text-dark">R$ 0,00</span>
-      </div>
-      <div class="col-3">
-        <small class="text-muted d-block fw-semibold">Total Desconto</small>
-        <span id="lblDesconto" class="fs-5 fw-bold text-danger">R$ 0,00</span>
-      </div>
-      <div class="col-3">
-        <small class="text-muted d-block fw-semibold">Total Acréscimo</small>
-        <span id="lblAcrescimo" class="fs-5 fw-bold text-success">R$ 0,00</span>
-      </div>
-      <div class="col-3 border-start">
-        <small class="text-primary d-block fw-bold">VALOR LÍQUIDO</small>
-        <span id="lblLiquido" class="fs-4 fw-black text-primary">R$ 0,00</span>
-      </div>
+    <!-- LINHA INFERIOR: Tabela e Totalizadores Ocupando 100% da Largura -->
+    <div class="row g-3">
+        <div class="col-12">
+            <!-- Card da Tabela de Itens -->
+            <div class="card shadow-sm border-0 p-3 mb-3">
+                <h5 class="fw-bold text-primary mb-3"><i class="bi bi-list-check me-2"></i>Itens do Pedido</h5>
+                <div class="table-responsive modern-table" style="max-height: 350px; overflow-y: auto;">
+                  <table class="table table-hover align-middle mb-0" id="tabelaItens">
+                    <thead class="table-light sticky-top">
+                      <tr>
+                        <th>Cód</th>
+                        <th>Produto</th>
+                        <th class="text-end">Qtd</th>
+                        <th class="text-end">Unitário</th>
+                        <th class="text-end">Desc/Acres</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center" style="width: 60px;">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody id="listaItens"></tbody>
+                  </table>
+                </div>
+            </div>
+
+            <!-- Totalizadores -->
+            <div class="card shadow-sm border-0 bg-light p-3">
+                <div class="row text-center g-2">
+                  <div class="col-3">
+                    <small class="text-muted d-block fw-semibold">Valor Bruto</small>
+                    <span id="lblBruto" class="fs-5 fw-bold text-dark">R$ 0,00</span>
+                  </div>
+                  <div class="col-3">
+                    <small class="text-muted d-block fw-semibold">Total Desconto</small>
+                    <span id="lblDesconto" class="fs-5 fw-bold text-danger">R$ 0,00</span>
+                  </div>
+                  <div class="col-3">
+                    <small class="text-muted d-block fw-semibold">Total Acréscimo</small>
+                    <span id="lblAcrescimo" class="fs-5 fw-bold text-success">R$ 0,00</span>
+                  </div>
+                  <div class="col-3 border-start">
+                    <small class="text-primary d-block fw-bold">VALOR LÍQUIDO</small>
+                    <span id="lblLiquido" class="fs-4 fw-black text-primary">R$ 0,00</span>
+                  </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+</div>
