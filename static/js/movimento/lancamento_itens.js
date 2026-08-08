@@ -67,7 +67,7 @@ function adicionarItemNaTabela() {
 
     const payload = {
         empresa: window.pedidoAtual.empresa,
-        numerodocumento: window.pedidoAtual.numerodocumento, // Se for null, o backend gera o novo número automaticamente
+        numerodocumento: window.pedidoAtual.numerodocumento,
         codigovendedor: window.pedidoAtual.codigovendedor,
         codigocliente: window.pedidoAtual.codigocliente,
         codigocondPagamento: window.pedidoAtual.codigocondPagamento,
@@ -75,7 +75,9 @@ function adicionarItemNaTabela() {
             codigoproduto: codigo,
             descricaoproduto: descricao,
             quantidade: quantidade,
-            valorUnitario: valorUnitario
+            valorUnitario: valorUnitario,
+            valorDesconto: window.itemEmEdicaoDescontoAcrescimo?.valorDesconto || 0,
+            valoracrescimo: window.itemEmEdicaoDescontoAcrescimo?.valoracrescimo || 0
         }
     };
 
@@ -96,6 +98,9 @@ function adicionarItemNaTabela() {
 
             // Salva o estado atualizado no navegador (cache)
             salvarEstadoPedido();
+
+            // 🔹 Reseta o cache temporário de desconto/acréscimo do item recém-adicionado
+            window.itemEmEdicaoDescontoAcrescimo = null;
 
             // Limpa os campos do produto para o próximo lançamento
             document.getElementById('inputCodigo').value = '';

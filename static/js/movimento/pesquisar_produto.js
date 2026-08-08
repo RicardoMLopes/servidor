@@ -132,4 +132,21 @@ function preencherProdutoSelecionado(codigo, descricao, preco) {
             modalInstance.hide();
         }
     }
+
+    // 🔹 BUSCA ANTECIPADA DO LIMITE DE DESCONTO DO PRODUTO/VENDEDOR
+    const token = document.getElementById('token')?.value || '';
+    const codigoVendedor = window.pedidoAtual?.codigovendedor || "001";
+
+    if (token && codigo && codigoVendedor) {
+        fetch(`/novo-pedido/limite-desconto?token=${token}&codigovendedor=${codigoVendedor}&codigoproduto=${codigo}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Armazena globalmente o limite para este item selecionado
+                    window.limiteDescontoItemAtual = data.limiteMaximoPercentual;
+                    console.log(`✅ Limite de desconto pré-carregado para o produto ${codigo}: ${window.limiteDescontoItemAtual}%`);
+                }
+            })
+            .catch(err => console.error("⚠️ Erro ao pré-carregar limite de desconto:", err));
+    }
 }

@@ -252,7 +252,12 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             item = dados.get("item")
             quantidade = float(item.get("quantidade", 0))
             valor_unitario = float(item.get("valorUnitario", 0))
-            total_item = quantidade * valor_unitario
+
+            # 🔹 1. Pega exatamente os valores vindos da tela
+            valor_desconto = float(item.get("valorDesconto", 0))
+            valor_acrescimo = float(item.get("valoracrescimo", 0))
+
+            valor_bruto_item = quantidade * valor_unitario
 
             try:
                 data_atual = datetime.now(ZoneInfo("America/Sao_Paulo"))
@@ -260,7 +265,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 data_atual = datetime.now()
             data_formatada = data_atual.strftime("%Y-%m-%d %H:%M:%S")
 
-            # 🔹 Busca o nome correto do cliente direto na tabela cadcliente para garantir integridade
+            # 🔹 2. Busca o nome correto do cliente direto na tabela cadcliente
             nome_cliente = dados.get("nomecliente")
             if codigocliente:
                 cli_query = db.execute(
@@ -270,7 +275,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 if cli_query and cli_query._mapping.get("nome"):
                     nome_cliente = cli_query._mapping["nome"]
 
-            # 🔹 Se não veio numerodocumento, é o primeiro item: gera o próximo número
+            # 🔹 3. Se não veio numerodocumento, é o primeiro item: gera o próximo número
             if not numerodocumento:
                 result_prox = db.execute(
                     text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
@@ -281,20 +286,54 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             if not idpedido:
                 idpedido = numerodocumento
 
-            # 🔹 Valida se a MovNota já existe gravada no banco
+            # 🔹 4. Validação de Limite de Desconto (Conferência de segurança)
+            vendedor_query = db.execute(
+                text(
+                    "SELECT limitedesconto FROM cadvendedor WHERE codigo = :vendedor AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
+                {"vendedor": codigovendedor, "empresa": empresa}
+            ).fetchone()
+            limite_vendedor = float(
+                vendedor_query._mapping["limitedesconto"] or 0) if vendedor_query and vendedor_query._mapping.get(
+                "limitedesconto") is not None else None
+
+            produto_query = db.execute(
+                text(
+                    "SELECT percentualDesconto FROM cadproduto WHERE codigo = :produto AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
+                {"produto": item.get("codigoproduto"), "empresa": empresa}
+            ).fetchone()
+            limite_produto = float(
+                produto_query._mapping["percentualDesconto"] or 0) if produto_query and produto_query._mapping.get(
+                "percentualDesconto") is not None else None
+
+            # Prevalece o limite do vendedor se houver, senão usa o do produto
+            limite_maximo_permitido = limite_vendedor if limite_vendedor is not None else limite_produto
+
+            if valor_bruto_item > 0 and limite_maximo_permitido is not None:
+                percentual_aplicado = (valor_desconto / valor_bruto_item) * 100
+                if percentual_aplicado > limite_maximo_permitido:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Desconto de {percentual_aplicado:.2f}% excede o limite máximo permitido de {limite_maximo_permitido:.2f}%."
+                    )
+
+            # 🔹 5. Calcula o valor total líquido correto do item usando os valores da tela
+            total_item = valor_bruto_item - valor_desconto + valor_acrescimo
+            if total_item < 0:
+                total_item = 0.0
+
+            # 🔹 6. Valida se a MovNota já existe gravada no banco
             sql_busca_nota = text("""
                 SELECT valorTotal FROM movnota 
                 WHERE empresa = :empresa AND numerodocumento = :numerodocumento
                 LIMIT 1
             """)
-
             resultado_nota = db.execute(sql_busca_nota, {
                 "empresa": empresa,
                 "numerodocumento": numerodocumento
             }).mappings().fetchone()
 
             if not resultado_nota:
-                # 📌 1ª VEZ: Grava o Cabeçalho (MovNota)
+                # 📌 1ª VEZ: Grava o Cabeçalho (MovNota) com o total líquido do item
                 sql_insert_nota = text("""
                     INSERT INTO movnota
                     (empresa, numerodocumento, codigocondPagamento, codigovendedor, codigocliente,
@@ -321,13 +360,13 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "pesoTotal": dados.get("pesoTotal", 0),
                     "observacao": dados.get("observacao", ""),
                     "status": dados.get("status", "P"),
-                    "dataLancamento": dados.get("dataLancamento"),
+                    "dataLancamento": dados.get("dataLancamento") or data_formatada,
                     "situacaoRegistro": dados.get("situacaoRegistro", "I"),
                     "dataRegistro": data_formatada,
                     "pedido_hash": dados.get("pedido_hash")
                 })
             else:
-                # 📌 A MOVNOTA JÁ EXISTE: Atualiza o valor total E sincroniza o cliente/vendedor/condpagto caso tenham mudado
+                # 📌 A MOVNOTA JÁ EXISTE: Soma o total líquido do novo item ao total acumulado
                 novo_valor_total = float(resultado_nota["valorTotal"]) + total_item
 
                 sql_update_nota = text("""
@@ -349,7 +388,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "numerodocumento": numerodocumento
                 })
 
-            # 🔹 Grava o item na tabela movnotaitem
+            # 🔹 7. Grava o item na tabela movnotaitem utilizando os valores exatos da tela
             sql_insert_item = text("""
                 INSERT INTO movnotaitem
                 (empresa, numerodocumento, codigovendedor, codigoproduto, idpedido, descricaoproduto,
@@ -370,9 +409,9 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 "descricaoproduto": item.get("descricaoproduto"),
                 "valorUnitario": valor_unitario,
                 "valorunitariovenda": item.get("valorunitariovenda", valor_unitario),
-                "valorDesconto": item.get("valorDesconto", 0),
-                "valoracrescimo": item.get("valoracrescimo", 0),
-                "valorTotal": total_item,
+                "valorDesconto": valor_desconto,  # Valor que veio da tela
+                "valoracrescimo": valor_acrescimo,  # Valor que veio da tela
+                "valorTotal": total_item,  # Total líquido conferido e calculado
                 "quantidade": quantidade,
                 "codigocliente": codigocliente,
                 "dataRegistro": data_formatada,
@@ -489,3 +528,41 @@ async def listar_itens_pedido(token: str = Query(...), empresa: int = Query(...)
             traceback.print_exc()
             logging.error("❌ Erro ao listar itens do pedido: %s", str(e))
             raise HTTPException(status_code=500, detail=f"Erro ao listar itens: {str(e)}")
+
+
+@mov_pedido_router.get("/limite-desconto")
+async def obter_limite_desconto(
+    token: str = Query(...),
+    codigovendedor: str = Query(...),
+    codigoproduto: str = Query(...)
+):
+    nome_banco = get_nome_banco_por_token(token)
+    if not nome_banco:
+        raise HTTPException(status_code=403, detail="Token inválido")
+
+    session_empresa = get_empresa_session(nome_banco)
+    with session_empresa as db:
+        try:
+            # 1. Busca o limite do vendedor
+            vendedor_query = db.execute(
+                text("SELECT limitedesconto FROM cadvendedor WHERE codigo = :vendedor AND situacaoregistro <> 'E' LIMIT 1"),
+                {"vendedor": codigovendedor}
+            ).fetchone()
+            limite_vendedor = float(vendedor_query._mapping["limitedesconto"]) if vendedor_query and vendedor_query._mapping.get("limitedesconto") is not None else None
+
+            # 2. Busca o limite do produto
+            produto_query = db.execute(
+                text("SELECT percentualDesconto FROM cadproduto WHERE codigo = :produto AND situacaoregistro <> 'E' LIMIT 1"),
+                {"produto": codigoproduto}
+            ).fetchone()
+            limite_produto = float(produto_query._mapping["percentualDesconto"]) if produto_query and produto_query._mapping.get("percentualDesconto") is not None else None
+
+            # 3. Regra: Prevalece o do vendedor se houver, senão o do produto
+            limite_maximo = limite_vendedor if limite_vendedor is not None else limite_produto
+
+            return {
+                "success": True,
+                "limiteMaximoPercentual": limite_maximo if limite_maximo is not None else 100.0
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Erro ao buscar limite: {str(e)}")
