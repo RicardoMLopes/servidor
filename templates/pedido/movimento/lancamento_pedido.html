@@ -80,13 +80,17 @@
     };
 </script>
 
-<!-- Chamada do arquivo JavaScript separado -->
-<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}?v=2"></script>
-<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}?v=2"></script>
-<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}?v=2"></script>
-<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}?v=2"></script>
-<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}?v=2"></script>
-<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}?v=2"></script>
+<!-- 1. Scripts de regras, funções globais e suporte -->
+<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}?v=3"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}?v=3"></script>
+<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}?v=3"></script>
+
+<!-- 2. Scripts de manipulação dos itens e funções como window.removerItem -->
+<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}?v=3"></script>
+<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}?v=3"></script>
+
+<!-- 3. Script principal do Pedido de Venda (executado por último) -->
+<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}?v=3"></script>
 
 {% endblock %}
 

@@ -1,4 +1,79 @@
-console.log("⚡ [lancamento_itens.js] Execução inicial do arquivo de script");
+// console.log("⚡ [lancamento_itens.js] Execução inicial do arquivo de script");
+
+window.removerItem = async function(codigoproduto, seq) {
+    // Tratamento de segurança para não travar
+    const seqFinal = (seq && seq !== 'undefined' && seq !== 'null') ? seq : 0;
+
+    if (!codigoproduto) {
+        console.warn("⚠️ Código do produto não informado para exclusão.");
+        return;
+    }
+
+    // 1. Solicita confirmação
+    const confirmou = await mostrarModal({
+        titulo: "Confirmar Exclusão",
+        mensagem: `Deseja realmente remover o produto ${codigoproduto} do pedido?`,
+        botoes: [
+            { texto: "Cancelar", valor: false, classe: "btn-secondary" },
+            { texto: "Sim, Remover", valor: true, classe: "btn-danger" }
+        ]
+    });
+
+    if (!confirmou) return;
+
+    const tokenElement = document.getElementById('token');
+    if (!tokenElement) return;
+    const token = tokenElement.value;
+
+    const empresa = window.pedidoAtual?.empresa || 1;
+    const numerodocumento = window.pedidoAtual?.numerodocumento;
+
+    if (!numerodocumento) {
+        await mostrarModal({
+            titulo: "Atenção",
+            mensagem: "Número do documento não encontrado.",
+            botoes: [{ texto: "OK", valor: true, classe: "btn-primary" }]
+        });
+        return;
+    }
+
+    try {
+        // 2. Chama a API
+        const response = await fetch(`/novo-pedido/remover-item?token=${token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                empresa: empresa,
+                numerodocumento: numerodocumento,
+                codigoproduto: codigoproduto,
+                seq: seqFinal
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            console.log(`✅ Item ${codigoproduto} (seq: ${seqFinal}) removido com sucesso.`);
+
+            if (typeof carregarItensPedido === 'function') {
+                carregarItensPedido();
+            }
+        } else {
+            await mostrarModal({
+                titulo: "Erro ao Remover",
+                mensagem: data.detail || "Não foi possível remover o item do pedido.",
+                botoes: [{ texto: "Entendido", valor: false, classe: "btn-danger" }]
+            });
+        }
+    } catch (err) {
+        console.error("Erro ao tentar remover item:", err);
+        await mostrarModal({
+            titulo: "Erro do Servidor",
+            mensagem: "Ocorreu uma falha de comunicação com o servidor.",
+            botoes: [{ texto: "OK", valor: false, classe: "btn-danger" }]
+        });
+    }
+};
 
 // 🔹 Inicializa o pedido global apenas se não existir
 if (typeof window.pedidoAtual === 'undefined') {
@@ -6,11 +81,6 @@ if (typeof window.pedidoAtual === 'undefined') {
     const inputVendedor = document.getElementById('codigovendedor');
     const inputCliente = document.getElementById('codigocliente');
     const inputCondPag = document.getElementById('codigocondPagamento');
-
-    console.log("⚠️ [lancamento_itens.js] window.pedidoAtual era UNDEFINED. Criando objeto inicial com dados do DOM:", {
-        vendedorDOM: inputVendedor?.value,
-        condPagDOM: inputCondPag?.value
-    });
 
     window.pedidoAtual = {
         empresa: inputEmpresa ? inputEmpresa.value : 1,
@@ -25,7 +95,6 @@ if (typeof window.pedidoAtual === 'undefined') {
 
 // 🔹 1. Função auxiliar blindada para salvar o estado no localStorage
 function salvarEstadoPedido() {
-    console.log("💾 [lancamento_itens.js] Executando salvarEstadoPedido()...");
     const elNome = document.getElementById('infoClienteNome');
     const elDoc = document.getElementById('infoClienteDoc');
 
@@ -39,7 +108,6 @@ function salvarEstadoPedido() {
     if (inputCliente && inputCliente.value) window.pedidoAtual.codigocliente = inputCliente.value;
 
     if (inputCondPag && inputCondPag.value) {
-        console.log(`⚠️ [lancamento_itens.js] salvarEstadoPedido lendo do input #codigocondPagamento: "${inputCondPag.value}"`);
         window.pedidoAtual.codigocondPagamento = inputCondPag.value;
         window.pedidoAtual.codigocondpagamento = inputCondPag.value;
     }
@@ -48,7 +116,6 @@ function salvarEstadoPedido() {
     if (elDoc && elDoc.innerText.trim() !== "") window.pedidoAtual.doccliente = elDoc.innerText;
 
     localStorage.setItem('pedidoEmAndamento', JSON.stringify(window.pedidoAtual));
-    console.log("💾 [lancamento_itens.js] Estado salvo:", JSON.stringify(window.pedidoAtual));
 }
 
 // 🔹 Função inteligente para sincronizar o cabeçalho no Servidor
@@ -69,8 +136,6 @@ function sincronizarCabecalhoServidor() {
         codigovendedor: window.pedidoAtual.codigovendedor || "",
         codigocondPagamento: window.pedidoAtual.codigocondPagamento || ""
     };
-
-    console.log("🔄 [lancamento_itens.js] Sincronizando cabeçalho com o servidor:", payload);
 
     fetch(`/novo-pedido/salvar-cabecalho?token=${token}`, {
         method: 'POST',
@@ -106,9 +171,6 @@ function sincronizarCabecalhoServidor() {
 
 // 🔹 Ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("--------------------------------------------------");
-    console.log("🚀 [lancamento_itens.js] Evento DOMContentLoaded iniciado");
-
     const inputClienteEl = document.getElementById('codigocliente');
     if (inputClienteEl) {
         inputClienteEl.addEventListener('blur', () => {
@@ -123,12 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const numeroUrl = urlParams.get('numerodocumento');
 
     if (numeroUrl) {
-        console.log("📌 [lancamento_itens.js] Número na URL detectado:", numeroUrl);
         window.pedidoAtual.numerodocumento = numeroUrl;
     } else {
         const pedidoSalvoLocal = JSON.parse(localStorage.getItem('pedidoEmAndamento'));
         if (pedidoSalvoLocal && pedidoSalvoLocal.numerodocumento) {
-            console.log("📦 [lancamento_itens.js] Lendo localStorage no DOMContentLoaded:", pedidoSalvoLocal);
             window.pedidoAtual = pedidoSalvoLocal;
 
             const inputVendedor = document.getElementById('codigovendedor');
@@ -138,14 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (inputVendedor && window.pedidoAtual.codigovendedor) inputVendedor.value = window.pedidoAtual.codigovendedor;
             if (inputCliente && window.pedidoAtual.codigocliente) inputCliente.value = window.pedidoAtual.codigocliente;
             if (inputCondPag && window.pedidoAtual.codigocondPagamento) {
-                console.log(`📝 [lancamento_itens.js] Forçando valor "${window.pedidoAtual.codigocondPagamento}" do localStorage no Input HTML`);
                 inputCondPag.value = window.pedidoAtual.codigocondPagamento;
             }
         }
     }
 
     if (window.pedidoAtual.numerodocumento) {
-        console.log("🔎 [lancamento_itens.js] Executando carregarItensPedido() via DOMContentLoaded");
         const displayNum = document.getElementById('displayNumDocumento');
         if (displayNum) displayNum.innerText = window.pedidoAtual.numerodocumento;
 
@@ -153,14 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
             carregarItensPedido();
         }
     }
-    console.log("--------------------------------------------------");
 });
 
 // 🔹 Preenchimento do Modal de Edição
 const modalCondicoesEl = document.getElementById('modalEditarCondicoes');
 if (modalCondicoesEl) {
     modalCondicoesEl.addEventListener('show.bs.modal', function () {
-        console.log("👁️ [lancamento_itens.js] Modal de Condições aberto!");
         const tokenElement = document.getElementById('token');
         if (!tokenElement) return;
         const token = tokenElement.value;
@@ -175,8 +231,6 @@ if (modalCondicoesEl) {
                         window.pedidoAtual.codigocondpagamento ||
                         ''
                     ).trim();
-
-                    console.log("⚙️ [lancamento_itens.js] Selecionando no Modal:", { vendedorAtual, condPagAtual });
 
                     // Select Vendedores
                     const selectVendedor = document.getElementById('selectVendedorModal');
@@ -205,7 +259,7 @@ if (modalCondicoesEl) {
     });
 }
 
-function salvarCondicoesPedido() {
+async function salvarCondicoesPedido() {
     const selectVendedor = document.getElementById('selectVendedorModal');
     const selectCondPag = document.getElementById('selectCondPagModal');
 
@@ -215,7 +269,11 @@ function salvarCondicoesPedido() {
     const novaCondPag = selectCondPag.value;
 
     if (!novoVendedor || !novaCondPag) {
-        alert("Por favor, selecione o vendedor e a condição de pagamento.");
+        await mostrarModal({
+            titulo: "Atenção",
+            mensagem: "Por favor, selecione o vendedor e a condição de pagamento.",
+            botoes: [{ texto: "OK", valor: true, classe: "btn-primary" }]
+        });
         return;
     }
 
@@ -231,8 +289,6 @@ function salvarCondicoesPedido() {
         const optText = selectCondPag.options[selectCondPag.selectedIndex].text;
         nomeCondTexto = optText.includes(' - ') ? optText.split(' - ').slice(1).join(' - ') : optText;
     }
-
-    console.log("💾 [lancamento_itens.js] Salvando Condições do Modal:", { novoVendedor, novaCondPag });
 
     window.pedidoAtual.codigovendedor = novoVendedor;
     window.pedidoAtual.nomevendedor = nomeVendedorTexto;
@@ -260,8 +316,7 @@ function salvarCondicoesPedido() {
     }
 }
 
-function adicionarItemNaTabela() {
-    console.log("➕ [lancamento_itens.js] Adicionar item clicado!");
+async function adicionarItemNaTabela() {
     const inputCli = document.getElementById('codigocliente');
     const inputVendedor = document.getElementById('codigovendedor');
     const inputCondPag = document.getElementById('codigocondPagamento');
@@ -276,10 +331,15 @@ function adicionarItemNaTabela() {
     if (!tokenElement) return;
     const token = tokenElement.value;
 
+    const inputUnitarioEl = document.getElementById('inputUnitario');
+
     const codigo = document.getElementById('inputCodigo').value;
     const descricao = document.getElementById('inputDescricao').value;
     const quantidade = parseFloat(document.getElementById('inputQtd').value) || 0;
-    const valorUnitario = parseFloat(document.getElementById('inputUnitario').value) || 0;
+    const valorUnitario = parseFloat(inputUnitarioEl?.value) || 0;
+
+    // 🔹 RESGATE DO PREÇO BASE DE TABELA (cadproduto)
+    const valorUnitarioVenda = parseFloat(inputUnitarioEl?.dataset?.precoVendaOriginal) || valorUnitario;
 
     let clienteParaEnviar = "";
     if (inputCli && inputCli.value.trim() !== "") {
@@ -293,7 +353,11 @@ function adicionarItemNaTabela() {
     window.pedidoAtual.codigocliente = clienteParaEnviar;
 
     if (!clienteParaEnviar || !codigo || quantidade <= 0 || valorUnitario <= 0) {
-        alert("Preencha todos os campos do item e selecione um cliente.");
+        await mostrarModal({
+            titulo: "Atenção",
+            mensagem: "Preencha todos os campos do item e selecione um cliente antes de adicionar.",
+            botoes: [{ texto: "OK", valor: true, classe: "btn-primary" }]
+        });
         return;
     }
 
@@ -307,13 +371,12 @@ function adicionarItemNaTabela() {
             codigoproduto: codigo,
             descricaoproduto: descricao,
             quantidade: quantidade,
-            valorUnitario: valorUnitario,
+            valorUnitario: valorUnitario,            // 👈 Preço final negociado
+            valorunitariovenda: valorUnitarioVenda,  // 👈 Preço base da tabela de preços
             valorDesconto: window.itemEmEdicaoDescontoAcrescimo?.valorDesconto || 0,
             valoracrescimo: window.itemEmEdicaoDescontoAcrescimo?.valoracrescimo || 0
         }
     };
-
-    console.log("📡 [lancamento_itens.js] Enviando item:", payload);
 
     fetch(`/novo-pedido/adicionar-item?token=${token}`, {
         method: 'POST',
@@ -321,9 +384,8 @@ function adicionarItemNaTabela() {
         body: JSON.stringify(payload)
     })
     .then(res => res.json())
-    .then(data => {
+    .then(async data => {
         if (data.success) {
-            console.log("✅ [lancamento_itens.js] Item adicionado com sucesso, resposta banco:", data);
             window.pedidoAtual.empresa = data.empresa;
             window.pedidoAtual.numerodocumento = data.numerodocumento;
             window.pedidoAtual.codigocliente = data.codigocliente;
@@ -344,17 +406,25 @@ function adicionarItemNaTabela() {
 
             window.itemEmEdicaoDescontoAcrescimo = null;
 
+            // 🔹 Limpa os campos e o dataset do valor original
             document.getElementById('inputCodigo').value = '';
             document.getElementById('inputDescricao').value = '';
             document.getElementById('inputQtd').value = '1';
-            document.getElementById('inputUnitario').value = '0.00';
+            if (inputUnitarioEl) {
+                inputUnitarioEl.value = '0.00';
+                delete inputUnitarioEl.dataset.precoVendaOriginal;
+            }
             document.getElementById('inputCodigo').focus();
 
             if (typeof carregarItensPedido === 'function') {
                 carregarItensPedido();
             }
         } else {
-            alert("Erro ao gravar item: " + (data.detail || "Erro desconhecido"));
+            await mostrarModal({
+                titulo: "Erro ao Gravar Item",
+                mensagem: data.detail || "Erro desconhecido ao adicionar item.",
+                botoes: [{ texto: "Entendido", valor: false, classe: "btn-danger" }]
+            });
         }
     })
     .catch(err => console.error("Erro na requisição:", err));
@@ -368,13 +438,11 @@ function carregarItensPedido() {
     if (!window.pedidoAtual || !window.pedidoAtual.numerodocumento) return;
 
     const url = `/novo-pedido/listar-itens?token=${token}&empresa=${window.pedidoAtual.empresa}&numerodocumento=${window.pedidoAtual.numerodocumento}`;
-    console.log("📡 [lancamento_itens.js] Executando carregarItensPedido(). URL:", url);
 
     fetch(url)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                console.log("📊 [lancamento_itens.js] Resposta do carregarItensPedido():", data);
                 if (data.codigocliente) {
                     window.pedidoAtual.codigocliente = data.codigocliente;
                     window.pedidoAtual.nomecliente = data.nomecliente;
@@ -414,6 +482,7 @@ function carregarItensPedido() {
 
                 data.itens.forEach(item => {
                     const tr = document.createElement('tr');
+                    // 🔹 CORREÇÃO: Passa 'codigoproduto' E 'seq'
                     tr.innerHTML = `
                         <td>${item.codigoproduto}</td>
                         <td class="fw-semibold">${item.descricaoproduto}</td>
@@ -422,7 +491,7 @@ function carregarItensPedido() {
                         <td class="text-end text-danger">R$ ${(item.valorDesconto - item.valoracrescimo).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                         <td class="text-end fw-bold">R$ ${item.valorTotal.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removerItem('${item.codigoproduto}')">
+                            <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removerItem('${item.codigoproduto}', '${item.seq}')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </td>
@@ -445,7 +514,6 @@ function carregarItensPedido() {
 }
 
 function limparPedidoAtual() {
-    console.log("🧹 [lancamento_itens.js] Limpando dados do pedido...");
     localStorage.removeItem('pedidoEmAndamento');
     window.pedidoAtual = {
         empresa: 1,
@@ -459,7 +527,6 @@ function limparPedidoAtual() {
 }
 
 function atualizarTextosVisiveisCards(vendedorCodigo, vendedorNome, condCodigo, condNome) {
-    console.log("🎨 [lancamento_itens.js] Atualizando cards da UI com:", { vendedorCodigo, vendedorNome, condCodigo, condNome });
     const infoVendedorNome = document.getElementById('infoVendedorNome');
     if (infoVendedorNome) {
         const codV = vendedorCodigo || window.pedidoAtual?.codigovendedor || '';
@@ -484,3 +551,77 @@ function atualizarTextosVisiveisCards(vendedorCodigo, vendedorNome, condCodigo, 
         }
     }
 }
+
+// 🔹 Função para disparar o recálculo via API ao alterar a Condição
+async function recalcularPorCondicaoPagamento(novaCondPag) {
+    if (!novaCondPag) return;
+
+    const tokenElement = document.getElementById('token');
+    if (!tokenElement) return;
+    const token = tokenElement.value;
+
+    const empresa = window.pedidoAtual?.empresa || 1;
+    const numerodocumento = window.pedidoAtual?.numerodocumento;
+
+    // Se ainda não salvou o pedido no banco, só atualiza na memória
+    if (!numerodocumento) {
+        window.pedidoAtual.codigocondPagamento = novaCondPag;
+        salvarEstadoPedido();
+        return;
+    }
+
+    try {
+        const response = await fetch(`/novo-pedido/recalcular-condicao-pagamento?token=${token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                empresa: empresa,
+                numerodocumento: numerodocumento,
+                codigocondPagamento: novaCondPag
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            window.pedidoAtual.codigocondPagamento = novaCondPag;
+            salvarEstadoPedido();
+
+            // 🔄 Recarrega a tabela e os totais instantaneamente na tela
+            if (typeof carregarItensPedido === 'function') {
+                carregarItensPedido();
+            }
+
+            console.log(`✅ Condição ${novaCondPag} aplicada e itens recalculados com sucesso!`);
+        } else {
+            await mostrarModal({
+                titulo: "Erro ao Recalcular",
+                mensagem: data.detail || "Não foi possível aplicar a nova condição de pagamento.",
+                botoes: [{ texto: "OK", valor: false, classe: "btn-danger" }]
+            });
+        }
+    } catch (err) {
+        console.error("Erro na requisição de recálculo:", err);
+    }
+}
+
+// 🔹 Escuta a seleção no Modal / Select da tela
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Caso a alteração ocorra dentro do Modal
+    const selectCondPagModal = document.getElementById('selectCondPagModal');
+    if (selectCondPagModal) {
+        selectCondPagModal.addEventListener('change', (e) => {
+            const novaCondicao = e.target.value;
+            recalcularPorCondicaoPagamento(novaCondicao);
+        });
+    }
+
+    // 2. Caso exista o input/select direto na tela principal
+    const inputCondPagMain = document.getElementById('codigocondPagamento');
+    if (inputCondPagMain) {
+        inputCondPagMain.addEventListener('change', (e) => {
+            const novaCondicao = e.target.value;
+            recalcularPorCondicaoPagamento(novaCondicao);
+        });
+    }
+});

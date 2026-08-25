@@ -1,19 +1,11 @@
-from io import BytesIO
+from __future__ import annotations
 import logging
-import os
-import pdfkit
 from fastapi import APIRouter, Depends, Form, Request, status
-from jinja2 import Environment, FileSystemLoader
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 import hashlib
 import traceback
-import tempfile
-from fastapi import Query
 from datetime import datetime, date
-from starlette.responses import StreamingResponse, JSONResponse
 from database.connection import get_empresa_session, DB_CHAVE
-from function.funtions import gerar_token_cnpj, moeda_br
 from database.dependencies import get_empresa_db, get_nome_banco_por_token
 from database.querys import inserir_pedido, ConsultaEmpresa, ConsultaVendedor, \
     Consultar_vendedor_user, ConsultaVendedores, ConsultaEmpresaPorCNPJ  # função separada que faz a inserção
@@ -272,7 +264,11 @@ async def inserir_pedido_api(pedido_data: dict, db: Session = Depends(get_empres
 
 
 @mov_pedido_router.get("/buscar-produtos")
-async def buscar_produtos(token: str = Query(...), termo: Optional[str] = Query(None)):
+async def buscar_produtos(
+    token: str = Query(...),
+    termo: Optional[str] = Query(None),
+    codigocondPagamento: Optional[str] = Query(None)
+):
     nome_banco = get_nome_banco_por_token(token)
     if not nome_banco:
         raise HTTPException(status_code=403, detail="Token inválido")
@@ -281,69 +277,104 @@ async def buscar_produtos(token: str = Query(...), termo: Optional[str] = Query(
     with session_empresa as db:
         sql = """
             SELECT codigo, codigobarra, descricao, precoVenda 
-            from cadproduto 
-            where situacaoRegistro <> 'E'
+            FROM cadproduto 
+            WHERE situacaoRegistro <> 'E'
         """
         params = {}
 
         if termo and termo.strip():
-            sql += " AND (codigo = :termo OR codigobarra = :termo OR descricao LIKE :termo_like)"
-            params["termo"] = termo.strip()
-            params["termo_like"] = f"%{termo.strip()}%"
+            termo_limpo = termo.strip()
 
-        sql += " LIMIT 50"  # Limita para não pesar a resposta
+            # 🔹 Se for numérico, trata zeros à esquerda e busca por código exato, com zeros ou código de barras
+            if termo_limpo.isdigit():
+                termo_zeros = termo_limpo.zfill(5)
+                sql += " AND (codigo = :termo OR codigo = :termo_zeros OR codigobarra = :termo)"
+                params["termo"] = termo_limpo
+                params["termo_zeros"] = termo_zeros
+            else:
+                sql += " AND descricao LIKE :termo_like"
+                params["termo_like"] = f"%{termo_limpo}%"
+
+        sql += " LIMIT 50"
 
         resultados = db.execute(text(sql), params).fetchall()
 
-        produtos = [
-            {
-                "codigo": p._mapping["codigo"],
-                "codigobarra": p._mapping.get("codigobarra"),
-                "descricao": p._mapping["descricao"],
-                "precoVenda": float(p._mapping.get("precoVenda") or 0)
-            }
-            for p in resultados
-        ]
+        cond_pagto_normalizada = codigocondPagamento.strip() if codigocondPagamento and codigocondPagamento.strip() else None
+
+        produtos = []
+        for p in resultados:
+            dados = dict(p._mapping) if hasattr(p, "_mapping") else dict(p)
+            preco_venda_original = float(dados.get("precoVenda") or 0)
+
+            # Recalcula com base na condição de pagamento
+            valor_unitario_calculado, perc_desc, perc_acres = calcular_preco_unitario_condicao(
+                db=db,
+                codigocondPagamento=cond_pagto_normalizada,
+                preco_venda_original=preco_venda_original
+            )
+
+            produtos.append({
+                "codigo": str(dados.get("codigo")).zfill(5),
+                "codigobarra": dados.get("codigobarra"),
+                "descricao": dados.get("descricao"),
+                "precoVenda": preco_venda_original,
+                "valorUnitario": valor_unitario_calculado,
+                "percentualDescontoCond": perc_desc,
+                "percentualAcrescimoCond": perc_acres
+            })
+
         return {"produtos": produtos}
 
+def calcular_preco_unitario_condicao(db, codigocondPagamento: str, preco_venda_original: float) -> tuple[
+    float, float, float]:
+    """
+    Retorna uma tupla: (valor_unitario_final, perc_desconto, perc_acrescimo)
+    """
+    if not codigocondPagamento or not str(codigocondPagamento).strip():
+        return float(preco_venda_original), 0.0, 0.0
 
-@mov_pedido_router.get("/buscar-produto")
-async def buscar_produto_por_codigo(token: str = Query(...), codigo: str = Query(...)):
-    nome_banco = get_nome_banco_por_token(token)
-    if not nome_banco:
-        raise HTTPException(status_code=403, detail="Token inválido")
+    cod_clean = str(codigocondPagamento).strip()
 
-    codigo_limpo = codigo.strip()
+    # 🔹 Busca a condição com fallback para string/numérico
+    cond_query = db.execute(
+        text("""
+             SELECT acrescimo, desconto
+             FROM cadcondicaopagamento
+             WHERE TRIM(codigo) = :codigo
+               AND situacaoregistro <> 'E' LIMIT 1
+             """),
+        {"codigo": cod_clean}
+    ).fetchone()
 
-    # 🔹 Cria variações do código: o original e preenchido com zeros à esquerda (ex: 5 dígitos)
-    codigo_com_zeros = codigo_limpo.zfill(5) if codigo_limpo.isdigit() else codigo_limpo
+    if not cond_query and cod_clean.isdigit():
+        cond_query = db.execute(
+            text("""
+                 SELECT acrescimo, desconto
+                 FROM cadcondicaopagamento
+                 WHERE CAST(codigo AS UNSIGNED) = :cod_num
+                   AND situacaoregistro <> 'E' LIMIT 1
+                 """),
+            {"cod_num": int(cod_clean)}
+        ).fetchone()
 
-    session_empresa = get_empresa_session(nome_banco)
-    with session_empresa as db:
-        sql = """
-              SELECT codigo, codigobarra, descricao, precoVenda
-              from cadproduto
-              where situacaoRegistro <> 'E'
-                and (codigo = :codigo_limpo OR codigo = :codigo_zeros OR codigobarra = :codigo_limpo) LIMIT 1 \
-              """
+    if not cond_query:
+        return float(preco_venda_original), 0.0, 0.0
 
-        resultado = db.execute(text(sql), {
-            "codigo_limpo": codigo_limpo,
-            "codigo_zeros": codigo_com_zeros
-        }).fetchone()
+    m = cond_query._mapping
+    perc_acrescimo = float(m.get("acrescimo") or 0)
+    perc_desconto = float(m.get("desconto") or 0)
 
-        if not resultado:
-            return {"success": False, "detail": "Produto não encontrado"}
+    valor_calculado = float(preco_venda_original)
 
-        produto = {
-            "success": True,
-            "codigo": resultado._mapping["codigo"],
-            "codigobarra": resultado._mapping.get("codigobarra"),
-            "descricao": resultado._mapping["descricao"],
-            "precoVenda": float(resultado._mapping.get("precoVenda") or 0)
-        }
+    # 🔹 Aplica Acréscimo (%) se houver
+    if perc_acrescimo > 0:
+        valor_calculado += (valor_calculado * (perc_acrescimo / 100))
 
-        return produto
+    # 🔹 Aplica Desconto (%) se houver
+    if perc_desconto > 0:
+        valor_calculado -= (valor_calculado * (perc_desconto / 100))
+
+    return round(valor_calculado, 4), perc_desconto, perc_acrescimo
 
 
 @mov_pedido_router.get("/buscar-clientes")
@@ -409,9 +440,12 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     detail="Nenhum cliente selecionado! Por favor, informe um cliente antes de adicionar o item."
                 )
 
-            item = dados.get("item")
+            item = dados.get("item", {})
             quantidade = float(item.get("quantidade", 0))
             valor_unitario = float(item.get("valorUnitario", 0))
+
+            # 🔹 PREÇO BASE ORIGINAL (cadproduto): Garante a conversão para float e fallback se necessário
+            valor_unitario_venda = float(item.get("valorunitariovenda") or valor_unitario)
 
             valor_desconto = float(item.get("valorDesconto", 0))
             valor_acrescimo = float(item.get("valoracrescimo", 0))
@@ -436,15 +470,13 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "numerodocumento": numerodocumento
                 }).mappings().fetchone()
 
-            # 📌 2. REGRAS DE DEFESA/PREENCHIMENTO DE CÓDIGOS (Prioridade: Front > Banco MovNota > Parâmetro Padrão)
+            # 📌 2. REGRAS DE DEFESA/PREENCHIMENTO DE CÓDIGOS
             if resultado_nota:
-                # Se a nota já existe, reaproveita os códigos dela caso o front-end envie vazio
                 if not codigovendedor or str(codigovendedor).strip() == "":
                     codigovendedor = resultado_nota["codigovendedor"]
                 if not codigocondPagamento or str(codigocondPagamento).strip() == "":
                     codigocondPagamento = resultado_nota["codigocondPagamento"]
             else:
-                # Se for pedido novo e a condição de pagamento não veio, busca da cadparametro
                 if not codigocondPagamento or str(codigocondPagamento).strip() == "":
                     param_query = db.execute(
                         text("SELECT condicaopagamentopadrao FROM cadparametro LIMIT 1")
@@ -527,7 +559,6 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
 
             # 📌 7. INSERE OU ATUALIZA O CABEÇALHO (MOVNOTA)
             if not resultado_nota:
-                # 1ª VEZ: Insere o cabeçalho
                 sql_insert_nota = text("""
                     INSERT INTO movnota
                     (empresa, numerodocumento, codigocondPagamento, codigovendedor, codigocliente,
@@ -561,7 +592,6 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "pedido_hash": dados.get("pedido_hash")
                 })
             else:
-                # JÁ EXISTE: Atualiza o acumulado e refaz a sincronização do cabeçalho
                 novo_valor_total = float(resultado_nota["valorTotal"]) + total_item
 
                 sql_update_nota = text("""
@@ -612,8 +642,8 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 "codigoproduto": item.get("codigoproduto"),
                 "idpedido": idpedido,
                 "descricaoproduto": item.get("descricaoproduto"),
-                "valorUnitario": valor_unitario,
-                "valorunitariovenda": item.get("valorunitariovenda", valor_unitario),
+                "valorUnitario": valor_unitario,             # Preço final negociado
+                "valorunitariovenda": valor_unitario_venda,  # 👈 Preço base da tabela de preços
                 "valorDesconto": valor_desconto,
                 "valoracrescimo": valor_acrescimo,
                 "valorTotal": total_item,
@@ -744,7 +774,7 @@ async def listar_itens_pedido(token: str = Query(...), empresa: int = Query(...)
 
             # 🔹 5. Busca Itens do Pedido
             sql_itens = text("""
-                SELECT A.codigoproduto, A.descricaoproduto, A.quantidade, A.valorUnitario, 
+                SELECT A.seq, A.codigoproduto, A.descricaoproduto, A.quantidade, A.valorUnitario, 
                        A.valorDesconto, A.valoracrescimo, A.valorTotal 
                 FROM movnotaitem A
                 INNER JOIN movnota B ON
@@ -782,6 +812,7 @@ async def listar_itens_pedido(token: str = Query(...), empresa: int = Query(...)
                 total_liquido += vlr_total
 
                 itens.append({
+                    "seq": r["seq"],
                     "codigoproduto": r["codigoproduto"],
                     "descricaoproduto": r["descricaoproduto"],
                     "quantidade": qtd,
@@ -880,7 +911,7 @@ async def listar_opcoes_condicoes(token: Optional[str] = Query(None)):
             # Busca condições de pagamento ativas (Verifique se os nomes das colunas batem com sua tabela cadcondpagamento)
             condicoes_query = db.execute(
                 text(
-                    "SELECT codigo, descricao FROM cadcondicaopagamento WHERE situacaoregistro <> 'E' ORDER BY descricao")
+                    "SELECT codigo, descricao, acrescimo, desconto FROM cadcondicaopagamento WHERE situacaoregistro <> 'E' ORDER BY descricao")
             ).fetchall()
 
             condicoes = [{"codigo": str(c._mapping["codigo"]).strip(),
@@ -1021,3 +1052,261 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
     except Exception as e:
         print(f"Erro na rota salvar-cabecalho: {e}")
         return {"success": False, "detail": str(e)}
+
+
+@mov_pedido_router.post("/recalcular-condicao-pagamento")
+async def recalcular_condicao_pagamento(dados: dict, token: str = Query(...)):
+    nome_banco = get_nome_banco_por_token(token)
+    if not nome_banco:
+        raise HTTPException(status_code=403, detail="Token inválido")
+
+    session_empresa = get_empresa_session(nome_banco)
+    with session_empresa as db:
+        try:
+            empresa = int(dados.get("empresa", 1))
+            numerodocumento = int(dados.get("numerodocumento", 0))
+            codigocondPagamento = str(dados.get("codigocondPagamento") or "").strip()
+
+            if not numerodocumento or not codigocondPagamento:
+                raise HTTPException(status_code=400, detail="Documento e condição de pagamento são obrigatórios.")
+
+            # 📌 1. Busca os percentuais da Nova Condição de Pagamento
+            sql_cond = text("""
+                SELECT acrescimo, desconto
+                FROM cadcondicaopagamento
+                WHERE TRIM(codigo) = :codigo
+                  AND (situacaoregistro IS NULL OR situacaoregistro <> 'E') 
+                LIMIT 1
+            """)
+            cond_data = db.execute(sql_cond, {"codigo": codigocondPagamento}).mappings().fetchone()
+
+            # Lê as colunas corretas do seu banco ('desconto' e 'acrescimo')
+            perc_desconto_cond = float(cond_data["desconto"] or 0) if cond_data else 0.0
+            perc_acrescimo_cond = float(cond_data["acrescimo"] or 0) if cond_data else 0.0
+
+            logging.info(
+                f"📊 Condição {codigocondPagamento} - Desc: {perc_desconto_cond}% | Acrés: {perc_acrescimo_cond}%"
+            )
+
+            # 📌 2. Atualiza a nova condição no cabeçalho do pedido (movnota)
+            sql_update_cab = text("""
+                UPDATE movnota
+                SET codigocondPagamento = :cond
+                WHERE empresa = :empresa
+                  AND numerodocumento = :numerodocumento
+            """)
+            db.execute(sql_update_cab, {
+                "cond": codigocondPagamento,
+                "empresa": empresa,
+                "numerodocumento": numerodocumento
+            })
+
+            # 📌 3. Busca todos os itens ATIVOS do pedido (situacaoregistro <> 'E')
+            sql_itens = text("""
+                SELECT seq, codigoproduto, quantidade, valorunitariovenda, valorDesconto, valoracrescimo
+                FROM movnotaitem
+                WHERE empresa = :empresa
+                  AND numerodocumento = :numerodocumento
+                  AND (situacaoregistro IS NULL OR situacaoregistro <> 'E')
+            """)
+            itens_banco = db.execute(sql_itens, {
+                "empresa": empresa,
+                "numerodocumento": numerodocumento
+            }).mappings().all()
+
+            novo_total_pedido = 0.0
+
+            # 📌 4. Recalcula os valores de cada item
+            for item in itens_banco:
+                seq = item["seq"]
+                qtd = float(item["quantidade"] or 0)
+                # Base de cálculo do preço de tabela
+                vlr_base_venda = float(item["valorunitariovenda"] or 0)
+
+                # Descontos e acréscimos pontuais gravados anteriormente no item
+                desc_item = float(item["valorDesconto"] or 0)
+                acres_item = float(item["valoracrescimo"] or 0)
+
+                # A. Aplica o percentual da condição de pagamento sobre a base da tabela
+                vlr_cond_desconto = (vlr_base_venda * (perc_desconto_cond / 100.0))
+                vlr_cond_acrescimo = (vlr_base_venda * (perc_acrescimo_cond / 100.0))
+
+                # B. Descobre o novo valor unitário negociado (arredondado para 2 casas)
+                novo_valor_unitario = round(vlr_base_venda - vlr_cond_desconto + vlr_cond_acrescimo, 2)
+
+                # C. Calcula o valor total do item considerando o histórico de desconto e acréscimo do item
+                vlr_bruto_item = novo_valor_unitario * qtd
+                novo_valor_total_item = round(max(0.0, vlr_bruto_item - desc_item + acres_item), 2)
+
+                # D. Soma ao total geral do pedido
+                novo_total_pedido += novo_valor_total_item
+
+                # E. Atualiza o item na tabela movnotaitem com 2 casas
+                sql_update_item = text("""
+                    UPDATE movnotaitem
+                    SET valorUnitario = :val_unit,
+                        valorTotal    = :val_total
+                    WHERE empresa = :empresa
+                      AND numerodocumento = :numerodocumento
+                      AND seq = :seq
+                """)
+                db.execute(sql_update_item, {
+                    "val_unit": novo_valor_unitario,
+                    "val_total": novo_valor_total_item,
+                    "empresa": empresa,
+                    "numerodocumento": numerodocumento,
+                    "seq": seq
+                })
+
+            # Arredonda o acumulador final por segurança de precisão
+            novo_total_pedido = round(novo_total_pedido, 2)
+
+            # 📌 5. Atualiza o Total Geral do Pedido no Cabeçalho (movnota)
+            sql_update_nota_total = text("""
+                UPDATE movnota
+                SET valorTotal = :total
+                WHERE empresa = :empresa
+                  AND numerodocumento = :numerodocumento
+            """)
+            db.execute(sql_update_nota_total, {
+                "total": novo_total_pedido,
+                "empresa": empresa,
+                "numerodocumento": numerodocumento
+            })
+
+            db.commit()
+
+            return {
+                "success": True,
+                "message": "Condição de pagamento alterada e valores recalculados com sucesso!",
+                "numerodocumento": numerodocumento,
+                "novoValorTotal": novo_total_pedido
+            }
+
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            import traceback
+            traceback.print_exc()
+            logging.error("❌ Erro ao recalcular condição de pagamento: %s", str(e))
+            raise HTTPException(status_code=500, detail=f"Erro ao recalcular condição: {str(e)}")
+
+@mov_pedido_router.post("/remover-item")
+async def remover_item_pedido(dados: dict, token: str = Query(...)):
+    nome_banco = get_nome_banco_por_token(token)
+    if not nome_banco:
+        raise HTTPException(status_code=403, detail="Token inválido")
+
+    session_empresa = get_empresa_session(nome_banco)
+    with session_empresa as db:
+        try:
+            # 📌 1. Captura e higienização dos parâmetros
+            empresa = int(dados.get("empresa", 1))
+            numerodocumento = int(dados.get("numerodocumento", 0))
+            codigoproduto = str(dados.get("codigoproduto") or "").strip()
+
+            # Trata o campo seq (converte para int se existir)
+            raw_seq = dados.get("seq")
+            seq = int(raw_seq) if raw_seq not in [None, "", "undefined", "null"] else None
+
+            if not numerodocumento or not codigoproduto:
+                raise HTTPException(status_code=400, detail="Número do documento e código do produto são obrigatórios.")
+
+            # 📌 2. Monta consulta flexível com TRIM para ignorar espaços em CHAR(6)
+            sql_busca_item = """
+                             SELECT seq, codigoproduto, valorTotal
+                             FROM movnotaitem
+                             WHERE empresa = :empresa
+                               AND numerodocumento = :numerodocumento
+                               AND TRIM(codigoproduto) = :codigoproduto
+                               AND (situacaoregistro IS NULL OR situacaoregistro <> 'E') \
+                             """
+            params = {
+                "empresa": empresa,
+                "numerodocumento": numerodocumento,
+                "codigoproduto": codigoproduto
+            }
+
+            # Se a sequência foi enviada e for maior que 0, adiciona na busca
+            if seq and seq > 0:
+                sql_busca_item += " AND seq = :seq"
+                params["seq"] = seq
+
+            sql_busca_item += " LIMIT 1"
+
+            item_banco = db.execute(text(sql_busca_item), params).mappings().fetchone()
+
+            # Caso ainda não encontre com seq exato, faz o fallback buscando apenas pelo codigoproduto
+            if not item_banco and seq:
+                sql_fallback = """
+                               SELECT seq, codigoproduto, valorTotal
+                               FROM movnotaitem
+                               WHERE empresa = :empresa
+                                 AND numerodocumento = :numerodocumento
+                                 AND TRIM(codigoproduto) = :codigoproduto
+                                 AND (situacaoregistro IS NULL OR situacaoregistro <> 'E') LIMIT 1 \
+                               """
+                item_banco = db.execute(text(sql_fallback), {
+                    "empresa": empresa,
+                    "numerodocumento": numerodocumento,
+                    "codigoproduto": codigoproduto
+                }).mappings().fetchone()
+
+            # Se mesmo assim não achar nada no banco, aí sim retorna 404
+            if not item_banco:
+                logging.warning(f"⚠️ Item não localizado. Params: {params}")
+                raise HTTPException(status_code=404,
+                                    detail=f"Produto {codigoproduto} não encontrado no pedido {numerodocumento}.")
+
+            seq_encontrado = item_banco["seq"]
+            cod_produto_encontrado = item_banco["codigoproduto"]
+            valor_total_item = float(item_banco["valorTotal"] or 0)
+
+            # 📌 3. Soft Delete na tabela movnotaitem (situacaoregistro = 'E')
+            sql_cancelar_item = text("""
+                                     UPDATE movnotaitem
+                                     SET situacaoregistro = 'E'
+                                     WHERE empresa = :empresa
+                                       AND numerodocumento = :numerodocumento
+                                       AND seq = :seq
+                                     """)
+            db.execute(sql_cancelar_item, {
+                "empresa": empresa,
+                "numerodocumento": numerodocumento,
+                "seq": seq_encontrado
+            })
+
+            # 📌 4. Atualiza e subtrai o valor no total do pedido (movnota)
+            sql_update_nota = text("""
+                                   UPDATE movnota
+                                   SET valorTotal = GREATEST(0, COALESCE(valorTotal, 0) - :valor_item)
+                                   WHERE empresa = :empresa
+                                     AND numerodocumento = :numerodocumento
+                                   """)
+            db.execute(sql_update_nota, {
+                "valor_item": valor_total_item,
+                "empresa": empresa,
+                "numerodocumento": numerodocumento
+            })
+
+            db.commit()
+
+            return {
+                "success": True,
+                "message": f"Produto {codigoproduto} removido com sucesso!",
+                "numerodocumento": numerodocumento,
+                "codigoproduto": codigoproduto,
+                "seq": seq_encontrado
+            }
+
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            import traceback
+            traceback.print_exc()
+            logging.error("❌ Erro ao remover item do pedido: %s", str(e))
+            raise HTTPException(status_code=500, detail=f"Erro ao remover item: {str(e)}")

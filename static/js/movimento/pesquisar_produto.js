@@ -1,5 +1,27 @@
 let debounceTimerProduto = null;
 
+// 🔹 Utilitário para escapar caracteres especiais nas propriedades HTML
+function escapeHtml(texto) {
+    if (!texto) return '';
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// 🔹 Utilitário para formatar código de produto com Zeros à Esquerda (ex: 23 -> 00023)
+function formatarCodigoProduto(codigo) {
+    if (!codigo) return '';
+    const codigoLimpo = String(codigo).trim();
+    // Se for numérico, preenche com zeros à esquerda até completar 5 dígitos
+    if (/^\d+$/.test(codigoLimpo)) {
+        return codigoLimpo.padStart(5, '0');
+    }
+    return codigoLimpo;
+}
+
 // 🔹 1. Inicialização segura dos modais e eventos da página
 document.addEventListener('DOMContentLoaded', function () {
     const modalProdutoEl = document.getElementById('modalSelecionarProduto');
@@ -35,6 +57,16 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.style.paddingRight = '';
         });
     }
+
+    // 🔹 Evento ao sair do campo de código manual (blur/enter) para aplicar o padStart
+    const inputCodigo = document.getElementById('inputCodigo');
+    if (inputCodigo) {
+        inputCodigo.addEventListener('blur', function () {
+            if (this.value) {
+                this.value = formatarCodigoProduto(this.value);
+            }
+        });
+    }
 });
 
 // 🔹 2. Função para buscar produtos dinamicamente dentro do Modal
@@ -53,9 +85,16 @@ function filtrarProdutosModal(termo) {
     }
 
     debounceTimerProduto = setTimeout(() => {
-        const token = document.getElementById('token').value;
+        const tokenElement = document.getElementById('token');
+        if (!tokenElement) return;
+        const token = tokenElement.value;
 
-        fetch(`/novo-pedido/buscar-produtos?token=${token}&termo=${encodeURIComponent(termoLimpo)}`)
+        // 🔹 Captura a Condição de Pagamento selecionada no formulário/estado
+        const condPagamento = document.getElementById('codigocondPagamento')?.value ||
+                              window.pedidoAtual?.codigocondPagamento || '';
+
+        // 🔹 Inclui o codigocondPagamento na URL do fetch
+        fetch(`/novo-pedido/buscar-produtos?token=${token}&termo=${encodeURIComponent(termoLimpo)}&codigocondPagamento=${encodeURIComponent(condPagamento)}`)
             .then(res => res.json())
             .then(data => {
                 const tbody = document.getElementById('listaProdutosResultado');
@@ -65,22 +104,29 @@ function filtrarProdutosModal(termo) {
                     const fragment = document.createDocumentFragment();
 
                     data.produtos.forEach(prod => {
+                        // Formata o código do produto para 5 dígitos
+                        const codigoFormatado = formatarCodigoProduto(prod.codigo);
+
+                        // 🔹 GARANTE A CONVERSÃO PARA FLOAT AQUI
+                        const precoCalculado = parseFloat(prod.valorUnitario ?? prod.precoVenda ?? prod.preco ?? 0);
+                        const precoOriginal = parseFloat(prod.precoVenda ?? prod.valorUnitario ?? prod.preco ?? 0);
+
                         const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td class="fw-semibold text-secondary">${prod.codigo}</td>
-                                <td><span class="badge bg-light text-dark border">${prod.codigobarra || '—'}</span></td>
-                                <td class="fw-bold text-dark">${prod.descricao}</td>
-                                <td class="text-end fw-semibold text-success">R$ ${prod.precoVenda.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                                <td class="text-center">
-                                    <!-- Removida qualquer classe de largura estendida e mantido o botão compacto -->
-                                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold btn-escolher-prod shadow-sm text-nowrap"
-                                        data-codigo="${prod.codigo}"
-                                        data-descricao="${escapeHtml(prod.descricao)}"
-                                        data-preco="${prod.precoVenda}">
-                                        <i class="bi bi-check2 me-1"></i> Selecionar
-                                    </button>
-                                </td>
-                            `;
+                        tr.innerHTML = `
+                            <td class="fw-semibold text-secondary">${codigoFormatado}</td>
+                            <td><span class="badge bg-light text-dark border">${prod.codigobarra || '—'}</span></td>
+                            <td class="fw-bold text-dark">${prod.descricao}</td>
+                            <td class="text-end fw-semibold text-success">R$ ${precoCalculado.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 fw-semibold btn-escolher-prod shadow-sm text-nowrap"
+                                    data-codigo="${codigoFormatado}"
+                                    data-descricao="${escapeHtml(prod.descricao)}"
+                                    data-preco="${precoCalculado}"
+                                    data-preco-venda-original="${precoOriginal}">
+                                    <i class="bi bi-check2 me-1"></i> Selecionar
+                                </button>
+                            </td>
+                        `;
                         fragment.appendChild(tr);
                     });
 
@@ -102,49 +148,57 @@ document.addEventListener('click', function(event) {
     const descricao = btn.getAttribute('data-descricao');
     const preco = parseFloat(btn.getAttribute('data-preco'));
 
-    preencherProdutoSelecionado(codigo, descricao, preco);
+    // Captura o preço base de tabela (se não existir, usa o próprio preço calculado)
+    const precoOriginalAttr = btn.getAttribute('data-preco-venda-original');
+    const precoOriginal = precoOriginalAttr ? parseFloat(precoOriginalAttr) : preco;
+
+    preencherProdutoSelecionado(codigo, descricao, preco, precoOriginal);
 });
 
-// 🔹 Função para buscar o produto pelo código digitado manualmente
-async function buscarProdutoPorCodigo(codigo) {
-    if (!codigo || codigo.trim() === "") return;
+/// 🔹 Função para buscar o produto pelo código digitado manualmente (usando a rota unificada)
+async function buscarProdutoPorCodigo(codigoInput) {
+    if (!codigoInput || codigoInput.trim() === "") return;
+
+    const codigo = formatarCodigoProduto(codigoInput);
+
+    const inputCodigoEl = document.getElementById('inputCodigo');
+    if (inputCodigoEl) inputCodigoEl.value = codigo;
 
     const tokenElement = document.getElementById('token');
-    if (!tokenElement) {
-        console.error("Token não encontrado na tela.");
-        return;
-    }
+    if (!tokenElement) return;
     const token = tokenElement.value;
 
-    console.log("🔍 Buscando produto pelo código:", codigo);
+    const condPagamento = document.getElementById('codigocondPagamento')?.value ||
+                          window.pedidoAtual?.codigocondPagamento || '';
 
     try {
-        const response = await fetch(`/novo-pedido/buscar-produto?token=${token}&codigo=${encodeURIComponent(codigo)}`);
+        // 🔹 Aponta para a mesma rota /buscar-produtos enviando no parâmetro 'termo'
+        const url = `/novo-pedido/buscar-produtos?token=${token}&termo=${encodeURIComponent(codigo)}&codigocondPagamento=${encodeURIComponent(condPagamento)}`;
+        const response = await fetch(url);
         const data = await response.json();
 
-        // Verifica se o produto foi retornado com sucesso
-        if (data && (data.success || data.encontrado || data.descricao || data.descricaoproduto)) {
+        // Como a rota retorna um array {"produtos": [...]}, pegamos o primeiro resultado encontrado
+        if (data && data.produtos && data.produtos.length > 0) {
+            const produto = data.produtos[0];
+
             // Preenche a descrição
             const campoDesc = document.getElementById('inputDescricao');
-            if (campoDesc) {
-                campoDesc.value = data.descricao || data.descricaoproduto || '';
-            }
+            if (campoDesc) campoDesc.value = produto.descricao || '';
 
-            // Preenche o valor unitário
+            // Preenche os valores
             const inputUnitario = document.getElementById('inputUnitario');
             if (inputUnitario) {
-                const preco = data.precoVenda || data.valorUnitario || data.preco || 0;
-                inputUnitario.value = parseFloat(preco).toFixed(2);
+                inputUnitario.value = parseFloat(produto.valorUnitario).toFixed(2);
+                inputUnitario.dataset.precoVendaOriginal = parseFloat(produto.precoVenda).toFixed(2);
             }
 
-            // Joga o foco direto para a quantidade
+            // Foca na quantidade
             const inputQtd = document.getElementById('inputQtd');
             if (inputQtd) {
                 inputQtd.focus();
                 inputQtd.select();
             }
         } else {
-            // ❌ Modal de alerta quando o produto não é encontrado
             await mostrarModal({
                 titulo: "Atenção",
                 mensagem: `Produto com o código "${codigo}" não foi encontrado.`,
@@ -155,16 +209,7 @@ async function buscarProdutoPorCodigo(codigo) {
         }
     } catch (err) {
         console.error("Erro na busca do produto:", err);
-
-        // ❌ Modal de erro no servidor
-        await mostrarModal({
-            titulo: "Erro do Servidor",
-            mensagem: "Não foi possível consultar o produto no servidor. Tente novamente.",
-            botoes: [{ texto: "Entendido", valor: false, classe: "btn-danger" }]
-        });
-
-        document.getElementById('inputCodigo').value = '';
-        document.getElementById('inputCodigo').focus();
+        limparCamposProduto();
     }
 }
 
@@ -176,10 +221,22 @@ function limparCamposProduto() {
 }
 
 // 🔹 4. Preenche os campos do formulário e fecha o modal de produtos com segurança
-function preencherProdutoSelecionado(codigo, descricao, preco) {
-    document.getElementById('inputCodigo').value = codigo;
+function preencherProdutoSelecionado(codigo, descricao, preco, precoOriginal = null) {
+    // Garante que o código preenchido no input tenha 5 dígitos
+    const codigoFormatado = formatarCodigoProduto(codigo);
+
+    document.getElementById('inputCodigo').value = codigoFormatado;
     document.getElementById('inputDescricao').value = descricao;
-    document.getElementById('inputUnitario').value = preco.toFixed(2);
+
+    // Preenche o preço unitário (calculado) e armazena o original no dataset
+    const inputUnitario = document.getElementById('inputUnitario');
+    if (inputUnitario) {
+        const precoCalculadoNum = parseFloat(preco) || 0;
+        const precoOriginalNum = precoOriginal !== null ? parseFloat(precoOriginal) : precoCalculadoNum;
+
+        inputUnitario.value = precoCalculadoNum.toFixed(2);
+        inputUnitario.dataset.precoVendaOriginal = precoOriginalNum.toFixed(2);
+    }
 
     // Foca na quantidade e seleciona o texto para agilizar a digitação
     const inputQtd = document.getElementById('inputQtd');
@@ -191,7 +248,6 @@ function preencherProdutoSelecionado(codigo, descricao, preco) {
     // Fecha o modal de produtos via API nativa do Bootstrap
     const modalEl = document.getElementById('modalSelecionarProduto');
     if (modalEl) {
-        // Remove o foco de qualquer elemento dentro do modal antes de fechá-lo
         const elementoFocado = modalEl.querySelector(':focus');
         if (elementoFocado) {
             elementoFocado.blur();
@@ -207,14 +263,13 @@ function preencherProdutoSelecionado(codigo, descricao, preco) {
     const token = document.getElementById('token')?.value || '';
     const codigoVendedor = window.pedidoAtual?.codigovendedor || "001";
 
-    if (token && codigo && codigoVendedor) {
-        fetch(`/novo-pedido/limite-desconto?token=${token}&codigovendedor=${codigoVendedor}&codigoproduto=${codigo}`)
+    if (token && codigoFormatado && codigoVendedor) {
+        fetch(`/novo-pedido/limite-desconto?token=${token}&codigovendedor=${codigoVendedor}&codigoproduto=${codigoFormatado}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Armazena globalmente o limite para este item selecionado
                     window.limiteDescontoItemAtual = data.limiteMaximoPercentual;
-                    console.log(`✅ Limite de desconto pré-carregado para o produto ${codigo}: ${window.limiteDescontoItemAtual}%`);
+                    console.log(`✅ Limite de desconto pré-carregado para o produto ${codigoFormatado}: ${window.limiteDescontoItemAtual}%`);
                 }
             })
             .catch(err => console.error("⚠️ Erro ao pré-carregar limite de desconto:", err));
