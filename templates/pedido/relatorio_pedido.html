@@ -124,6 +124,12 @@
                 <h5 class="card-title fw-bold text-primary">
                   Pedido: {{ p.cabecalho.numerodocumento }}
                 </h5>
+                <!-- 🔹 Botão de Alterar Pedido -->
+                <a href="/novo-pedido/novo?token={{ token }}&numerodocumento={{ p.cabecalho.numerodocumento }}"
+                   class="btn btn-outline-primary btn-sm fw-semibold d-inline-flex align-items-center gap-1 shadow-sm px-3"
+                   style="border-radius: 0.50rem;">
+                    <i class="bi bi-pencil-square"></i> Alterar
+                </a>
                 <small class="text-muted">
                   Forma de Pagamento: {{ p.cabecalho.codigocondPagamento }} - {{ p.cabecalho.formapagamento }}
                 </small>

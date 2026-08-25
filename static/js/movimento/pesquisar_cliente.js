@@ -110,10 +110,57 @@ function selecionarCliente(codigo, nome, doc) {
     document.getElementById('infoClienteDoc').innerText = "CPF/CNPJ: " + (doc || '—');
     document.getElementById('infoClienteNome').innerText = nome;
 
-    // 2. Fecha o modal de forma totalmente segura via API do Bootstrap
+    // 2. Atualiza o objeto global e o localStorage
+    if (typeof window.pedidoAtual !== 'undefined') {
+        window.pedidoAtual.codigocliente = codigo;
+        window.pedidoAtual.nomecliente = nome;
+        window.pedidoAtual.doccliente = "CPF/CNPJ: " + (doc || '—');
+
+        if (typeof salvarEstadoPedido === 'function') {
+            salvarEstadoPedido();
+        }
+    }
+
+    // 🚀 3. DISPARA O POST DIRETAMENTE PARA O BACKEND (Salvar Cabeçalho)
+    const tokenElement = document.getElementById('token');
+    if (tokenElement && tokenElement.value) {
+        const token = tokenElement.value;
+        const payload = {
+            empresa: window.pedidoAtual?.empresa || 1,
+            numerodocumento: window.pedidoAtual?.numerodocumento || null,
+            codigocliente: codigo,
+            codigovendedor: window.pedidoAtual?.codigovendedor || "001",
+            codigocondPagamento: window.pedidoAtual?.codigocondPagamento || "001"
+        };
+
+        console.log("🔄 Enviando alteração de cliente para o servidor:", payload);
+
+        fetch(`/novo-pedido/salvar-cabecalho?token=${token}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Se gerou um novo número de documento, atualiza na tela e no objeto global
+                if (!window.pedidoAtual.numerodocumento && data.numerodocumento) {
+                    window.pedidoAtual.numerodocumento = data.numerodocumento;
+                    const displayNum = document.getElementById('displayNumDocumento');
+                    if (displayNum) displayNum.innerText = data.numerodocumento;
+                    salvarEstadoPedido();
+                }
+                console.log("✅ Cliente atualizado/salvo com sucesso no banco:", data);
+            } else {
+                console.error("❌ Erro ao salvar cliente no backend:", data.detail);
+            }
+        })
+        .catch(err => console.error("❌ Erro crítico na requisição de salvamento de cliente:", err));
+    }
+
+    // 4. Fecha o modal de forma totalmente segura via API do Bootstrap
     const modalEl = document.getElementById('modalSelecionarCliente');
     if (modalEl) {
-        // Remove o foco de qualquer elemento ativo dentro do modal antes de fechá-lo
         const elementoFocado = modalEl.querySelector(':focus');
         if (elementoFocado) {
             elementoFocado.blur();
@@ -123,13 +170,12 @@ function selecionarCliente(codigo, nome, doc) {
         if (modalInstance) {
             modalInstance.hide();
         } else {
-            // Fallback caso a instância não exista diretamente
             const novoModal = new bootstrap.Modal(modalEl);
             novoModal.hide();
         }
     }
 
-    // 3. Força a remoção de qualquer resíduo de backdrop travado na tela
+    // 5. Força a remoção de qualquer resíduo de backdrop travado na tela
     setTimeout(() => {
         document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
         document.body.classList.remove('modal-open');

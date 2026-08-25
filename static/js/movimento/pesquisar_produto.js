@@ -105,6 +105,76 @@ document.addEventListener('click', function(event) {
     preencherProdutoSelecionado(codigo, descricao, preco);
 });
 
+// 🔹 Função para buscar o produto pelo código digitado manualmente
+async function buscarProdutoPorCodigo(codigo) {
+    if (!codigo || codigo.trim() === "") return;
+
+    const tokenElement = document.getElementById('token');
+    if (!tokenElement) {
+        console.error("Token não encontrado na tela.");
+        return;
+    }
+    const token = tokenElement.value;
+
+    console.log("🔍 Buscando produto pelo código:", codigo);
+
+    try {
+        const response = await fetch(`/novo-pedido/buscar-produto?token=${token}&codigo=${encodeURIComponent(codigo)}`);
+        const data = await response.json();
+
+        // Verifica se o produto foi retornado com sucesso
+        if (data && (data.success || data.encontrado || data.descricao || data.descricaoproduto)) {
+            // Preenche a descrição
+            const campoDesc = document.getElementById('inputDescricao');
+            if (campoDesc) {
+                campoDesc.value = data.descricao || data.descricaoproduto || '';
+            }
+
+            // Preenche o valor unitário
+            const inputUnitario = document.getElementById('inputUnitario');
+            if (inputUnitario) {
+                const preco = data.precoVenda || data.valorUnitario || data.preco || 0;
+                inputUnitario.value = parseFloat(preco).toFixed(2);
+            }
+
+            // Joga o foco direto para a quantidade
+            const inputQtd = document.getElementById('inputQtd');
+            if (inputQtd) {
+                inputQtd.focus();
+                inputQtd.select();
+            }
+        } else {
+            // ❌ Modal de alerta quando o produto não é encontrado
+            await mostrarModal({
+                titulo: "Atenção",
+                mensagem: `Produto com o código "${codigo}" não foi encontrado.`,
+                botoes: [{ texto: "OK", valor: true, classe: "btn-primary" }]
+            });
+
+            limparCamposProduto();
+        }
+    } catch (err) {
+        console.error("Erro na busca do produto:", err);
+
+        // ❌ Modal de erro no servidor
+        await mostrarModal({
+            titulo: "Erro do Servidor",
+            mensagem: "Não foi possível consultar o produto no servidor. Tente novamente.",
+            botoes: [{ texto: "Entendido", valor: false, classe: "btn-danger" }]
+        });
+
+        document.getElementById('inputCodigo').value = '';
+        document.getElementById('inputCodigo').focus();
+    }
+}
+
+function limparCamposProduto() {
+    document.getElementById('inputCodigo').value = '';
+    document.getElementById('inputDescricao').value = '';
+    document.getElementById('inputUnitario').value = '0.00';
+    document.getElementById('inputCodigo').focus();
+}
+
 // 🔹 4. Preenche os campos do formulário e fecha o modal de produtos com segurança
 function preencherProdutoSelecionado(codigo, descricao, preco) {
     document.getElementById('inputCodigo').value = codigo;

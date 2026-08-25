@@ -144,3 +144,63 @@ input[readonly] {
     }
 
 }
+
+/* Efeito de foco customizado para os inputs e selects */
+.input-group:focus-within .input-group-text {
+  border-color: #86b7fe;
+  color: #0d6efd !important;
+  background-color: #f8f9fa;
+}
+
+.input-group:focus-within .form-select {
+  border-color: #86b7fe;
+  box-shadow: none;
+}
+
+/* Letras minúsculas e espaçadas para labels estilo Dashboard */
+.tracking-wide {
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+/* Transição nos botões */
+.modal-footer .btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.modal-footer .btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Efeitos de Hover para os blocos clicáveis */
+.card-hover-effect {
+  transition: all 0.2s ease-in-out;
+}
+
+.card-hover-effect:hover {
+  background-color: #f1f5f9 !important; /* Cor suave ao passar o mouse */
+  border-color: #cbd5e1 !important;
+  transform: translateY(-1px);
+}
+
+/* Utilitários de fonte e espaçamento estilo Dashboard */
+.fs-7 {
+  font-size: 0.85rem !important;
+}
+
+.fs-8 {
+  font-size: 0.75rem !important;
+}
+
+.tracking-wider {
+  letter-spacing: 0.05em;
+}
+
+.transition-all {
+  transition: all 0.2s ease;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

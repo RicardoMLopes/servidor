@@ -1,0 +1,71 @@
+<!-- Modal para Editar Vendedor e Condição de Pagamento -->
+<div class="modal fade" id="modalEditarCondicoes" tabindex="-1" aria-labelledby="modalEditarCondicoesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+      <!-- Cabeçalho Limpo e Moderno -->
+      <div class="modal-header border-0 bg-white px-4 pt-4 pb-2">
+        <div class="d-flex align-items-center gap-3">
+          <div class="icon-shape bg-primary-subtle text-primary rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+            <i class="bi bi-sliders fs-5"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold text-dark m-0" id="modalEditarCondicoesLabel">
+              Condições do Pedido
+            </h5>
+            <small class="text-muted">Ajuste o vendedor responsável e a forma de pagamento</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close align-self-start mt-1" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <!-- Corpo do Modal -->
+      <div class="modal-body px-4 py-3">
+        <form id="formCondicoesPedido">
+
+          <!-- Seleção de Vendedor -->
+          <div class="mb-3">
+            <label for="selectVendedorModal" class="form-label fs-7 fw-semibold text-uppercase text-secondary tracking-wide">
+              Vendedor
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                <i class="bi bi-person-badge"></i>
+              </span>
+              <select class="form-select border-start-0 rounded-end-3 shadow-none focus-ring" id="selectVendedorModal" required>
+                <option value="" disabled selected>Carregando vendedores...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Seleção de Condição de Pagamento -->
+          <div class="mb-2">
+            <label for="selectCondPagModal" class="form-label fs-7 fw-semibold text-uppercase text-secondary tracking-wide">
+              Condição de Pagamento
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0 rounded-start-3 text-muted">
+                <i class="bi bi-credit-card"></i>
+              </span>
+              <select class="form-select border-start-0 rounded-end-3 shadow-none focus-ring" id="selectCondPagModal" required>
+                <option value="" disabled selected>Carregando condições...</option>
+              </select>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="modal-footer border-0 px-4 pb-4 pt-2">
+        <button type="button" class="btn btn-outline-secondary rounded-3 px-4 fw-medium border-0" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary rounded-3 px-4 fw-semibold shadow-sm d-inline-flex align-items-center gap-2" onclick="salvarCondicoesPedido()">
+          <i class="bi bi-check2"></i> Salvar Alterações
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

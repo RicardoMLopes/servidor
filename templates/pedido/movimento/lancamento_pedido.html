@@ -8,6 +8,7 @@
 <!-- Link para o CSS separado -->
 <link rel="stylesheet" href="/static/css/movimento/lancamento.css">
 
+
 <div class="container-fluid px-4 mt-4">
 
   <!-- Cabeçalho Superior / Voltar -->
@@ -27,7 +28,7 @@
     <!-- Campos ocultos de controle do cabeçalho -->
     <input type="hidden" id="empresa" value="{{ empresa }}">
     <input type="hidden" id="codigovendedor" value="{{ codigo_vendedor }}">
-    <input type="hidden" id="codigocliente" value="">
+    <input type="hidden" id="codigocliente" value="{{ codigo_cliente_padrao }}">
     <input type="hidden" id="codigocondPagamento" value="">
 
     <div class="row g-4">
@@ -43,6 +44,8 @@
 
        <!-- Tabela dos Itens Lançados -->
         {% include 'pedido/movimento/tabela_lancamento.html' %}
+
+
     </div>
   </form>
 </div>
@@ -60,6 +63,11 @@
 <!-- MODAL: Desconto e Acréscimo do Item -->
 {% include 'pedido/movimento/modal/tipo_acresc_desc.html' %}
 
+<!-- MODAL: Desconto e Acréscimo do Item -->
+{% include 'pedido/movimento/modal/pagamento.html' %}
+
+
+
 <!-- Variáveis injetadas pelo FastAPI/Jinja2 para o JS utilizar -->
 <script>
     window.dadosIniciais = {
@@ -73,12 +81,13 @@
 </script>
 
 <!-- Chamada do arquivo JavaScript separado -->
-<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}"></script>
-<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}"></script>
-<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}"></script>
-<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}"></script>
-<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}"></script>
-<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}"></script>
+<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}?v=2"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}?v=2"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}?v=2"></script>
+<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}?v=2"></script>
+<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}?v=2"></script>
+<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}?v=2"></script>
+
 {% endblock %}
 
 
