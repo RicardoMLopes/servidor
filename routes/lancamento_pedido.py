@@ -933,11 +933,10 @@ async def listar_opcoes_condicoes(token: Optional[str] = Query(None)):
 async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None)):
     """
     Rota inteligente de cabeçalho:
-    - Se não houver 'numerodocumento', gera um novo número, cria o registro na movnota (INSERT).
-    - Se já houver 'numerodocumento', atualiza os dados na movnota e opcionalmente nos itens (UPDATE).
+    - Se não houver 'numerodocumento', gera um novo número e grava a datalancamento (INSERT).
+    - Se já houver 'numerodocumento', atualiza os dados MAS PRESERVA a datalancamento (UPDATE).
     """
     try:
-        # Pega o token da query string caso não venha injetado diretamente pelo FastAPI
         if not token:
             token = request.query_params.get("token")
 
@@ -955,7 +954,7 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
 
         db = get_empresa_session(nome_banco)
 
-        # 1. Busca o nome correto do cliente
+        # 1. Busca o nome do cliente
         nomecliente = ""
         cliente_obj = db.execute(
             text("SELECT nome FROM cadcliente WHERE codigo = :codigo AND situacaoregistro <> 'E' LIMIT 1"),
@@ -966,23 +965,22 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
 
         # 2. Verifica se o pedido já existe ou precisa ser criado do zero
         if not numerodocumento:
-            # 🚀 CENÁRIO A: O pedido ainda não existe. Vamos gerar o número e inserir na movnota.
+            # 🚀 CENÁRIO A: Pedido Novo -> GRAVA a datalancamento
+            datalancamento = dados.get("datalancamento") or datetime.now().strftime("%Y-%m-%d")
 
-            # Pega o próximo número de documento (ajuste conforme a sua lógica de numeração)
             res_num = db.execute(
                 text("SELECT COALESCE(MAX(numerodocumento), 0) + 1 AS proximo FROM movnota WHERE empresa = :empresa"),
                 {"empresa": empresa}
             ).fetchone()
             numerodocumento = res_num.proximo
 
-            # Insere o cabeçalho inicial na movnota
             db.execute(
                 text("""
                      INSERT INTO movnota
                      (empresa, numerodocumento, codigocliente, nomecliente, codigovendedor, codigocondPagamento,
-                      valorTotal, situacaoRegistro, dataRegistro)
+                      valorTotal, situacaoRegistro, dataRegistro, datalancamento)
                      VALUES (:empresa, :numerodocumento, :codigocliente, :nomecliente, :codigovendedor,
-                             :codigocondPagamento, 0.00, 'A', NOW())
+                             :codigocondPagamento, 0.00, 'A', NOW(), :datalancamento)
                      """),
                 {
                     "empresa": empresa,
@@ -990,13 +988,14 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
                     "codigocliente": codigocliente,
                     "nomecliente": nomecliente,
                     "codigovendedor": codigovendedor or "001",
-                    "codigocondPagamento": codigocondPagamento or "001"
+                    "codigocondPagamento": codigocondPagamento or "001",
+                    "datalancamento": datalancamento
                 }
             )
             mensagem = "Pedido iniciado com sucesso!"
 
         else:
-            # 🔄 CENÁRIO B: O pedido já existe. Realizamos a alteração (UPDATE).
+            # 🔄 CENÁRIO B: Pedido Existente -> NÃO ALTERA a datalancamento
             db.execute(
                 text("""
                      UPDATE movnota
@@ -1017,7 +1016,7 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
                 }
             )
 
-            # Atualiza também nos itens já lançados (movnotaitem) para manter consistência
+            # Atualiza os itens com as informações de cliente/vendedor
             db.execute(
                 text("""
                      UPDATE movnotaitem
@@ -1037,7 +1036,7 @@ async def salvar_cabecalho(request: Request, token: Optional[str] = Query(None))
 
         db.commit()
         db.close()
-        logging.info(f"VERIFICAR O RETORNO: {codigovendedor}{codigocondPagamento}")
+
         return {
             "success": True,
             "message": mensagem,

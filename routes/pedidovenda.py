@@ -253,12 +253,16 @@ async def relatorio_pedido_template(
     except ValueError:
         numerodocumento = None
 
+
     filtros = ["A.empresa = :empresa"]
+    filtros.append("(B.situacaoregistro IS NULL OR B.situacaoregistro <> 'E')")
     parametros = {"empresa": codigo_empresa}
 
     if numerodocumento is not None:
         filtros.append("A.numerodocumento = :numerodocumento")
         parametros["numerodocumento"] = numerodocumento
+
+
 
     if cliente and cliente.strip() and cliente.lower() != "none":
         filtros.append("(A.codigocliente = :cliente OR A.nomecliente LIKE :cliente_like)")
@@ -698,6 +702,7 @@ def resumo_dados(
                   AND DATE_FORMAT(n.dataLancamento, '%Y') = :ano
                   AND (n.status IS NULL OR n.status <> 'C')
                   AND n.codigovendedor = :codigovendedor
+                  AND n.situacaoregistro <> 'E'  
             """), {
                 "mes": mes,
                 "ano": ano,
