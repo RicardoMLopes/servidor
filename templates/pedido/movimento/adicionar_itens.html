@@ -36,7 +36,15 @@
       <!-- 3. Quantidade -->
       <div class="col-xl-2 col-lg-2 col-md-6">
         <label for="inputQtd" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Quantidade</label>
-        <input type="number" step="0.000001" class="form-control form-control-lg fs-6 text-center fw-bold text-dark rounded-3 shadow-sm bg-white" id="inputQtd" value="1">
+          <input
+            type="number"
+            step="1.00"
+            min="1.00"
+            class="form-control form-control-lg fs-6 text-center fw-bold text-dark rounded-3 shadow-sm bg-white"
+            id="inputQtd"
+            value="1.00"
+            placeholder="0.00"
+          >
       </div>
 
       <!-- 4. Valor Unitário -->
