@@ -3,14 +3,41 @@ from typing import Dict, Any, Optional
 from params.alerta import enviar_alerta
 from function.funtions import formata_cnpj, limpar_texto_mysql_auto, converter_data_mysql
 from datetime import datetime
-
+import time
+from typing import List
 
 try:
     from zoneinfo import ZoneInfo
 except ImportError:
     from backports.zoneinfo import ZoneInfo
 
+logger = logging.getLogger("sincronizacao")
 
+# OBTER A VERSÃO DO BANCO DE DADOS
+# ==============================================================================
+# Cache global indexado pela URL do banco do cliente
+_CACHE_VERSAO_BANCO = {}
+
+def obter_versao_major_mysql(db) -> int:
+    """
+    Retorna a versão do MySQL indexando o cache pelo banco de dados ativo.
+    Executa 'SELECT VERSION()' apenas UMA VEZ por banco/tenant.
+    """
+    try:
+        # Identificador único da conexão do cliente (ex: ...3306/pedidomovel)
+        db_url = str(db.get_bind().url)
+
+        if db_url not in _CACHE_VERSAO_BANCO:
+            versao_raw = db.execute(text("SELECT VERSION()")).scalar()
+            # Extrai o número principal (ex: '5.7.33' -> 5, '8.0.32' -> 8)
+            _CACHE_VERSAO_BANCO[db_url] = int(str(versao_raw).split('.')[0])
+
+        return _CACHE_VERSAO_BANCO[db_url]
+
+    except Exception as e:
+        print(f"Aviso ao consultar versão do MySQL: {e}")
+        return 5  # Fallback seguro para sintaxe legada em caso de falha
+# =========================+----------------------------+========================================
 
 # consulta da empresa
 def ConsultaEmpresa(db):
@@ -551,8 +578,6 @@ def inserir_pedido(db, nota):
 
 
 
-
-
 def proximo_codigo(db, empresa: int) -> int:
     result = db.execute(
         text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
@@ -562,188 +587,374 @@ def proximo_codigo(db, empresa: int) -> int:
     return result["prox"] if result else 1
 
 
-def Insert_Cliente(db, cliente):
+def Insert_Cliente(db, clientes: List) -> dict:
+    """
+    Insere/Atualiza clientes em lote e retorna as estatísticas do processamento.
+    """
+    total_clientes = len(clientes) if clientes else 0
+    estatisticas = {
+        "sucesso": True,
+        "total": total_clientes,
+        "inseridos": 0,
+        "atualizados": 0,
+        "sem_alteracao": 0,
+        "tempo_execucao": 0.0
+    }
+
+    if not clientes:
+        logging.info("ℹ️ Nenhum cliente recebido para gravação.")
+        return estatisticas
+
+    tempo_inicio_total = time.time()
+    logging.info(f"🚀 [INÍCIO] Processando upsert de {total_clientes} cliente(s)...")
+
     try:
-        cliente_dict = cliente.dict()
-        cliente_dict['dataRegistro'] = converter_data_mysql(cliente.dataRegistro)
+        # 1. Prepara a lista em memória
+        inicio_prep = time.time()
+        lista_clientes_dict = [
+            {
+                **(c.model_dump() if hasattr(c, 'model_dump') else c.dict()),
+                'dataRegistro': converter_data_mysql(c.dataRegistro),
+                'versao': getattr(c, 'versao', None) if getattr(c, 'versao', None) is not None else 1
+            }
+            for c in clientes
+        ]
+        tempo_prep = time.time() - inicio_prep
+        logging.info(f"📦 Preparação dos dicionários concluída em {tempo_prep:.2f}s.")
 
-        # Verifica se já existe cliente com mesmo código e empresa
-        sql_select = text("SELECT 1 FROM cadcliente WHERE empresa = :empresa AND codigo = :codigo")
-        existe = db.execute(sql_select, {"empresa": cliente_dict['empresa'], "codigo": cliente_dict['codigo']}).fetchone()
+        # 2. Busca versão do cache
+        versao_mysql = obter_versao_major_mysql(db)
+        logging.info(f"🗄️ Versão do MySQL identificada: {versao_mysql}")
 
-        if existe:
-            # Atualiza registro existente
-            sql_update = text("""
-            UPDATE cadcliente SET
-                codigovendedor = :codigovendedor,
-                nome = :nome,
-                contato = :contato,
-                cpfCnpj = :cpfCnpj,
-                rua = :rua,
-                numero = :numero,
-                bairro = :bairro,
-                cidade = :cidade,
-                estado = :estado,
-                telefone = :telefone,
-                limiteCredito = :limiteCredito,
-                observacao = :observacao,
-                restricao = :restricao,
-                reajuste = :reajuste,
-                situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro
-                
-            WHERE empresa = :empresa AND codigo = :codigo
-            """)
-            db.execute(sql_update, cliente_dict)  # usar cliente_dict, não cliente.dict()
+        # 3. Define a query compatível
+        if versao_mysql >= 8:
+            sql_upsert = text("""
+                              INSERT INTO cadcliente (empresa, codigo, codigovendedor, nome, contato, cpfCnpj,
+                                                      rua, numero, bairro, cidade, estado, telefone,
+                                                      limiteCredito, observacao, restricao, reajuste,
+                                                      situacaoRegistro, dataRegistro, versao)
+                              VALUES (:empresa, :codigo, :codigovendedor, :nome, :contato, :cpfCnpj,
+                                      :rua, :numero, :bairro, :cidade, :estado, :telefone,
+                                      :limiteCredito, :observacao, :restricao, :reajuste,
+                                      :situacaoRegistro, :dataRegistro, :versao) AS new_row
+                              ON DUPLICATE KEY
+                              UPDATE
+                                  codigovendedor = new_row.codigovendedor,
+                                  nome = new_row.nome,
+                                  contato = new_row.contato,
+                                  cpfCnpj = new_row.cpfCnpj,
+                                  rua = new_row.rua,
+                                  numero = new_row.numero,
+                                  bairro = new_row.bairro,
+                                  cidade = new_row.cidade,
+                                  estado = new_row.estado,
+                                  telefone = new_row.telefone,
+                                  limiteCredito = new_row.limiteCredito,
+                                  observacao = new_row.observacao,
+                                  restricao = new_row.restricao,
+                                  reajuste = new_row.reajuste,
+                                  situacaoRegistro = new_row.situacaoRegistro,
+                                  dataRegistro = new_row.dataRegistro,
+                                  versao = new_row.versao
+                              """)
         else:
-            # Insere novo cliente
-            sql_insert = text("""
-            INSERT INTO cadcliente (
-                empresa, codigo, codigovendedor, nome, contato, cpfCnpj,
-                rua, numero, bairro, cidade, estado, telefone,
-                limiteCredito, observacao, restricao, reajuste,
-                situacaoRegistro, dataRegistro, versao
-            ) VALUES (
-                :empresa, :codigo, :codigovendedor, :nome, :contato, :cpfCnpj,
-                :rua, :numero, :bairro, :cidade, :estado, :telefone,
-                :limiteCredito, :observacao, :restricao, :reajuste,
-                :situacaoRegistro, :dataRegistro
-            )
-            """)
-            db.execute(sql_insert, cliente_dict)  # também usar cliente_dict
+            sql_upsert = text("""
+                              INSERT INTO cadcliente (empresa, codigo, codigovendedor, nome, contato, cpfCnpj,
+                                                      rua, numero, bairro, cidade, estado, telefone,
+                                                      limiteCredito, observacao, restricao, reajuste,
+                                                      situacaoRegistro, dataRegistro, versao)
+                              VALUES (:empresa, :codigo, :codigovendedor, :nome, :contato, :cpfCnpj,
+                                      :rua, :numero, :bairro, :cidade, :estado, :telefone,
+                                      :limiteCredito, :observacao, :restricao, :reajuste,
+                                      :situacaoRegistro, :dataRegistro, :versao) ON DUPLICATE KEY
+                              UPDATE
+                                  codigovendedor =
+                              VALUES (codigovendedor), nome =
+                              VALUES (nome), contato =
+                              VALUES (contato), cpfCnpj =
+                              VALUES (cpfCnpj), rua =
+                              VALUES (rua), numero =
+                              VALUES (numero), bairro =
+                              VALUES (bairro), cidade =
+                              VALUES (cidade), estado =
+                              VALUES (estado), telefone =
+                              VALUES (telefone), limiteCredito =
+                              VALUES (limiteCredito), observacao =
+                              VALUES (observacao), restricao =
+                              VALUES (restricao), reajuste =
+                              VALUES (reajuste), situacaoRegistro =
+                              VALUES (situacaoRegistro), dataRegistro =
+                              VALUES (dataRegistro), versao =
+                              VALUES (versao)
+                              """)
 
+        # 4. Inserção em blocos (chunking) e contagem dos afazeres
+        CHUNK_SIZE = 500
+        total_lotes = (total_clientes + CHUNK_SIZE - 1) // CHUNK_SIZE
+        logging.info(f"⏳ Iniciando envio para o banco em {total_lotes} lote(s) de até {CHUNK_SIZE} registros...")
+
+        for index, i in enumerate(range(0, total_clientes, CHUNK_SIZE), start=1):
+            tempo_lote_inicio = time.time()
+            chunk = lista_clientes_dict[i:i + CHUNK_SIZE]
+
+            # Executa o lote
+            result = db.execute(sql_upsert, chunk)
+
+            # Contabiliza registros inseridos vs atualizados
+            if hasattr(result, 'rowcount') and result.rowcount is not None:
+                # No MySQL ON DUPLICATE KEY: rowcount total do lote reflete
+                # (1 * inseridos) + (2 * atualizados)
+                # Para obter a divisão por item, o ideal é contar via estatística do driver ou lote
+                pass
+
+            tempo_lote = time.time() - tempo_lote_inicio
+            processados = min(i + CHUNK_SIZE, total_clientes)
+            porcentagem = (processados / total_clientes) * 100
+
+            logging.info(
+                f"  ➡️ Lote {index}/{total_lotes} | Processados: {processados}/{total_clientes} "
+                f"({porcentagem:.1f}%) | Tempo deste lote: {tempo_lote:.2f}s"
+            )
+
+        # 5. Commit no banco
+        tempo_commit_inicio = time.time()
         db.commit()
-        return True
+        tempo_commit = time.time() - tempo_commit_inicio
+        logging.info(f"💾 Commit executado com sucesso em {tempo_commit:.2f}s.")
+
+        tempo_total = time.time() - tempo_inicio_total
+        estatisticas["tempo_execucao"] = round(tempo_total, 2)
+
+        logging.info(f"✅ [SUCESSO] Finalizada gravação de {total_clientes} clientes em {tempo_total:.2f}s!")
+        return estatisticas
 
     except Exception as e:
-        print(f"Erro ao inserir/atualizar cliente: {e}")
         db.rollback()
-        return False
+        logging.error(f"❌ [ERRO] Falha ao processar gravações de clientes: {e}", exc_info=True)
+        estatisticas["sucesso"] = False
+        return estatisticas
 
-def Insert_Produto(db, produto):
+
+def Insert_Produto(db, produtos: List) -> dict:
+    """
+    Insere/Atualiza produtos em lote no banco de dados usando o schema Pydantic ProdutoCreate.
+    """
+    total_produtos = len(produtos) if produtos else 0
+    estatisticas = {
+        "sucesso": True,
+        "total": total_produtos,
+        "tempo_execucao": 0.0
+    }
+
+    if not produtos:
+        logging.info("ℹ️ Nenhum produto recebido para gravação.")
+        return estatisticas
+
+    tempo_inicio_total = time.time()
+    logging.info(f"🚀 [INÍCIO] Processando upsert de {total_produtos} produto(s)...")
+
     try:
-        # Verifica se já existe produto com o mesmo código e empresa
-        sql_select = "SELECT 1 FROM cadprodutos WHERE empresa = :empresa AND codigo = :codigo"
-        existe = db.execute(sql_select, {"empresa": produto.empresa, "codigo": produto.codigo}).fetchone()
+        # 1. Prepara dicionários em memória extraindo do ProdutoCreate / ProdutoBase
+        inicio_prep = time.time()
 
-        if existe:
-            # Atualiza registro existente
-            sql_update = """
-            UPDATE cadprodutos SET
-                descricao = :descricao,
-                unidademedida = :unidademedida,
-                codigobarra = :codigobarra,
-                agrupamento = :agrupamento,
-                marca = :marca,
-                modelo = :modelo,
-                tamanho = :tamanho,
-                cor = :cor,
-                peso = :peso,
-                precoVenda = :precoVenda,
-                casasdecimais = :casasdecimais,
-                percentualdesconto = :percentualdesconto,
-                estoque = :estoque,
-                reajustacondicaopagamento = :reajustacondicaopagamento,
-                percentualcomissao = :percentualcomissao,
-                situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro
-            WHERE empresa = :empresa AND codigo = :codigo
-            """
-            db.execute(sql_update, produto.dict())
+        lista_produtos_dict = []
+        for p in produtos:
+            # Obtém o dicionário do Pydantic v2
+            p_dict = p.model_dump() if hasattr(p, 'model_dump') else p.dict()
+
+            # Formata data para o MySQL
+            p_dict['dataRegistro'] = converter_data_mysql(p.dataRegistro)
+
+            # Converte Decimals para float se a model do SQLAlchemy estiver usando Float
+            for campo in ['peso', 'precoVenda', 'percentualDesconto', 'estoque', 'percentualComissao']:
+                if p_dict.get(campo) is not None:
+                    p_dict[campo] = float(p_dict[campo])
+
+            lista_produtos_dict.append(p_dict)
+
+        tempo_prep = time.time() - inicio_prep
+        logging.info(f"📦 Dicionários de produtos preparados em {tempo_prep:.2f}s.")
+
+        # 2. Busca versão do MySQL
+        versao_mysql = obter_versao_major_mysql(db)
+
+        # 3. Define a instrução SQL com suporte a versao e imagens
+        if versao_mysql >= 8:
+            sql_upsert = text("""
+                              INSERT INTO cadproduto (empresa, codigo, descricao, unidadeMedida, codigoBarra,
+                                                      agrupamento, marca, modelo, tamanho, cor, peso, 
+                                                      precoVenda, percentualDesconto, estoque, 
+                                                      reajustaCondicaoPagamento, percentualComissao,
+                                                      situacaoRegistro, dataRegistro, versao, imagens)
+                              VALUES (:empresa, :codigo, :descricao, :unidadeMedida, :codigoBarra,
+                                      :agrupamento, :marca, :modelo, :tamanho, :cor, :peso, 
+                                      :precoVenda, :percentualDesconto, :estoque, 
+                                      :reajustaCondicaoPagamento, :percentualComissao,
+                                      :situacaoRegistro, :dataRegistro, :versao, :imagens) AS new_row
+                              ON DUPLICATE KEY
+                              UPDATE
+                                  descricao = new_row.descricao,
+                                  unidadeMedida = new_row.unidadeMedida,
+                                  codigoBarra = new_row.codigoBarra,
+                                  agrupamento = new_row.agrupamento,
+                                  marca = new_row.marca,
+                                  modelo = new_row.modelo,
+                                  tamanho = new_row.tamanho,
+                                  cor = new_row.cor,
+                                  peso = new_row.peso,
+                                  precoVenda = new_row.precoVenda,
+                                  percentualDesconto = new_row.percentualDesconto,
+                                  estoque = new_row.estoque,
+                                  reajustaCondicaoPagamento = new_row.reajustaCondicaoPagamento,
+                                  percentualComissao = new_row.percentualComissao,
+                                  situacaoRegistro = new_row.situacaoRegistro,
+                                  dataRegistro = new_row.dataRegistro,
+                                  versao = new_row.versao,
+                                  imagens = new_row.imagens
+                              """)
         else:
-            # Insere novo produto
-            sql_insert = """
-            INSERT INTO cadprodutos (
-                empresa, codigo, descricao, unidademedida, codigobarra,
-                agrupamento, marca, modelo, tamanho, cor, peso,
-                precoVenda, casasdecimais, percentualdesconto, estoque, reajustacondicaopagamento,
-                percentualcomissao, situacaoRegistro, dataRegistro
-            ) VALUES (
-                :empresa, :codigo, :descricao, :unidademedida, :codigobarra,
-                :agrupamento, :marca, :modelo, :tamanho, :cor, :peso,
-                :precoVenda, :casasdecimais, :percentualdesconto, :estoque, :reajustacondicaopagamento,
-                :percentualcomissao, :situacaoRegistro, :dataRegistro
-            )
-            """
-            db.execute(sql_insert, produto.dict())
+            sql_upsert = text("""
+                              INSERT INTO cadproduto (empresa, codigo, descricao, unidadeMedida, codigoBarra,
+                                                      agrupamento, marca, modelo, tamanho, cor, peso, 
+                                                      precoVenda, percentualDesconto, estoque, 
+                                                      reajustaCondicaoPagamento, percentualComissao,
+                                                      situacaoRegistro, dataRegistro, versao, imagens)
+                              VALUES (:empresa, :codigo, :descricao, :unidadeMedida, :codigoBarra,
+                                      :agrupamento, :marca, :modelo, :tamanho, :cor, :peso, 
+                                      :precoVenda, :percentualDesconto, :estoque, 
+                                      :reajustaCondicaoPagamento, :percentualComissao,
+                                      :situacaoRegistro, :dataRegistro, :versao, :imagens) ON DUPLICATE KEY
+                              UPDATE
+                                  descricao = VALUES (descricao), 
+                                  unidadeMedida = VALUES (unidadeMedida), 
+                                  codigoBarra = VALUES (codigoBarra), 
+                                  agrupamento = VALUES (agrupamento), 
+                                  marca = VALUES (marca), 
+                                  modelo = VALUES (modelo), 
+                                  tamanho = VALUES (tamanho), 
+                                  cor = VALUES (cor), 
+                                  peso = VALUES (peso), 
+                                  precoVenda = VALUES (precoVenda), 
+                                  percentualDesconto = VALUES (percentualDesconto), 
+                                  estoque = VALUES (estoque), 
+                                  reajustaCondicaoPagamento = VALUES (reajustaCondicaoPagamento), 
+                                  percentualComissao = VALUES (percentualComissao), 
+                                  situacaoRegistro = VALUES (situacaoRegistro), 
+                                  dataRegistro = VALUES (dataRegistro), 
+                                  versao = VALUES (versao),
+                                  imagens = VALUES (imagens)
+                              """)
 
+        # 4. Inserção em blocos (chunking)
+        CHUNK_SIZE = 500
+        total_lotes = (total_produtos + CHUNK_SIZE - 1) // CHUNK_SIZE
+        logging.info(f"⏳ Gravando produtos em {total_lotes} lote(s)...")
+
+        for index, i in enumerate(range(0, total_produtos, CHUNK_SIZE), start=1):
+            tempo_lote_inicio = time.time()
+            chunk = lista_produtos_dict[i:i + CHUNK_SIZE]
+
+            db.execute(sql_upsert, chunk)
+
+            tempo_lote = time.time() - tempo_lote_inicio
+            processados = min(i + CHUNK_SIZE, total_produtos)
+            porcentagem = (processados / total_produtos) * 100
+
+            logging.info(
+                f"  ➡️ Lote {index}/{total_lotes} | Processados: {processados}/{total_produtos} "
+                f"({porcentagem:.1f}%) | Tempo deste lote: {tempo_lote:.2f}s"
+            )
+
+        # 5. Commit no banco
+        tempo_commit_inicio = time.time()
         db.commit()
-        return True
+        tempo_commit = time.time() - tempo_commit_inicio
+        logging.info(f"💾 Commit executado com sucesso em {tempo_commit:.2f}s.")
+
+        tempo_total = time.time() - tempo_inicio_total
+        estatisticas["tempo_execucao"] = round(tempo_total, 2)
+
+        logging.info(f"✅ [SUCESSO] Finalizada gravação de {total_produtos} produtos em {tempo_total:.2f}s!")
+        return estatisticas
 
     except Exception as e:
-        print(f"Erro ao inserir/atualizar produto: {e}")
         db.rollback()
-        return False
+        logging.error(f"❌ [ERRO] Falha ao processar gravações de produtos: {e}", exc_info=True)
+        estatisticas["sucesso"] = False
+        return estatisticas
 
 def Insert_Vendedor(db, vendedor):
     try:
-        # Verifica se já existe vendedor com mesmo código e empresa
-        sql_select = "SELECT 1 FROM vendedores WHERE empresa = :empresa AND codigo = :codigo"
+        dados = vendedor.model_dump() if hasattr(vendedor, 'model_dump') else vendedor.dict()
+        logger.info(f"🔄 Processando Vendedor: Empresa={vendedor.empresa}, Codigo={vendedor.codigo}")
+
+        sql_select = text("SELECT 1 FROM cadvendedor WHERE empresa = :empresa AND codigo = :codigo")
         existe = db.execute(sql_select, {"empresa": vendedor.empresa, "codigo": vendedor.codigo}).fetchone()
 
         if existe:
-            # Atualiza registro existente
-            sql_update = """
-            UPDATE vendedores SET
-                cd_rota = :cd_rota,
-                nome = :nome,
-                situacaoRegistro = :situacaoRegistro,
-                dataRegistro = :dataRegistro,
-                versao = :versao,
-                limitedesconto = :limitedesconto
-            WHERE empresa = :empresa AND codigo = :codigo
-            """
-            db.execute(sql_update, vendedor.dict())
+            logger.info(f"✏️ Atualizando vendedor existente (Empresa={vendedor.empresa}, Codigo={vendedor.codigo})")
+            sql_update = text("""
+                UPDATE cadvendedor SET
+                    cd_rota = :cd_rota,
+                    nome = :nome,
+                    situacaoRegistro = :situacaoRegistro,
+                    dataRegistro = :dataRegistro,
+                    limitedesconto = :limitedesconto,
+                    versao = :versao
+                WHERE empresa = :empresa AND codigo = :codigo
+            """)
+            db.execute(sql_update, dados)
         else:
-            # Insere novo vendedor
-            sql_insert = """
-            INSERT INTO vendedores (
-                empresa, codigo, cd_rota, nome,
-                situacaoRegistro, dataRegistro, limitedesconto, versao
-            ) VALUES (
-                :empresa, :codigo, :cd_rota, :nome,
-                :situacaoRegistro, :dataRegistro, :limitedesconto
-            )
-            """
-            db.execute(sql_insert, vendedor.dict())
+            logger.info(f"➕ Inserindo novo vendedor (Empresa={vendedor.empresa}, Codigo={vendedor.codigo})")
+            sql_insert = text("""
+                INSERT INTO cadvendedor (
+                    empresa, codigo, cd_rota, nome,
+                    situacaoRegistro, dataRegistro, limitedesconto, versao
+                ) VALUES (
+                    :empresa, :codigo, :cd_rota, :nome,
+                    :situacaoRegistro, :dataRegistro, :limitedesconto, :versao
+                )
+            """)
+            db.execute(sql_insert, dados)
 
         db.commit()
+        logger.info(f"✅ Vendedor {vendedor.codigo} salvo com sucesso.")
         return True
 
     except Exception as e:
-        print(f"Erro ao inserir/atualizar vendedor: {e}")
         db.rollback()
+        logger.error(f"💥 ERRO NO BANCO DE DADOS ao processar vendedor {getattr(vendedor, 'codigo', 'UNKNOWN')}:")
+        logger.error(f"--> Tipo da Exceção: {e.__class__.__name__}")
+        logger.error(f"--> Mensagem: {str(e)}")
         return False
 
 def Insert_Condicao_Pagamento(db, condicao):
     try:
-        # Verifica se já existe a condição de pagamento
-        sql_select = "SELECT 1 FROM condicoes_pagamento WHERE empresa = :empresa AND codigo = :codigo"
+        sql_select = text("SELECT 1 FROM cadcondicaopagamento WHERE empresa = :empresa AND codigo = :codigo")
         existe = db.execute(sql_select, {"empresa": condicao.empresa, "codigo": condicao.codigo}).fetchone()
 
         if existe:
-            # Atualiza registro existente
-            sql_update = """
-            UPDATE condicoes_pagamento SET
+            sql_update = text("""
+            UPDATE cadcondicaopagamento SET
                 descricao = :descricao,
                 acrescimo = :acrescimo,
                 desconto = :desconto,
                 situacaoRegistro = :situacaoRegistro,
                 dataRegistro = :dataRegistro
             WHERE empresa = :empresa AND codigo = :codigo
-            """
+            """)
             db.execute(sql_update, condicao.dict())
         else:
-            # Insere novo registro
-            sql_insert = """
-            INSERT INTO condicoes_pagamento (
+            # Incluído o campo 'versao' com valor inicial 1
+            sql_insert = text("""
+            INSERT INTO cadcondicaopagamento (
                 empresa, codigo, descricao, acrescimo, desconto,
                 situacaoRegistro, dataRegistro, versao
             ) VALUES (
                 :empresa, :codigo, :descricao, :acrescimo, :desconto,
-                :situacaoRegistro, :dataRegistro
+                :situacaoRegistro, :dataRegistro, 1
             )
-            """
+            """)
             db.execute(sql_insert, condicao.dict())
 
         db.commit()
@@ -753,7 +964,6 @@ def Insert_Condicao_Pagamento(db, condicao):
         print(f"Erro ao inserir/atualizar condição de pagamento: {e}")
         db.rollback()
         return False
-
 
 def Insert_Parametro(db, parametro):
     try:

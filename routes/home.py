@@ -217,3 +217,21 @@ async def mostrar_formulario_usuario(request: Request, cnpj: str):
         "errors": {},
         "form_data": {"cnpj": cnpj}
     })
+
+
+@home_router.get("/api/obter-token-cnpj/{cnpj}")
+async def obter_token_por_cnpj(cnpj: str):
+    try:
+        # Usa a mesma função que você já tem no projeto
+        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+
+        if not token:
+            raise HTTPException(status_code=404, detail="Token não encontrado para este CNPJ.")
+
+        return JSONResponse(content={"sucesso": True, "token": token})
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao gerar token para o CNPJ {cnpj}: {str(e)}"
+        )

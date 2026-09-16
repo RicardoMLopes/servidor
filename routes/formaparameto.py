@@ -1,11 +1,10 @@
 import logging
 from datetime import datetime
-from typing import Optional
-
+from typing import Optional, List
 import pytz
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from pydantic import BaseModel
 from params.alerta import enviar_alerta
 from database.dependencies import get_empresa_db
 from database.querys import ConsultaCondicoesPagamento, Insert_Condicao_Pagamento
@@ -61,21 +60,54 @@ async def listar_condicoes_pagamento(
         )
 
 
-@condicao_pagamento_router.post("/")
-async def inserir_ou_atualizar_condicao_pagamento(condicao: str, db: Session = Depends(get_empresa_db)):
+class CondicaoPagamentoSchema(BaseModel):
+    empresa: int
+    codigo: str
+    descricao: Optional[str] = None
+    acrescimo: float = 0.0
+    desconto: float = 0.0
+    situacaoRegistro: Optional[str] = "I"
+    dataRegistro: Optional[datetime] = None
+
+
+@condicao_pagamento_router.post("/batch")
+async def inserir_ou_atualizar_condicoes_pagamento_lote(
+        condicoes: List[CondicaoPagamentoSchema],
+        db=Depends(get_empresa_db)
+):
+    """
+    Recebe uma lista de condições de pagamento enviadas via TJSONArray do Delphi
+    e processa tudo em uma única transação no banco de dados.
+    """
+    if not condicoes:
+        return {"mensagem": "Nenhum registro recebido para processamento.", "processados": 0}
+
     try:
-        sucesso = Insert_Condicao_Pagamento(db, condicao)
-        if not sucesso:
-            raise HTTPException(status_code=400, detail="Erro ao inserir/atualizar condição de pagamento.")
+        # Recomenda-se processar tudo dentro de uma transação (db.commit no final)
+        total_processados = 0
 
-        return {"mensagem": "Condição de pagamento inserida/atualizada com sucesso."}
+        for condicao in condicoes:
+            sucesso = Insert_Condicao_Pagamento(db, condicao)
+            if not sucesso:
+                raise Exception(f"Falha ao processar código: {condicao.codigo}")
+            total_processados += 1
 
-    except HTTPException:
-        raise
+        # Confirma todas as inserções de uma vez só
+        db.commit()
+
+        return {
+            "mensagem": "Condições de pagamento sincronizadas em lote com sucesso.",
+            "total_processados": total_processados
+        }
+
     except Exception as e:
+        db.rollback()  # Desfaz as alterações caso ocorra algum erro no lote
         traceback.print_exc()
-        enviar_alerta(assunto="Inserção de condições de pagamento", mensagem="Erro ao inserir/atualizar condição: " + str(e))
+        enviar_alerta(
+            assunto="Inserção em Lote de Condições de Pagamento",
+            mensagem=f"Erro ao processar lote: {e.__class__.__name__}: {str(e)}"
+        )
         raise HTTPException(
             status_code=500,
-            detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
+            detail=f"Erro no lote: {e.__class__.__name__}: {str(e)}"
         )

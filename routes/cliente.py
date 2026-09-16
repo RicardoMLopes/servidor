@@ -6,6 +6,7 @@ from typing import List
 from database.dependencies import get_empresa_db
 from model.cliente.schemas_cliente import ClienteCreate
 from database.querys import ConsultaCliente, Insert_Cliente
+import time
 from datetime import datetime
 from fastapi import Query
 from typing import Optional
@@ -57,19 +58,42 @@ async def listar_clientes(
             detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
         )
 
+
+@cliente_router.post("")
 @cliente_router.post("/")
 async def atualizar_clientes(clientes: List[ClienteCreate], db: Session = Depends(get_empresa_db)):
     """
-    Insere ou atualiza uma lista de clientes.
-    Recebe JSON no body: [ {cliente1}, {cliente2}, ... ]
+    Insere ou atualiza a lista de clientes e devolve os totais detalhados do processamento.
     """
+    qtd_total = len(clientes) if clientes else 0
+    logging.info(f"📥 [API RECEBEU] Requisição POST /clientes/ com {qtd_total} cliente(s).")
+
+    if qtd_total == 0:
+        return {
+            "mensagem": "Nenhum cliente fornecido.",
+            "total_processado": 0,
+            "tempo_execucao_segundos": 0
+        }
+
     try:
-        for cliente in clientes:
-            sucesso = Insert_Cliente(db, cliente)
-            if not sucesso:
-                raise HTTPException(status_code=400, detail=f"Erro ao inserir/atualizar cliente {cliente.codigo}.")
-        return {"mensagem": "Clientes inseridos/atualizados com sucesso."}
+        resultado = Insert_Cliente(db, clientes)
+
+        if not resultado.get("sucesso"):
+            raise HTTPException(
+                status_code=400,
+                detail="Erro ao inserir/atualizar a lista de clientes no banco de dados."
+            )
+
+        return {
+            "mensagem": "Clientes sincronizados com sucesso.",
+            "total_processado": resultado["total"],
+            "tempo_execucao_segundos": resultado["tempo_execucao"]
+        }
+
+    except HTTPException:
+        raise
     except Exception as e:
-        enviar_alerta(assunto="Inserção de clientes", mensagem="Erro ao inserir/atualizar clientes: " + str(e))
-        traceback.print_exc()
+        mensagem_erro = f"Erro crítico na inserção/atualização de clientes: {str(e)}"
+        logging.error(mensagem_erro, exc_info=True)
+        enviar_alerta(assunto="Erro Crítico: Inserção de clientes", mensagem=mensagem_erro)
         raise HTTPException(status_code=500, detail=f"Erro interno: {e.__class__.__name__}: {str(e)}")

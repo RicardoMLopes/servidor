@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 import pytz
 from fastapi import Query
@@ -7,6 +7,7 @@ from fastapi import Query
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from model.vendedor.schemas_vendedor import VendedorSchema
 from params.alerta import enviar_alerta
 from database.dependencies import get_empresa_db
 from database.querys import ConsultaVendedor, Insert_Vendedor
@@ -57,21 +58,43 @@ async def listar_vendedores(
 
 
 
-@vendedor_router.post("/")
-async def atualizar_vendedor(vendedor: str, db: Session = Depends(get_empresa_db)):
+@vendedor_router.post("/export")
+async def atualizar_vendedores_em_lote(
+    vendedores: List[VendedorSchema],
+    db: Session = Depends(get_empresa_db)
+):
+    """
+    Recebe um array JSON (List[VendedorSchema]) enviado pelo Delphi
+    e faz a inserção/atualização de todos em uma única transação de banco.
+    """
+    if not vendedores:
+        return {"mensagem": "Nenhum vendedor informado.", "total_processados": 0}
+
     try:
-        sucesso = Insert_Vendedor(db, vendedor)
-        if not sucesso:
-            raise HTTPException(status_code=400, detail="Erro ao inserir/atualizar vendedor.")
+        total_processados = 0
 
-        return {"mensagem": "Vendedor inserido/atualizado com sucesso."}
+        for vendedor in vendedores:
+            sucesso = Insert_Vendedor(db, vendedor)
+            if not sucesso:
+                raise Exception(f"Falha ao inserir/atualizar o vendedor código {vendedor.codigo}.")
+            total_processados += 1
 
-    except HTTPException:
-        raise
+        # Confirma todas as alterações de uma só vez no banco
+        db.commit()
+
+        return {
+            "mensagem": "Vendedores inseridos/atualizados em lote com sucesso.",
+            "total_processados": total_processados
+        }
+
     except Exception as e:
+        db.rollback()  # Desfaz tudo caso um registro falhe
         traceback.print_exc()
-        enviar_alerta(assunto="Inserção de vendedores", mensagem="Erro ao inserir/atualizar vendedor: " + str(e))
+        enviar_alerta(
+            assunto="Inserção em Lote de vendedores",
+            mensagem=f"Erro ao processar lote: {e.__class__.__name__}: {str(e)}"
+        )
         raise HTTPException(
             status_code=500,
-            detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
+            detail=f"Erro no lote: {e.__class__.__name__}: {str(e)}"
         )

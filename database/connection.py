@@ -39,7 +39,7 @@ def get_controle_session():
     )
     print("DATABASE_URL:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
-    engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True, pool_recycle=3600)
+    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True, pool_recycle=3600)
     Base.metadata.bind = engine
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     return SessionLocal()
@@ -58,7 +58,7 @@ def get_empresa_session(db_name: str):
     )
     print("🔗 Conectando no banco:", DATABASE_URL.replace(DB_PASSWORD, "*****"))
 
-    engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True, pool_recycle=3600)
+    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True, pool_recycle=3600)
     Base.metadata.bind = engine
 
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

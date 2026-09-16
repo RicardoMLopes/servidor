@@ -10,6 +10,7 @@ from starlette.responses import HTMLResponse
 from typing import List
 from database.connection import get_empresa_session, DB_CHAVE
 from function.funtions import gerar_token_cnpj, limpa_cnpj, parse_last_sync
+from model.produto.schemas_produto import ProdutoCreate
 from params.alerta import enviar_alerta
 from database.querys import ConsultaProduto, Insert_Produto, ConsultaEmpresa, ConsultarListaProduto
 from fastapi import Depends, HTTPException
@@ -71,20 +72,43 @@ async def listar_produtos(
 
 
 
+@products_router.post("")
 @products_router.post("/")
-async def atualizar_produto(produto: str, db: Session = Depends(get_empresa_db)):
-    try:
-        sucesso = Insert_Produto(db, produto)
-        if not sucesso:
-            raise HTTPException(status_code=400, detail="Erro ao inserir/atualizar produto.")
+async def atualizar_produto(produtos: List[ProdutoCreate], db: Session = Depends(get_empresa_db)):
+    """
+    Insere ou atualiza produtos em lote no banco de dados.
+    """
+    qtd_total = len(produtos) if produtos else 0
+    logging.info(f"📥 [API RECEBEU] Requisição POST /produtos/ com {qtd_total} produto(s).")
 
-        return {"mensagem": "Produto inserido/atualizado com sucesso."}
+    if qtd_total == 0:
+        return {
+            "mensagem": "Nenhum produto fornecido.",
+            "total_processado": 0,
+            "tempo_execucao_segundos": 0
+        }
+
+    try:
+        resultado = Insert_Produto(db, produtos)
+
+        if not resultado.get("sucesso"):
+            raise HTTPException(
+                status_code=400,
+                detail="Erro ao inserir/atualizar produtos no banco de dados."
+            )
+
+        return {
+            "mensagem": "Produtos sincronizados com sucesso.",
+            "total_processado": resultado["total"],
+            "tempo_execucao_segundos": resultado["tempo_execucao"]
+        }
 
     except HTTPException:
         raise
     except Exception as e:
-        traceback.print_exc()
-        enviar_alerta(assunto="Inserção de produtos", mensagem="Erro ao inserir/atualizar produto: " + str(e))
+        mensagem_erro = f"Erro crítico na inserção/atualização de produtos: {str(e)}"
+        logging.error(mensagem_erro, exc_info=True)
+        enviar_alerta(assunto="Erro Crítico: Inserção de Produtos", mensagem=mensagem_erro)
         raise HTTPException(
             status_code=500,
             detail=f"Erro interno: {e.__class__.__name__}: {str(e)}"
