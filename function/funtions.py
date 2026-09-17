@@ -44,6 +44,7 @@ def gerar_token_cnpj(cnpj: str, chave_secreta: str) -> str:
     cnpj_limpo = re.sub(r'\D', '', cnpj)
     texto = cnpj_limpo + chave_secreta
     hash_sha256 = hashlib.sha256(texto.encode('utf-8')).hexdigest()
+    print("TOKEN", hash_sha256)
     return hash_sha256
 
 def formata_cnpj(cnpj: str) -> str:

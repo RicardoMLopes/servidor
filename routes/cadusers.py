@@ -15,6 +15,10 @@ from database.querys import ConsultaVendedores, ConsultaEmpresaPorCNPJ, inserir_
 from function.funtions import gerar_token_cnpj, hash_password, gerar_token_usuario, verificar_senha, limpa_cnpj
 from function.funtions import templates
 from database.connection import  DB_CHAVE
+from sqlalchemy import text
+from typing import List, Optional
+from pydantic import BaseModel
+from datetime import datetime
 
 
 cadusers_router = APIRouter()
@@ -32,40 +36,106 @@ def tela_cnpj(request: Request):
 
 @cadusers_router.post("/buscar-vendedores", response_class=HTMLResponse)
 def buscar_vendedores(request: Request, cnpj: str = Form(...)):
-    # gera token
+    # 1. Gera o token esperado para o CNPJ
     token = gerar_token_cnpj(cnpj, DB_CHAVE)
-    print("Token:", token)
+    print("Token gerado:", token)
 
-    # busca nome banco pelo token
+    # 2. Busca o nome do banco no banco de controle
     nome_banco = get_nome_banco_por_token(token)
 
-    # cria sessão empresa
+    # Trata caso onde o token não existe na tabela 'controle' (ou está NULL)
+    if not nome_banco:
+        # Se não achou pelo token gerado, podemos gravar/atualizar o token no 'controle'
+        # ou tentar buscar a empresa diretamente pelo CNPJ no controle para salvar o token
+        session_controle = get_controle_session()
+        try:
+            empresa_controle = session_controle.execute(
+                text(
+                    "SELECT banco FROM controle WHERE codigo = :cnpj AND"
+                    " situacaoregistro <> 'E'"
+                ),
+                {"cnpj": cnpj},
+            ).fetchone()
+
+            if empresa_controle and empresa_controle[0]:
+                nome_banco = empresa_controle[0]
+                # Grava o token gerado no registro do banco 'controle' para consultas futuras
+                session_controle.execute(
+                    text(
+                        "UPDATE controle SET token = :token WHERE codigo ="
+                        " :cnpj"
+                    ),
+                    {"token": token, "cnpj": cnpj},
+                )
+                session_controle.commit()
+            else:
+                return templates.TemplateResponse(
+                    "login/cnpj.html",
+                    {
+                        "request": request,
+                        "error": (
+                            "Empresa/CNPJ não cadastrado no banco de controle."
+                        ),
+                    },
+                )
+        except Exception as e:
+            session_controle.rollback()
+            return templates.TemplateResponse(
+                "login/cnpj.html",
+                {
+                    "request": request,
+                    "error": "Erro ao consultar o banco de controle.",
+                },
+            )
+        finally:
+            session_controle.close()
+
+    # 3. Consulta as informações no banco da empresa
     session_empresa = get_empresa_session(nome_banco)
     with session_empresa as db:
-
         empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
         if not empresa_raw:
-            return templates.TemplateResponse("cnpj.html", {
-                "request": request,
-                "error": "Empresa não encontrada para o CNPJ informado."
-            })
+            return templates.TemplateResponse(
+                "login/cnpj.html",
+                {
+                    "request": request,
+                    "error": (
+                        "Empresa não encontrada na base de dados específica."
+                    ),
+                },
+            )
 
-        empresa = empresa_raw[0]  # pega o primeiro registro (dict)
+        empresa = empresa_raw[0]
 
         vendedores_raw = Consultar_vendedor_user(db)
-        vendedores = [{"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw]
+        vendedores = [
+            {"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw
+        ]
 
-    # Preencher form_data com cnpj para o campo readonly no form
     form_data = {"cnpj": cnpj}
 
-    return templates.TemplateResponse("cadusuario.html", {
-        "request": request,
-        "empresa": empresa,
-        "empresa_nome": empresa.get("nome", ""),  # passa o nome para o input readonly
-        "vendedores": vendedores,
-        "errors": {},
-        "form_data": form_data
-    })
+    # 4. Prepara a resposta renderizando a página e Injetando o Cookie do Token
+    response = templates.TemplateResponse(
+        "cadusuario.html",
+        {
+            "request": request,
+            "empresa": empresa,
+            "empresa_nome": empresa.get("nome", ""),
+            "vendedores": vendedores,
+            "errors": {},
+            "form_data": form_data,
+        },
+    )
+
+    # Grava o token no Cookie 'access_token' para que as próximas rotas/páginas mantenham a sessão
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        samesite="lax",
+    )
+
+    return response
 
 
 # Passo 2: Cadastro do usuário
@@ -334,7 +404,60 @@ async def buscar_usuario_vendedor(cnpj: str = Query(...), vendedor_id: str = Que
         else:
             return {"usuario": "", "email": ""}
 
+class UsuarioExportSchema(BaseModel):
+    empresa: int
+    codigovendedor: str
+    usuario: str
+    senha: str
+    novasenha: Optional[str] = None
+    email: Optional[str] = None
+    situacaoregistro: str
+    dataregistro: Optional[datetime] = None
 
 
+@sincronizaruser_router.post("/usuarios/importar-lote/")
+async def importar_usuarios_lote(
+    usuarios: List[UsuarioExportSchema], db: Session = Depends(get_empresa_db)
+):
+    if not usuarios:
+        return {"success": False, "msg": "Nenhum usuário enviado."}
 
+    try:
+        # Usar VALUES(coluna) para compatibilidade perfeita com executemany no PyMySQL
+        sql = text("""
+            INSERT INTO cadusers (
+                empresa, codigovendedor, usuario, senha, novasenha, 
+                email, situacaoregistro, dataregistro
+            ) VALUES (
+                :empresa, :codigovendedor, :usuario, :senha, :novasenha, 
+                :email, :situacaoregistro, :dataregistro
+            )
+            ON DUPLICATE KEY UPDATE
+                empresa = VALUES(empresa),
+                codigovendedor = VALUES(codigovendedor),
+                senha = VALUES(senha),
+                novasenha = VALUES(novasenha),
+                email = VALUES(email),
+                situacaoregistro = VALUES(situacaoregistro),
+                dataregistro = VALUES(dataregistro)
+        """)
 
+        # Garante a conversão do Schema Pydantic para Lista de Dicionários
+        dados = [u.model_dump() for u in usuarios]
+
+        db.execute(sql, dados)
+        db.commit()
+
+        return {
+            "success": True,
+            "msg": f"{len(usuarios)} usuários importados/atualizados com sucesso!",
+        }
+
+    except Exception as e:
+        db.rollback()
+        print("\n=== [ERRO GRAVE IMPORTAÇÃO USUÁRIOS] ===")
+        traceback.print_exc()
+        print("=========================================\n")
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao processar lote: {str(e)}"
+        )

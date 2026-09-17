@@ -388,7 +388,8 @@ def inserir_usuario(db, empresa_id: int, vendedor_id: str, usuario: str, email: 
 
 
 def ConsultaEmpresaPorCNPJ(db, cnpj: str):
-    Format_CNPJ = formata_cnpj(cnpj)
+    Format_CNPJ = formata_cnpj(cnpj).strip()
+    print("FORMATANDO CNPJ", Format_CNPJ)
     try:
         sql = text("""
             SELECT * 

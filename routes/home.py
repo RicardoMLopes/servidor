@@ -1,7 +1,7 @@
 import os, re
 import shutil
 from typing import List
-from fastapi import FastAPI, Request, Form, UploadFile, File, Cookie
+from fastapi import FastAPI, Request, Form, UploadFile, File, Cookie, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
@@ -35,19 +35,26 @@ async def identificar_empresa(request: Request, cnpj: str = Form(...)):
         # Gerar token
         token = gerar_token_cnpj(cnpj, DB_CHAVE)
 
-        # Descobrir nome do banco pelo token
-        nome_banco = get_nome_banco_por_token(token)
+        # Descobrir nome do banco pelo token (e grava o token no banco se ainda não existir)
+        nome_banco = get_nome_banco_por_token(token, cnpj)
         if not nome_banco:
-            return JSONResponse({"success": False, "msg": "Empresa não encontrada."})
+            return JSONResponse(
+                {"success": False, "msg": "Empresa não encontrada."}
+            )
 
         # Cria sessão da empresa e consulta dados
         session_empresa = get_empresa_session(nome_banco)
         with session_empresa as db:
+            print(f"[LOG] Executando ConsultaEmpresaPorCNPJ no banco '{nome_banco}' para o CNPJ/CPF '{cnpj}'")
             empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
-            if not empresa_raw:
-                return JSONResponse({"success": False, "msg": "Empresa não encontrada."})
+            print(f"[LOG] Resultado da ConsultaEmpresaPorCNPJ: {empresa_raw}")
 
-            empresa = empresa_raw[0]  # Pega o primeiro registro
+            if not empresa_raw:
+                return JSONResponse(
+                    {"success": False, "msg": "Empresa não encontrada."}
+                )
+
+            empresa = empresa_raw[0]
 
         # Retorna JSON com sucesso, dados da empresa e token
         return JSONResponse({
@@ -55,14 +62,14 @@ async def identificar_empresa(request: Request, cnpj: str = Form(...)):
             "empresa": {
                 "codigo": empresa["codigo"],
                 "nome": empresa["nome"],
-                "cnpj": empresa["cnpj"]
+                "cnpj": empresa["cnpj"],
             },
-            "token": token
+            "token": token,
         })
 
     except Exception as e:
         print("Erro ao consultar empresa:", e)
-        return JSONResponse({"success": False, "msg": "Erro ao consultar empresa. Tente novamente."})
+        return JSONResponse({ "success": False, "msg": "Erro ao consultar empresa. Tente novamente.", })
 
 
 @home_router.get("/dashboard/")
@@ -235,3 +242,32 @@ async def obter_token_por_cnpj(cnpj: str):
             status_code=500,
             detail=f"Erro ao gerar token para o CNPJ {cnpj}: {str(e)}"
         )
+
+
+from fastapi import Request, status
+from fastapi.responses import RedirectResponse
+
+
+@home_router.post("/logout")
+async def logout(request: Request):
+    # Redireciona para a tela inicial/login
+    response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+
+    # 1. Remove os cookies de autenticação e dados gravados
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(
+        key="cnpj", path="/"
+    )  # Caso grave o CNPJ em cookie
+    response.delete_cookie(
+        key="empresa_cnpj", path="/"
+    )  # Caso use outro nome
+    response.delete_cookie(key="session", path="/")
+
+    # 2. Força o navegador e proxies a NÃO armazenarem a resposta em cache
+    response.headers["Cache-Control"] = (
+        "no-cache, no-store, must-revalidate, private, max-age=0"
+    )
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return response
