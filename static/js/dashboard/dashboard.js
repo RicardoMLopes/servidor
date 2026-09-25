@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.cookie = `empresa_cnpj=${data.empresa.cnpj}; path=/`;
 
                 setTimeout(() => {
-                    window.location.href = "/dashboard/";
+                    window.location.href = "/login-usuario";
                 }, 1000);
 
             } else {

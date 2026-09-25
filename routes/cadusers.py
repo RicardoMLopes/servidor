@@ -28,121 +28,67 @@ alterarsenha_router = APIRouter()
 
 # Passo 1: Tela para digitar o CNPJ
 @cadusers_router.get("/", response_class=HTMLResponse)
-def tela_cnpj(request: Request):
-    return templates.TemplateResponse("login/cnpj.html", {
-        "request": request,
-        "error": None
-    })
+def tela_cadusuarios(request: Request):
+    empresa_token = request.cookies.get("empresa_token")
+    empresa_cnpj = request.cookies.get("empresa_cnpj")
 
-@cadusers_router.post("/buscar-vendedores", response_class=HTMLResponse)
-def buscar_vendedores(request: Request, cnpj: str = Form(...)):
-    # 1. Gera o token esperado para o CNPJ
-    token = gerar_token_cnpj(cnpj, DB_CHAVE)
-    print("Token gerado:", token)
+    if not empresa_token or not empresa_cnpj:
+        return RedirectResponse("/login-usuario", status_code=303)
 
-    # 2. Busca o nome do banco no banco de controle
-    nome_banco = get_nome_banco_por_token(token)
+    try:
+        nome_banco = get_nome_banco_por_token(empresa_token)
 
-    # Trata caso onde o token não existe na tabela 'controle' (ou está NULL)
-    if not nome_banco:
-        # Se não achou pelo token gerado, podemos gravar/atualizar o token no 'controle'
-        # ou tentar buscar a empresa diretamente pelo CNPJ no controle para salvar o token
-        session_controle = get_controle_session()
-        try:
-            empresa_controle = session_controle.execute(
-                text(
-                    "SELECT banco FROM controle WHERE codigo = :cnpj AND"
-                    " situacaoregistro <> 'E'"
-                ),
-                {"cnpj": cnpj},
-            ).fetchone()
+        if not nome_banco:
+            return RedirectResponse("/login-usuario", status_code=303)
 
-            if empresa_controle and empresa_controle[0]:
-                nome_banco = empresa_controle[0]
-                # Grava o token gerado no registro do banco 'controle' para consultas futuras
-                session_controle.execute(
-                    text(
-                        "UPDATE controle SET token = :token WHERE codigo ="
-                        " :cnpj"
-                    ),
-                    {"token": token, "cnpj": cnpj},
-                )
-                session_controle.commit()
-            else:
-                return templates.TemplateResponse(
-                    "login/cnpj.html",
-                    {
-                        "request": request,
-                        "error": (
-                            "Empresa/CNPJ não cadastrado no banco de controle."
-                        ),
-                    },
-                )
-        except Exception as e:
-            session_controle.rollback()
-            return templates.TemplateResponse(
-                "login/cnpj.html",
-                {
-                    "request": request,
-                    "error": "Erro ao consultar o banco de controle.",
+        session_empresa = get_empresa_session(nome_banco)
+
+        with session_empresa as db:
+            empresa_raw = ConsultaEmpresaPorCNPJ(db, empresa_cnpj)
+
+            if not empresa_raw:
+                return RedirectResponse("/login-usuario", status_code=303)
+
+            empresa = empresa_raw[0]
+
+            vendedores_raw = Consultar_vendedor_user(db)
+            vendedores = [
+                {"id": v["codigo"], "nome": v["nome"]}
+                for v in vendedores_raw
+            ]
+
+        response = templates.TemplateResponse(
+            "cadusuario.html",
+            {
+                "request": request,
+                "empresa": empresa,
+                "empresa_nome": empresa.get("nome", ""),
+                "vendedores": vendedores,
+                "errors": {},
+                "form_data": {
+                    "cnpj": empresa_cnpj
                 },
-            )
-        finally:
-            session_controle.close()
+            },
+        )
 
-    # 3. Consulta as informações no banco da empresa
-    session_empresa = get_empresa_session(nome_banco)
-    with session_empresa as db:
-        empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
-        if not empresa_raw:
-            return templates.TemplateResponse(
-                "login/cnpj.html",
-                {
-                    "request": request,
-                    "error": (
-                        "Empresa não encontrada na base de dados específica."
-                    ),
-                },
-            )
+        response.set_cookie(
+            key="access_token",
+            value=f"Bearer {empresa_token}",
+            httponly=True,
+            samesite="lax",
+        )
 
-        empresa = empresa_raw[0]
+        return response
 
-        vendedores_raw = Consultar_vendedor_user(db)
-        vendedores = [
-            {"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw
-        ]
-
-    form_data = {"cnpj": cnpj}
-
-    # 4. Prepara a resposta renderizando a página e Injetando o Cookie do Token
-    response = templates.TemplateResponse(
-        "cadusuario.html",
-        {
-            "request": request,
-            "empresa": empresa,
-            "empresa_nome": empresa.get("nome", ""),
-            "vendedores": vendedores,
-            "errors": {},
-            "form_data": form_data,
-        },
-    )
-
-    # Grava o token no Cookie 'access_token' para que as próximas rotas/páginas mantenham a sessão
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {token}",
-        httponly=True,
-        samesite="lax",
-    )
-
-    return response
+    except Exception as e:
+        print("Erro ao abrir cadastro de usuários:", e)
+        return RedirectResponse("/dashboard/", status_code=303)
 
 
 # Passo 2: Cadastro do usuário
 @cadusers_router.post("/cadastrar", response_class=HTMLResponse)
 async def cadastrar_usuario(
     request: Request,
-    cnpj: str = Form(...),
     vendedor_id: str = Form(...),
     usuario: str = Form(...),
     senha: str = Form(...),
@@ -151,75 +97,116 @@ async def cadastrar_usuario(
 ):
     errors = {}
     form_data = {
-        "cnpj": cnpj,
         "vendedor_id": vendedor_id,
         "usuario": usuario,
         "email": email
     }
 
-    # Validação básica
+    empresa_token = request.cookies.get("empresa_token")
+    empresa_cnpj = request.cookies.get("empresa_cnpj")
+
+    if not empresa_token or not empresa_cnpj:
+        return RedirectResponse("/login-usuario", status_code=303)
+
+    nome_banco = get_nome_banco_por_token(empresa_token)
+
+    if not nome_banco:
+        return RedirectResponse("/login-usuario", status_code=303)
+
     if senha != confirmar_senha:
         errors["confirmar_senha"] = "A senha e a confirmação não conferem."
+
     if len(senha) < 6:
         errors["senha"] = "A senha deve ter pelo menos 6 caracteres."
+
     if not usuario:
         errors["usuario"] = "Usuário é obrigatório."
 
-    token = gerar_token_cnpj(cnpj, DB_CHAVE)
-    nome_banco = get_nome_banco_por_token(token)
     session_empresa = get_empresa_session(nome_banco)
 
     with session_empresa as db:
-        empresa_raw = ConsultaEmpresaPorCNPJ(db, cnpj)
+        empresa_raw = ConsultaEmpresaPorCNPJ(db, empresa_cnpj)
+
         if not empresa_raw:
-            errors["cnpj"] = "Empresa não encontrada para o CNPJ informado."
-            empresa = None
-        else:
-            empresa = empresa_raw[0]
+            return RedirectResponse("/login-usuario", status_code=303)
+
+        empresa = empresa_raw[0]
 
         vendedores_raw = ConsultaVendedores(db)
-        vendedores = [{"id": v["codigo"], "nome": v["nome"]} for v in vendedores_raw]
+        vendedores = [
+            {"id": v["codigo"], "nome": v["nome"]}
+            for v in vendedores_raw
+        ]
 
         if errors:
-            return templates.TemplateResponse("cadusuario.html", {
-                "request": request,
-                "empresa": empresa,
-                "empresa_nome": empresa.get("nome") if empresa else "",
-                "vendedores": vendedores,
-                "errors": errors,
-                "form_data": form_data
-            })
+            return templates.TemplateResponse(
+                "cadusuario.html",
+                {
+                    "request": request,
+                    "empresa": empresa,
+                    "empresa_nome": empresa.get("nome", ""),
+                    "vendedores": vendedores,
+                    "errors": errors,
+                    "form_data": form_data
+                }
+            )
 
         if usuario_existe(db, usuario):
-            errors["usuario"] = "Este nome de usuário já está em uso. Tente outro diferente."
-            return templates.TemplateResponse("cadusuario.html", {
-                "request": request,
-                "empresa": empresa,
-                "empresa_nome": empresa.get("nome") if empresa else "",
-                "vendedores": vendedores,
-                "errors": errors,
-                "form_data": form_data
-            })
+            errors["usuario"] = (
+                "Este nome de usuário já está em uso. Tente outro diferente."
+            )
+
+            return templates.TemplateResponse(
+                "cadusuario.html",
+                {
+                    "request": request,
+                    "empresa": empresa,
+                    "empresa_nome": empresa.get("nome", ""),
+                    "vendedores": vendedores,
+                    "errors": errors,
+                    "form_data": form_data
+                }
+            )
 
         senha_hash = hash_password(senha)
-        token = gerar_token_usuario(usuario, vendedor_id, empresa["codigo"])
-        sucesso = inserir_usuario(db, empresa["codigo"], vendedor_id, usuario, email, senha_hash, token)
+        token_usuario = gerar_token_usuario(
+            usuario,
+            vendedor_id,
+            empresa["codigo"]
+        )
+
+        sucesso = inserir_usuario(
+            db,
+            empresa["codigo"],
+            vendedor_id,
+            usuario,
+            email,
+            senha_hash,
+            token_usuario
+        )
 
         if not sucesso:
             errors["db"] = "Erro ao salvar usuário no banco."
-            return templates.TemplateResponse("cadusuario.html", {
-                "request": request,
-                "empresa": empresa,
-                "empresa_nome": empresa.get("nome"),
-                "vendedores": vendedores,
-                "errors": errors,
-                "form_data": form_data
-            })
 
-    return templates.TemplateResponse("sucesso.html", {
-        "request": request,
-        "usuario": usuario
-    })
+            return templates.TemplateResponse(
+                "cadusuario.html",
+                {
+                    "request": request,
+                    "empresa": empresa,
+                    "empresa_nome": empresa.get("nome", ""),
+                    "vendedores": vendedores,
+                    "errors": errors,
+                    "form_data": form_data
+                }
+            )
+
+    return templates.TemplateResponse(
+        "sucesso.html",
+        {
+            "request": request,
+            "usuario": usuario
+        }
+    )
 
 # ==============================================================
 # ROTINA PARA SINCRONIZAR O USUÁRIO

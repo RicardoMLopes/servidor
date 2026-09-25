@@ -45,33 +45,45 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
 
-                    <!-- Menu Cadastros com Submenu -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="menuCadastros" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-folder-plus"></i> Cadastros
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="menuCadastros">
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2" href="/cadusuarios/">
-                                    <i class="bi bi-people"></i> Usuários
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+
 
                     <!-- Menu do Usuário / Conta -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" id="menuPerfil" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> Minha Conta
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1"
+                           href="#"
+                           id="menuPerfil"
+                           role="button"
+                           data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="bi bi-person-circle"></i>
+                            {{ usuario_nome or 'Minha Conta' }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="menuPerfil">
+
+                        <ul class="dropdown-menu dropdown-menu-end shadow"
+                            aria-labelledby="menuPerfil">
+
                             <li>
-                                <form action="/logout" method="POST" class="m-0" onsubmit="limparDadosAutenticacao()">
-                                    <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
-                                        <i class="bi bi-box-arrow-right"></i> Sair do Sistema
+                                <a class="dropdown-item d-flex align-items-center gap-2"
+                                   href="/cadusuarios/">
+                                    <i class="bi bi-people"></i> Cadastrar
+                                </a>
+                            </li>
+
+                            <li><hr class="dropdown-divider"></li>
+
+                            <li>
+                                <form action="/logout"
+                                      method="POST"
+                                      class="m-0"
+                                      onsubmit="limparDadosAutenticacao()">
+                                    <button type="submit"
+                                            class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                        <i class="bi bi-box-arrow-right"></i>
+                                        Sair do Sistema
                                     </button>
                                 </form>
                             </li>
+
                         </ul>
                     </li>
 
