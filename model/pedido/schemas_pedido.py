@@ -5,10 +5,12 @@ from datetime import datetime
 
 class ItemSchema(BaseModel):
     tipo: constr(max_length=20) = "MovNotaItem"  # Identificador fixo
+    tipodocumento: constr(max_length=10) = "COTACAO"
     codigoproduto: constr(max_length=5)
     idpedido: Optional[int] = None
     descricaoproduto: Optional[constr(max_length=200)] = None
     quantidade: condecimal(max_digits=12, decimal_places=6)
+    quantidade_pedida: condecimal(max_digits=12, decimal_places=6) = 0
     valorUnitario: condecimal(max_digits=12, decimal_places=6)
     valorunitariovenda: condecimal(max_digits=12, decimal_places=6)
     valorDesconto: condecimal(max_digits=12, decimal_places=2) = 0

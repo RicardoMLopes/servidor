@@ -20,6 +20,7 @@ from routes.cliente import cliente_router
 from routes.formaparameto import condicao_pagamento_router
 from routes.sincronizarpedido import sincronizar_pedidos
 from routes.lancamento_pedido import mov_pedido_router
+from routes.cotacao import cotacao_router
 
 
 # from fastapi.middleware.wsgi import WSGIMiddleware
@@ -102,6 +103,9 @@ app.include_router(mov_pedido_router, prefix="/novo-pedido", tags=["MovPedido"])
 app.include_router(mov_pedido_router, prefix="/insert-pedido", tags=["MovPedido"])
 app.include_router(mov_pedido_router, prefix="/buscar-produtos", tags=["MovPedido"])
 app.include_router(mov_pedido_router, prefix="/buscar-clientes", tags=["MovPedido"])
+
+# Lançamentos da cotacao
+app.include_router(cotacao_router, prefix="/cotacao", tags=["Cotacao"])
 
 
 

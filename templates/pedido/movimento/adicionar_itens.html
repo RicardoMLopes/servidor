@@ -1,6 +1,4 @@
 <div class="card shadow border-0 rounded-4 mb-4 overflow-hidden" style="background-color: #f8f9fa; border-left: 5px solid var(--bs-primary) !important;">
-
-  <!-- Cabeçalho do Card -->
   <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
       <div class="bg-primary text-white rounded-3 p-2 me-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px;">
@@ -15,8 +13,6 @@
 
   <div class="card-body p-4">
     <div class="row g-3 align-items-end">
-
-      <!-- 1. Código / Código de Barras com Botão de Lupa Embutido -->
       <div class="col-xl-3 col-lg-4">
         <label for="inputCodigo" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Cód / Cód. Barras</label>
         <div class="input-group shadow-sm">
@@ -27,33 +23,21 @@
         </div>
       </div>
 
-      <!-- 2. Descrição (Somente Leitura) -->
       <div class="col-xl-5 col-lg-4">
         <label for="inputDescricao" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Descrição do Produto</label>
         <input type="text" class="form-control form-control-lg fs-6 bg-white text-secondary rounded-3 shadow-sm" id="inputDescricao" placeholder="Aguardando seleção..." readonly>
       </div>
 
-      <!-- 3. Quantidade -->
       <div class="col-xl-2 col-lg-2 col-md-6">
         <label for="inputQtd" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Quantidade</label>
-          <input
-            type="number"
-            step="1.00"
-            min="1.00"
-            class="form-control form-control-lg fs-6 text-center fw-bold text-dark rounded-3 shadow-sm bg-white"
-            id="inputQtd"
-            value="1.00"
-            placeholder="0.00"
-          >
+        <input type="number" step="1.00" min="1.00" class="form-control form-control-lg fs-6 text-center fw-bold text-dark rounded-3 shadow-sm bg-white" id="inputQtd" value="1.00" placeholder="0.00">
       </div>
 
-      <!-- 4. Valor Unitário -->
       <div class="col-xl-2 col-lg-2 col-md-6">
         <label for="inputUnitario" class="form-label text-uppercase fw-bold text-secondary mb-1" style="font-size: 0.75rem;">Vlr. Unitário (R$)</label>
         <input type="number" step="0.000001" class="form-control form-control-lg fs-6 text-end fw-bold text-success rounded-3 shadow-sm bg-white" id="inputUnitario" value="0.00">
       </div>
 
-      <!-- Linha Inferior: Ações e Modificadores -->
       <div class="col-12 d-flex flex-wrap justify-content-between align-items-center mt-4 pt-3 border-top border-2 gap-2">
         <button type="button" class="btn btn-white text-dark border btn-sm fw-semibold rounded-pill px-3 py-2 shadow-sm bg-white" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
           <i class="bi bi-percent text-primary me-1"></i> Desconto / Acréscimo: <span id="lblTipoDescontoInfo" class="text-primary">Valor</span>
@@ -63,7 +47,6 @@
           <i class="bi bi-plus-lg me-1"></i> Adicionar Item
         </button>
       </div>
-
     </div>
   </div>
 </div>

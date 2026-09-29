@@ -200,9 +200,6 @@ def to_decimal(valor):
 @pedido_relatorios_router.get("/", response_class=HTMLResponse)
 async def relatorio_pedido_template(
     request: Request,
-    empresa: str = Query(None),
-    cnpj: str = Query(None),
-    token: str = Query(None),
     tipo: str = Query("analitico"),
     numerodocumento: Optional[str] = Query(None),
     cliente: Optional[str] = Query(None),
@@ -213,250 +210,561 @@ async def relatorio_pedido_template(
 ):
     relatorio = []
 
-    # 🔹 Gera token a partir do CNPJ se necessário
-    if not token and cnpj:
-        token = gerar_token_cnpj(cnpj, DB_CHAVE)
+    empresa_token = request.cookies.get("empresa_token")
+    empresa_cnpj = request.cookies.get("empresa_cnpj")
+    usuario_id = request.cookies.get("usuario_id")
 
-    if not token:
-        return templates.TemplateResponse(
-            "pedido/relatorio_pedido.html",
-            {
-                "request": request,
-                "relatorio": [],
-                "tipo": tipo,
-                "empresa_nome": None,
-                "cliente": "",
-                "data_inicio": data_inicio,
-                "data_fim": data_fim,
-                "numerodocumento": "",
-                "agrupamento": "",
-                "status": status,
-                "cnpj": cnpj,
-                "telefone": None,
-                "token": token
-            }
-        )
+    if not empresa_token or not empresa_cnpj or not usuario_id:
+        return RedirectResponse("/login-usuario", status_code=303)
 
-    nome_banco = get_nome_banco_por_token(token)
+    nome_banco = get_nome_banco_por_token(empresa_token)
+
     if not nome_banco:
-        raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
-
-    db = get_empresa_session(nome_banco)
-    empresa_war = ConsultaEmpresa(db)
-    codigo_empresa = int(str(empresa_war[0]).lstrip("0"))
-    empresa_cnpj = str(empresa_war[2]) if len(empresa_war) > 1 else ""
-    nome_empresa = str(empresa_war[1]) if len(empresa_war) > 1 else "Empresa"
-    telefone_empresa = str(empresa_war[7]) if len(empresa_war) > 7 else ""
-
-    try:
-        numerodocumento = int(numerodocumento) if numerodocumento else None
-    except ValueError:
-        numerodocumento = None
-
-
-    filtros = ["A.empresa = :empresa"]
-    filtros.append("(B.situacaoregistro IS NULL OR B.situacaoregistro <> 'E')")
-    parametros = {"empresa": codigo_empresa}
-
-    if numerodocumento is not None:
-        filtros.append("A.numerodocumento = :numerodocumento")
-        parametros["numerodocumento"] = numerodocumento
-
-
-
-    if cliente and cliente.strip() and cliente.lower() != "none":
-        filtros.append("(A.codigocliente = :cliente OR A.nomecliente LIKE :cliente_like)")
-        parametros["cliente"] = cliente
-        parametros["cliente_like"] = f"%{cliente}%"
-
-    if data_inicio and data_fim and data_inicio.strip() and data_fim.strip():
-        filtros.append("A.dataLancamento BETWEEN :data_inicio AND :data_fim")
-        parametros["data_inicio"] = f"{data_inicio} 00:00:00"
-        parametros["data_fim"] = f"{data_fim} 23:59:59"
-
-    if agrupamento and agrupamento.strip() and agrupamento.lower() != "none":
-        filtros.append("P.agrupamento LIKE :agrupamento")
-        parametros["agrupamento"] = f"%{agrupamento}%"
-
-    status = status.strip().lower() if status else "todos"
-    if status != "todos":
-        if status == "pendente":
-            filtros.append("TRIM(UPPER(A.status)) = 'P'")
-        elif status == "enviado":
-            filtros.append("TRIM(UPPER(A.status)) = 'R'")
-
-    if len(filtros) <= 1:
-        return templates.TemplateResponse(
-            "pedido/relatorio_pedido.html",
-            {
-                "request": request,
-                "relatorio": [],
-                "tipo": tipo,
-                "empresa_nome": nome_empresa,
-                "cliente": "",
-                "data_inicio": data_inicio,
-                "data_fim": data_fim,
-                "numerodocumento": "",
-                "agrupamento": "",
-                "status": status,
-                "cnpj": empresa_cnpj,
-                "telefone": telefone_empresa,
-                "token": token
-            }
+        raise HTTPException(
+            status_code=403,
+            detail="Empresa não encontrada."
         )
 
-    where_clause = " AND ".join(filtros)
+    session_empresa = get_empresa_session(nome_banco)
 
-    sql = f"""
-        SELECT A.numerodocumento, A.codigovendedor, V.nome as nomevendedor, A.codigocliente, A.nomecliente, A.dataLancamento,
-               A.codigocondPagamento, F.descricao as formapagamento, A.status, A.observacao,
-               B.codigoproduto, B.descricaoproduto, B.quantidade,
-               B.valorunitariovenda, B.valorDesconto, B.valoracrescimo, B.valorTotal,
-               P.unidadeMedida
-        FROM movnota A
-        LEFT JOIN movnotaitem B
-            ON A.empresa = B.empresa AND A.numerodocumento = B.numerodocumento AND A.codigocliente = B.codigocliente
-        LEFT JOIN cadproduto P
-            ON A.empresa = P.empresa AND B.codigoproduto = P.codigo
-        LEFT JOIN cadvendedor V
-            ON A.empresa = V.empresa AND A.codigovendedor = V.codigo
-        LEFT JOIN cadcondicaopagamento F
-            ON A.empresa = F.empresa AND A.codigocondPagamento = F.codigo
-        WHERE {where_clause}
-        ORDER BY A.dataLancamento, A.numerodocumento
-    """
+    with session_empresa as db:
+        try:
+            usuario = db.execute(
+                text("""
+                    SELECT
+                        id,
+                        empresa,
+                        codigovendedor,
+                        usuario
+                    FROM cadusers
+                    WHERE id = :usuario_id
+                      AND situacaoregistro <> 'E'
+                    LIMIT 1
+                """),
+                {"usuario_id": usuario_id}
+            ).mappings().first()
 
-    pedidos = db.execute(text(sql), parametros).fetchall()
+            if not usuario:
+                raise HTTPException(
+                    status_code=401,
+                    detail="Usuário não encontrado."
+                )
 
-    # ===================== SINTÉTICO =====================
-    if tipo == "sintetico":
-        pedidos_dict_sintetico = {}
-        for p in pedidos:
-            numdoc = p._mapping["numerodocumento"]
+            codigo_empresa = int(usuario["empresa"])
 
-            if numdoc not in pedidos_dict_sintetico:
-                data_raw = p._mapping.get("dataLancamento")
-                try:
-                    if data_raw and str(data_raw).strip():
-                        data_obj = parse(str(data_raw))
-                        data_lancamento_html = data_obj.strftime("%d/%m/%Y %H:%M:%S")
+            empresa_war = ConsultaEmpresa(db)
+
+            empresa_cnpj = (
+                str(empresa_war[2])
+                if len(empresa_war) > 2
+                else ""
+            )
+
+            nome_empresa = (
+                str(empresa_war[1])
+                if len(empresa_war) > 1
+                else "Empresa"
+            )
+
+            telefone_empresa = (
+                str(empresa_war[7])
+                if len(empresa_war) > 7
+                else ""
+            )
+
+            try:
+                numerodocumento = (
+                    int(numerodocumento)
+                    if numerodocumento
+                    else None
+                )
+            except ValueError:
+                numerodocumento = None
+
+            filtros = [
+                "A.empresa = :empresa",
+                "B.tipodocumento = 'PEDIDO'",
+                """
+                (
+                    B.situacaoregistro IS NULL
+                    OR B.situacaoregistro <> 'E'
+                )
+                """
+            ]
+
+            parametros = {"empresa": codigo_empresa}
+
+            if numerodocumento is not None:
+                filtros.append("A.numerodocumento = :numerodocumento")
+                parametros["numerodocumento"] = numerodocumento
+
+            if cliente and cliente.strip() and cliente.lower() != "none":
+                filtros.append(
+                    """
+                    (
+                        A.codigocliente = :cliente
+                        OR A.nomecliente LIKE :cliente_like
+                    )
+                    """
+                )
+                parametros["cliente"] = cliente
+                parametros["cliente_like"] = f"%{cliente}%"
+
+            hoje = datetime.now().strftime("%Y-%m-%d")
+            data_inicio = ( data_inicio.strip() if data_inicio and data_inicio.strip() else hoje)
+            data_fim = (data_fim.strip() if data_fim and data_fim.strip() else hoje)
+            filtros.append("A.dataLancamento BETWEEN :data_inicio AND :data_fim")
+            parametros["data_inicio"] = f"{data_inicio} 00:00:00"
+            parametros["data_fim"] = f"{data_fim} 23:59:59"
+
+            if (
+                agrupamento
+                and agrupamento.strip()
+                and agrupamento.lower() != "none"
+            ):
+                filtros.append(
+                    "P.agrupamento LIKE :agrupamento"
+                )
+                parametros["agrupamento"] = f"%{agrupamento}%"
+
+            status = (status.strip().lower() if status else "todos")
+
+            if status != "todos":
+                if status == "pendente":
+                    filtros.append(
+                        "TRIM(UPPER(A.status)) = 'P'"
+                    )
+                elif status == "enviado":
+                    filtros.append(
+                        "TRIM(UPPER(A.status)) = 'R'"
+                    )
+
+            where_clause = " AND ".join(filtros)
+
+            sql = f"""
+                SELECT
+                    A.numerodocumento,
+                    A.codigovendedor,
+                    V.nome AS nomevendedor,
+                    A.codigocliente,
+                    A.nomecliente,
+                    A.dataLancamento,
+                    A.codigocondPagamento,
+                    F.descricao AS formapagamento,
+                    A.status,
+                    A.observacao,
+                    B.codigoproduto,
+                    B.descricaoproduto,
+                    B.quantidade,
+                    B.quantidade_pedida,
+                    B.valorunitariovenda,
+                    B.valorDesconto,
+                    B.valoracrescimo,
+                    B.valorTotal,
+                    P.unidadeMedida
+                FROM movnota A
+                INNER JOIN movnotaitem B
+                    ON A.id = B.movnota_id
+                LEFT JOIN cadproduto P
+                    ON A.empresa = P.empresa
+                   AND B.codigoproduto = P.codigo
+                LEFT JOIN cadvendedor V
+                    ON A.empresa = V.empresa
+                   AND A.codigovendedor = V.codigo
+                LEFT JOIN cadcondicaopagamento F
+                    ON A.empresa = F.empresa
+                   AND A.codigocondPagamento = F.codigo
+                WHERE {where_clause}
+                ORDER BY
+                    A.dataLancamento,
+                    A.numerodocumento
+            """
+
+            pedidos = db.execute(
+                text(sql),
+                parametros
+            ).fetchall()
+
+            # =====================================================
+            # SINTÉTICO
+            # =====================================================
+            if tipo == "sintetico":
+                pedidos_dict_sintetico = {}
+
+                for p in pedidos:
+                    numdoc = p._mapping["numerodocumento"]
+
+                    if numdoc not in pedidos_dict_sintetico:
+                        data_raw = p._mapping.get(
+                            "dataLancamento"
+                        )
+
+                        try:
+                            if data_raw and str(data_raw).strip():
+                                data_obj = parse(str(data_raw))
+                                data_lancamento_html = (
+                                    data_obj.strftime(
+                                        "%d/%m/%Y %H:%M:%S"
+                                    )
+                                )
+                            else:
+                                data_lancamento_html = "—"
+                        except Exception:
+                            data_lancamento_html = "—"
+
+                        pedidos_dict_sintetico[numdoc] = {
+                            "cabecalho": {
+                                "numerodocumento": numdoc,
+                                "nomecliente": (
+                                    p._mapping["nomecliente"]
+                                ),
+                                "codigovendedor": (
+                                    p._mapping["codigovendedor"]
+                                ),
+                                "nomevendedor": (
+                                    p._mapping["nomevendedor"]
+                                ),
+                                "observacao": (
+                                    p._mapping["observacao"]
+                                ),
+                                "dataLancamento_html": (
+                                    data_lancamento_html
+                                ),
+                                "formapagamento": (
+                                    p._mapping.get(
+                                        "formapagamento"
+                                    ) or ""
+                                ),
+                                "status": p._mapping["status"],
+                            },
+                            "totalizadores": {
+                                "subtotal": 0.0,
+                                "totalDesconto": 0.0,
+                                "totalAcrescimo": 0.0,
+                                "totalGeral": 0.0,
+                                "qtd_itens": 0,
+                            },
+                        }
+
+                    quantidade_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "quantidade",
+                                0
+                            )
+                        ),
+                        6
+                    )
+
+                    quant = round(
+                        to_float(
+                            p._mapping.get(
+                                "quantidade_pedida",
+                                0
+                            )
+                        ),
+                        6
+                    )
+
+                    preco = round(
+                        to_float(
+                            p._mapping.get(
+                                "valorunitariovenda",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    desconto_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "valorDesconto",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    acrescimo_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "valoracrescimo",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    if quantidade_original > 0:
+                        fator = (
+                            quant / quantidade_original
+                        )
                     else:
-                        data_lancamento_html = "—"
-                except Exception:
-                    data_lancamento_html = "—"
+                        fator = 0
 
-                pedidos_dict_sintetico[numdoc] = {
-                    "cabecalho": {
-                        "numerodocumento": numdoc,
-                        "nomecliente": p._mapping["nomecliente"],
-                        "codigovendedor": p._mapping["codigovendedor"],
-                        "nomevendedor": p._mapping["nomevendedor"],
-                        "observacao": p._mapping["observacao"],
-                        "dataLancamento_html": data_lancamento_html,
-                        "formapagamento": p._mapping.get("formapagamento") or "",
-                        "status": p._mapping["status"],
-                    },
-                    "totalizadores": {
-                        "subtotal": 0.0,
-                        "totalDesconto": 0.0,
-                        "totalAcrescimo": 0.0,
-                        "totalGeral": 0.0,
-                        "qtd_itens": 0,
-                    },
+                    desconto = round(
+                        desconto_original * fator,
+                        2
+                    )
+
+                    acrescimo = round(
+                        acrescimo_original * fator,
+                        2
+                    )
+
+                    subtotal_item = round(
+                        preco * quant,
+                        2
+                    )
+
+                    total = round(
+                        subtotal_item
+                        - desconto
+                        + acrescimo,
+                        2
+                    )
+
+                    tot = pedidos_dict_sintetico[
+                        numdoc
+                    ]["totalizadores"]
+
+                    tot["subtotal"] += subtotal_item
+                    tot["totalDesconto"] += desconto
+                    tot["totalAcrescimo"] += acrescimo
+                    tot["totalGeral"] += total
+                    tot["qtd_itens"] += quant
+
+                relatorio = list(
+                    pedidos_dict_sintetico.values()
+                )
+
+            # =====================================================
+            # ANALÍTICO
+            # =====================================================
+            else:
+                pedidos_dict = {}
+
+                for p in pedidos:
+                    numdoc = p._mapping[
+                        "numerodocumento"
+                    ]
+
+                    if numdoc not in pedidos_dict:
+                        cabecalho = dict(
+                            p._mapping
+                        )
+
+                        if isinstance(
+                            cabecalho.get(
+                                "dataLancamento"
+                            ),
+                            datetime
+                        ):
+                            cabecalho[
+                                "dataLancamento_html"
+                            ] = cabecalho[
+                                "dataLancamento"
+                            ].strftime(
+                                "%d/%m/%Y %H:%M:%S"
+                            )
+                        else:
+                            cabecalho[
+                                "dataLancamento_html"
+                            ] = cabecalho.get(
+                                "dataLancamento",
+                                ""
+                            )
+
+                        for key in [
+                            "valorunitariovenda",
+                            "valorDesconto",
+                            "valoracrescimo",
+                            "valorTotal"
+                        ]:
+                            if (
+                                key in cabecalho
+                                and isinstance(
+                                    cabecalho[key],
+                                    Decimal
+                                )
+                            ):
+                                cabecalho[key] = float(
+                                    cabecalho[key]
+                                )
+
+                        pedidos_dict[numdoc] = {
+                            "cabecalho": cabecalho,
+                            "itens": [],
+                            "totalizadores": {
+                                "totalDesconto": 0,
+                                "totalAcrescimo": 0,
+                                "totalGeral": 0,
+                                "subtotal": 0.0
+                            },
+                        }
+
+                    quantidade_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "quantidade",
+                                0
+                            )
+                        ),
+                        6
+                    )
+
+                    quant = round(
+                        to_float(
+                            p._mapping.get(
+                                "quantidade_pedida",
+                                0
+                            )
+                        ),
+                        6
+                    )
+
+                    preco = round(
+                        to_float(
+                            p._mapping.get(
+                                "valorunitariovenda",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    desconto_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "valorDesconto",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    acrescimo_original = round(
+                        to_float(
+                            p._mapping.get(
+                                "valoracrescimo",
+                                0
+                            )
+                        ),
+                        2
+                    )
+
+                    if quantidade_original > 0:
+                        fator = (
+                            quant / quantidade_original
+                        )
+                    else:
+                        fator = 0
+
+                    desconto = round(
+                        desconto_original * fator,
+                        2
+                    )
+
+                    acrescimo = round(
+                        acrescimo_original * fator,
+                        2
+                    )
+
+                    subtotal_item = round(
+                        preco * quant,
+                        2
+                    )
+
+                    total = round(
+                        subtotal_item
+                        - desconto
+                        + acrescimo,
+                        2
+                    )
+
+                    pedidos_dict[numdoc]["itens"].append({
+                        "codigoproduto": (
+                            p._mapping[
+                                "codigoproduto"
+                            ]
+                        ),
+                        "descricaoproduto": (
+                            p._mapping[
+                                "descricaoproduto"
+                            ]
+                        ),
+                        "quantidade": quant,
+                        "quantidade_pedida": quant,
+                        "valorunitariovenda": preco,
+                        "valorDesconto": desconto,
+                        "valoracrescimo": acrescimo,
+                        "valorTotal": total
+                    })
+
+                    tot = pedidos_dict[
+                        numdoc
+                    ]["totalizadores"]
+
+                    tot["subtotal"] += subtotal_item
+                    tot["totalDesconto"] += desconto
+                    tot["totalAcrescimo"] += acrescimo
+                    tot["totalGeral"] += total
+
+                relatorio = list(
+                    pedidos_dict.values()
+                )
+
+            relatorio_serializavel = (
+                make_json_serializable(relatorio)
+            )
+
+            status_count = {
+                "P": 0,
+                "R": 0
+            }
+
+            for pedido in relatorio_serializavel:
+                status_val = pedido.get(
+                    "cabecalho",
+                    {}
+                ).get("status")
+
+                if status_val in status_count:
+                    status_count[status_val] += 1
+
+            return templates.TemplateResponse(
+                "pedido/relatorio_pedido.html",
+                {
+                    "request": request,
+                    "relatorio": relatorio_serializavel,
+                    "tipo": tipo,
+                    "empresa_nome": nome_empresa,
+                    "cliente": cliente or "",
+                    "data_inicio": data_inicio,
+                    "data_fim": data_fim,
+                    "numerodocumento": (
+                        numerodocumento
+                        or ""
+                    ),
+                    "agrupamento": agrupamento or "",
+                    "status": status,
+                    "cnpj": empresa_cnpj,
+                    "telefone": telefone_empresa,
+                    "token": empresa_token,
+                    "status_count": status_count
                 }
+            )
 
-            # 🔹 Arredondamento antes do cálculo
-            preco = round(to_float(p._mapping.get("valorunitariovenda", 0)), 2)
-            quant = round(to_float(p._mapping.get("quantidade", 0)), 2)
-            desconto = round(to_float(p._mapping.get("valorDesconto", 0)), 2)
-            acresc = round(to_float(p._mapping.get("valoracrescimo", 0)), 2)
-            total = round(to_float(p._mapping.get("valorTotal", 0)), 2)
+        except HTTPException:
+            raise
 
-            tot = pedidos_dict_sintetico[numdoc]["totalizadores"]
-            tot["subtotal"] += round(preco * quant, 2)
-            tot["totalDesconto"] += desconto
-            tot["totalAcrescimo"] += acresc
-            tot["totalGeral"] += total
-            tot["qtd_itens"] += quant
-
-        relatorio = list(pedidos_dict_sintetico.values())
-
-    # ===================== ANALÍTICO =====================
-    else:
-        pedidos_dict = {}
-        for p in pedidos:
-            numdoc = p._mapping["numerodocumento"]
-
-            if numdoc not in pedidos_dict:
-                cabecalho = dict(p._mapping)
-                if isinstance(cabecalho.get("dataLancamento"), datetime):
-                    cabecalho["dataLancamento_html"] = cabecalho["dataLancamento"].strftime("%d/%m/%Y %H:%M:%S")
-                else:
-                    cabecalho["dataLancamento_html"] = cabecalho.get("dataLancamento", "")
-                for key in ["valorunitariovenda", "valorDesconto", "valoracrescimo", "valorTotal"]:
-                    if key in cabecalho and isinstance(cabecalho[key], Decimal):
-                        cabecalho[key] = float(cabecalho[key])
-
-                pedidos_dict[numdoc] = {
-                    "cabecalho": cabecalho,
-                    "itens": [],
-                    "totalizadores": {"totalDesconto": 0, "totalAcrescimo": 0, "totalGeral": 0, "subtotal": 0.0},
-                }
-
-            preco = round(to_float(p._mapping.get("valorunitariovenda", 0)), 2)
-            quant = round(to_float(p._mapping.get("quantidade", 0)), 2)
-            desconto = round(to_float(p._mapping.get("valorDesconto", 0)), 2)
-            acresc = round(to_float(p._mapping.get("valoracrescimo", 0)), 2)
-            total = round(to_float(p._mapping.get("valorTotal", 0)), 2)
-
-            pedidos_dict[numdoc]["itens"].append({
-                "codigoproduto": p._mapping["codigoproduto"],
-                "descricaoproduto": p._mapping["descricaoproduto"],
-                "quantidade": quant,
-                "valorunitariovenda": preco,
-                "valorDesconto": desconto,
-                "valoracrescimo": acresc,
-                "valorTotal": total
-            })
-
-            tot = pedidos_dict[numdoc]["totalizadores"]
-            tot["subtotal"] += round(preco * quant, 2)
-            tot["totalDesconto"] += desconto
-            tot["totalAcrescimo"] += acresc
-            tot["totalGeral"] += total
-
-        relatorio = list(pedidos_dict.values())
-
-    # 🔹 Converte para JSON serializável
-    relatorio_serializavel = make_json_serializable(relatorio)
-
-    # 🔹 Cálculo de status_count
-    status_count = {"P": 0, "R": 0}
-    for pedido in relatorio_serializavel:
-        status_val = pedido.get("cabecalho", {}).get("status")
-        if status_val in status_count:
-            status_count[status_val] += 1
-
-    return templates.TemplateResponse(
-        "pedido/relatorio_pedido.html",
-        {
-            "request": request,
-            "relatorio": relatorio_serializavel,
-            "tipo": tipo,
-            "empresa_nome": nome_empresa,
-            "cliente": "",
-            "data_inicio": data_inicio,
-            "data_fim": data_fim,
-            "numerodocumento": "",
-            "agrupamento": "",
-            "status": status,
-            "cnpj": empresa_cnpj,
-            "telefone": telefone_empresa,
-            "token": token,
-            "status_count": status_count
-        }
-    )
-
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail=f"Erro ao consultar pedidos: {str(e)}"
+            )
 
 # ==========================================================================================|
 #                   RELATÓRIO -  GERAÇÃO DO PEDIDO DE VENDA                                 |

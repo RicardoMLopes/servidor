@@ -1,0 +1,80 @@
+<!-- Filtros -->
+<div class="card shadow-sm border-0 rounded-4 mb-4">
+    <div class="card-body p-4">
+        <form method="get" action="/cotacao/">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="cliente" class="form-label fw-semibold">
+                        <i class="bi bi-person me-1"></i>Cliente
+                    </label>
+                    <input type="text"
+                           id="cliente"
+                           name="cliente"
+                           class="form-control"
+                           value="{{ cliente or '' }}"
+                           placeholder="Código ou nome">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="vendedor" class="form-label fw-semibold">
+                        <i class="bi bi-person-badge me-1"></i>Vendedor
+                    </label>
+                    <input type="text"
+                           id="vendedor"
+                           name="vendedor"
+                           class="form-control"
+                           value="{{ vendedor or '' }}"
+                           placeholder="Código ou nome">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="item" class="form-label fw-semibold">
+                        <i class="bi bi-box-seam me-1"></i>Item
+                    </label>
+                    <input type="text"
+                           id="item"
+                           name="item"
+                           class="form-control"
+                           value="{{ item or '' }}"
+                           placeholder="Código ou descrição">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="data_inicio" class="form-label fw-semibold">
+                        <i class="bi bi-calendar-event me-1"></i>Data Lançamento Inicial
+                    </label>
+                    <input type="date"
+                           id="data_inicio"
+                           name="data_inicio"
+                           class="form-control"
+                           value="{{ data_inicio or '' }}">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="data_fim" class="form-label fw-semibold">
+                        <i class="bi bi-calendar-event me-1"></i>Data Lançamento Final
+                    </label>
+                    <input type="date"
+                           id="data_fim"
+                           name="data_fim"
+                           class="form-control"
+                           value="{{ data_fim or '' }}">
+                </div>
+
+                <div class="col-md-9">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="/cotacao/"
+                           class="btn btn-outline-secondary px-4">
+                            <i class="bi bi-x-circle me-1"></i>Limpar
+                        </a>
+
+                        <button type="submit"
+                                class="btn btn-primary px-4">
+                            <i class="bi bi-search me-1"></i>Pesquisar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

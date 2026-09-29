@@ -1,0 +1,52 @@
+{% set sem_marca_dagua = true %}
+{% extends "base.html" %}
+
+{% block title %}Cotações{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-gradient mb-1">
+                <i class="bi bi-file-earmark-text me-2"></i>Cotações
+            </h2>
+            <p class="text-muted small mb-0">
+                Consulte as cotações e transforme os itens em pedidos.
+            </p>
+        </div>
+        <a href="/novo-pedido/novo?tipodocumento=COTACAO"
+           class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Adicionar
+        </a>
+    </div>
+    <!-- Filtros da lista  -->
+    {% include 'cotacao/filtro_cotacao.html' %}
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1">Cotações cadastradas</h5>
+                    <small class="text-muted">
+                        {{ cotacoes|length }} cotação(ões) encontrada(s)
+                    </small>
+                </div>
+                <div class="input-group" style="max-width: 320px;">
+                    <span class="input-group-text bg-light border-end-0">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text"
+                           id="filtroCotacoes"
+                           class="form-control bg-light border-start-0"
+                           placeholder="Pesquisar...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela dos Itens Lançados -->
+      {% include 'cotacao/tabela_cotacao.html' %}
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{ url_for('static', path='js/movimento/listar_cotacao.js') }}?v=1"></script>
+{% endblock %}

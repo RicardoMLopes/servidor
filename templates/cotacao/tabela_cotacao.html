@@ -1,0 +1,210 @@
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="tabelaCotacoes">
+        <thead class="table-light">
+            <tr>
+                <th class="ps-4">Nº Cotação</th>
+                <th>Cliente</th>
+                <th>Produto</th>
+                <th class="text-center">Qtd. Cotada</th>
+                <th class="text-center">Qtd. Pedida</th>
+                <th class="text-center">Saldo</th>
+                <th class="text-end">Total</th>
+                <th class="text-center pe-4">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% set ultima_cotacao = namespace(numero=None) %}
+
+            {% for cotacao in cotacoes %}
+            <tr>
+                <td class="ps-4">
+                    {% if ultima_cotacao.numero != cotacao.numerodocumento %}
+                        <div class="fw-bold">#{{ cotacao.numerodocumento }}</div>
+                        <small class="text-muted">
+                            {% if cotacao.dataLancamento %}
+                                {{ cotacao.dataLancamento.strftime('%d/%m/%Y %H:%M') }}
+                            {% endif %}
+                        </small>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if ultima_cotacao.numero != cotacao.numerodocumento %}
+                        <div class="fw-semibold">
+                            {{ cotacao.nomecliente or "Cliente não informado" }}
+                        </div>
+                        {% if cotacao.codigocliente %}
+                        <small class="text-muted">
+                            Código: {{ cotacao.codigocliente }}
+                        </small>
+                        {% endif %}
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div class="fw-semibold">
+                        {{ cotacao.descricaoproduto or "Produto não informado" }}
+                    </div>
+                    <small class="text-muted">
+                        Código: {{ cotacao.codigoproduto }}
+                    </small>
+                </td>
+
+                <td class="text-center">
+                    {{ "%.2f"|format(cotacao.quantidade or 0) }}
+                </td>
+
+                <td class="text-center">
+                    <span class="badge rounded-pill bg-light text-dark border">
+                        {{ "%.2f"|format(cotacao.quantidade_pedida or 0) }}
+                    </span>
+                </td>
+
+                <td class="text-center">
+                    <span class="badge rounded-pill
+                        {% if (cotacao.quantidade_saldo or 0) > 0 %}
+                            bg-success
+                        {% else %}
+                            bg-secondary
+                        {% endif %}">
+                        {{ "%.2f"|format(cotacao.quantidade_saldo or 0) }}
+                    </span>
+                </td>
+
+                <td class="text-end fw-semibold">
+                    R$ {{ "%.2f"|format(cotacao.valorTotal or 0) }}
+                </td>
+
+                <td class="text-center pe-4">
+                    <div class="btn-group btn-group-sm">
+                        <a href="/novo-pedido/novo?tipodocumento=COTACAO&numerodocumento={{ cotacao.numerodocumento }}"
+                           class="btn btn-outline-primary"
+                           title="Editar cotação">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+
+                        <button type="button"
+                                class="btn btn-outline-success"
+                                title="Faturar todos"
+                                onclick="faturarTodos({{ cotacao.numerodocumento }})">
+                            <i class="bi bi-cart-check"></i>
+                        </button>
+
+                        {% if (cotacao.quantidade_saldo or 0) > 0 %}
+                        <button type="button"
+                                class="btn btn-outline-warning"
+                                title="Faturar item"
+                                onclick="faturarItem(
+                                    {{ cotacao.numerodocumento }},
+                                    {{ cotacao.seq }},
+                                    {{ cotacao.quantidade_saldo }}
+                                )">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+
+            {% set ultima_cotacao.numero = cotacao.numerodocumento %}
+
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center py-5">
+                    <div class="text-muted">
+                        <i class="bi bi-file-earmark-x fs-1 d-block mb-3"></i>
+                        <h6 class="fw-bold">Nenhuma cotação encontrada</h6>
+                        <p class="small mb-3">
+                            Ainda não existem cotações cadastradas.
+                        </p>
+                        <a href="/novo-pedido/novo?tipodocumento=COTACAO"
+                           class="btn btn-primary btn-sm rounded-pill px-4">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Nova Cotação
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if total_registros is defined and total_registros > 0 %}
+<div class="d-flex justify-content-between align-items-center
+            px-4 py-3 border-top bg-white">
+
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted small">Exibir</span>
+
+        <select class="form-select form-select-sm"
+                style="width: 80px;"
+                onchange="alterarQuantidadePagina(this.value)">
+            {% for quantidade in [10, 20, 50, 100] %}
+                <option value="{{ quantidade }}"
+                        {% if por_pagina == quantidade %}selected{% endif %}>
+                    {{ quantidade }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <span class="text-muted small">registros</span>
+    </div>
+
+    <div class="text-muted small">
+        Mostrando
+        <strong>{{ registro_inicio }}</strong>
+        a
+        <strong>{{ registro_fim }}</strong>
+        de
+        <strong>{{ total_registros }}</strong>
+        registro(s)
+    </div>
+
+    {% if total_paginas > 1 %}
+    <nav aria-label="Paginação das cotações">
+        <ul class="pagination pagination-sm mb-0">
+
+            <li class="page-item {% if pagina <= 1 %}disabled{% endif %}">
+                <a class="page-link"
+                   href="{{ url_paginacao(pagina - 1) }}">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+
+            {% for numero in paginas %}
+                {% if numero == '...' %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% else %}
+                <li class="page-item {% if numero == pagina %}active{% endif %}">
+                    <a class="page-link"
+                       href="{{ url_paginacao(numero) }}">
+                        {{ numero }}
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if pagina >= total_paginas %}disabled{% endif %}">
+                <a class="page-link"
+                   href="{{ url_paginacao(pagina + 1) }}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+function alterarQuantidadePagina(quantidade) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("por_pagina", quantidade);
+    url.searchParams.set("pagina", "1");
+    window.location.href = url.toString();
+}
+</script>

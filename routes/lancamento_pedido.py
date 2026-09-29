@@ -15,6 +15,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import Query, HTTPException
 from sqlalchemy.sql import text
+
 mov_pedido_router = APIRouter()
 
 templates = Jinja2Templates(directory="templates")
@@ -27,20 +28,58 @@ except ImportError:
 
 
 @mov_pedido_router.get("/novo", response_class=HTMLResponse)
-async def tela_novo_pedido(request: Request, token: Optional[str] = Query(None),
-                           numerodocumento: Optional[int] = Query(None)):
-    if not token:
-        raise HTTPException(status_code=400, detail="Token da empresa não fornecido.")
+async def tela_novo_pedido(
+    request: Request,
+    numerodocumento: Optional[int] = Query(None),
+    tipodocumento: Optional[str] = Query("COTACAO")
+):
+    print("\n" + "=" * 80)
+    print("🚀 [NOVO PEDIDO] INÍCIO DA ROTA /novo")
+    print(f"📥 [NOVO PEDIDO] numerodocumento recebido: {numerodocumento}")
+    print(f"📥 [NOVO PEDIDO] tipodocumento recebido: {tipodocumento}")
+    print(f"🌐 [NOVO PEDIDO] URL completa: {request.url}")
+    print("=" * 80)
 
-    nome_banco = get_nome_banco_por_token(token)
+    empresa_token = request.cookies.get("empresa_token")
+    empresa_cnpj = request.cookies.get("empresa_cnpj")
+    usuario_id = request.cookies.get("usuario_id")
+
+    print("🍪 [NOVO PEDIDO] Cookies:")
+    print(f"   empresa_token: {'SIM' if empresa_token else 'NÃO'}")
+    print(f"   empresa_cnpj: {empresa_cnpj}")
+    print(f"   usuario_id: {usuario_id}")
+
+    tipodocumento = str(tipodocumento or "COTACAO").strip().upper()
+
+    if tipodocumento not in ("COTACAO", "PEDIDO"):
+        print(
+            f"⚠️ [NOVO PEDIDO] Tipo inválido recebido. "
+            f"Alterando para COTACAO: {tipodocumento}"
+        )
+        tipodocumento = "COTACAO"
+
+    print(f"📄 [NOVO PEDIDO] Tipo final: {tipodocumento}")
+
+    if not empresa_token or not empresa_cnpj or not usuario_id:
+        print("❌ [NOVO PEDIDO] Sessão inválida. Redirecionando login.")
+        return RedirectResponse("/login-usuario", status_code=303)
+
+    nome_banco = get_nome_banco_por_token(empresa_token)
+
+    print(f"🏢 [NOVO PEDIDO] Banco encontrado: {nome_banco}")
+
     if not nome_banco:
-        raise HTTPException(status_code=403, detail="Token inválido ou empresa não encontrada")
+        print("❌ [NOVO PEDIDO] Empresa não encontrada pelo token.")
+        raise HTTPException(
+            status_code=403,
+            detail="Empresa não encontrada."
+        )
 
     session_empresa = get_empresa_session(nome_banco)
 
-    codigo_vendedor = "001"
+    codigo_vendedor = ""
     nome_vendedor = ""
-    codigo_empresa = 1
+    codigo_empresa = 0
     codigo_cliente_padrao = ""
     nome_cliente_padrao = "Nenhum cliente selecionado"
     doc_cliente_padrao = "—"
@@ -49,173 +88,479 @@ async def tela_novo_pedido(request: Request, token: Optional[str] = Query(None),
 
     pedido_existente = None
     itens_pedido = []
-    totais_pedido = {"bruto": 0, "desconto": 0, "acrescimo": 0, "liquido": 0}
+
+    totais_pedido = {
+        "bruto": 0,
+        "desconto": 0,
+        "acrescimo": 0,
+        "liquido": 0
+    }
 
     with session_empresa as db:
-        usuario_logado = getattr(request.state, "user", None) or "admin"
 
-        # 1. Busca o vendedor do usuário logado ou o padrão do parâmetro
+        # 1. Usuário logado
         user_query = db.execute(
-            text("SELECT codigovendedor, empresa FROM cadusers WHERE usuario = :usuario AND situacaoregistro <> 'E'"),
-            {"usuario": usuario_logado}
+            text("""
+                SELECT
+                    codigovendedor,
+                    empresa,
+                    usuario
+                FROM cadusers
+                WHERE id = :usuario_id
+                  AND situacaoregistro <> 'E'
+                LIMIT 1
+            """),
+            {"usuario_id": usuario_id}
         ).fetchone()
 
-        if user_query and user_query._mapping.get("codigovendedor"):
-            codigo_vendedor = str(user_query._mapping["codigovendedor"]).strip()
-            if user_query._mapping.get("empresa"):
-                codigo_empresa = int(user_query._mapping["empresa"])
+        if not user_query:
+            print(
+                f"❌ [NOVO PEDIDO] Usuário não encontrado: "
+                f"{usuario_id}"
+            )
+            return RedirectResponse("/login-usuario", status_code=303)
 
-        # 2. Busca os dados da tabela cadparametro
+        user = user_query._mapping
+
+        print("👤 [NOVO PEDIDO] Usuário encontrado:")
+        print(f"   usuario: {user.get('usuario')}")
+        print(f"   empresa: {user.get('empresa')}")
+        print(f"   vendedor: {user.get('codigovendedor')}")
+
+        if user.get("empresa"):
+            codigo_empresa = int(user["empresa"])
+
+        if user.get("codigovendedor"):
+            codigo_vendedor = str(
+                user["codigovendedor"]
+            ).strip()
+
+        print(
+            f"🏢 [NOVO PEDIDO] Empresa definida pelo usuário: "
+            f"{codigo_empresa}"
+        )
+
+        print(
+            f"👨‍💼 [NOVO PEDIDO] Vendedor inicial: "
+            f"{codigo_vendedor or '(vazio)'}"
+        )
+
+        # 2. Parâmetros da empresa
         param_query = db.execute(
-            text("SELECT vendedorpadrao, clientepadrao, condicaopagamentopadrao, empresa FROM cadparametro LIMIT 1")
+            text("""
+                SELECT
+                    vendedorpadrao,
+                    clientepadrao,
+                    condicaopagamentopadrao,
+                    empresa
+                FROM cadparametro
+                WHERE empresa = :empresa
+                LIMIT 1
+            """),
+            {
+                "empresa": codigo_empresa
+            }
         ).fetchone()
 
         if param_query:
-            if not codigo_vendedor and param_query._mapping.get("vendedorpadrao"):
-                codigo_vendedor = str(param_query._mapping["vendedorpadrao"]).strip()
+            param = param_query._mapping
 
-            if param_query._mapping.get("empresa"):
-                codigo_empresa = int(param_query._mapping["empresa"])
+            print("⚙️ [NOVO PEDIDO] Parâmetros encontrados:")
+            print(f"   empresa: {param.get('empresa')}")
+            print(f"   vendedor padrão: {param.get('vendedorpadrao')}")
+            print(f"   cliente padrão: {param.get('clientepadrao')}")
+            print(
+                "   condição padrão: "
+                f"{param.get('condicaopagamentopadrao')}"
+            )
 
-            if param_query._mapping.get("condicaopagamentopadrao"):
-                codigo_cond_pagamento_padrao = str(param_query._mapping["condicaopagamentopadrao"]).strip()
+            if (
+                not codigo_vendedor
+                and param.get("vendedorpadrao")
+            ):
+                codigo_vendedor = str(
+                    param["vendedorpadrao"]
+                ).strip()
 
-            cod_cliente_param = param_query._mapping.get("clientepadrao")
+            if param.get("condicaopagamentopadrao"):
+                codigo_cond_pagamento_padrao = str(
+                    param["condicaopagamentopadrao"]
+                ).strip()
+
+            cod_cliente_param = param.get("clientepadrao")
+
             if cod_cliente_param:
                 cliente_query = db.execute(
-                    text(
-                        "SELECT codigo, nome, cpfcnpj FROM cadcliente WHERE codigo = :codigo AND situacaoregistro <> 'E' LIMIT 1"),
-                    {"codigo": str(cod_cliente_param).strip()}
+                    text("""
+                        SELECT
+                            codigo,
+                            nome,
+                            cpfcnpj
+                        FROM cadcliente
+                        WHERE codigo = :codigo
+                          AND situacaoregistro <> 'E'
+                        LIMIT 1
+                    """),
+                    {
+                        "codigo": str(
+                            cod_cliente_param
+                        ).strip()
+                    }
                 ).fetchone()
 
                 if cliente_query:
-                    codigo_cliente_padrao = str(cliente_query._mapping.get("codigo", "")).strip()
-                    nome_cliente_padrao = str(cliente_query._mapping.get("nome", "Cliente Sem Nome")).strip()
-                    doc_cliente_padrao = str(cliente_query._mapping.get("cpfcnpj", "—")).strip()
+                    cliente = cliente_query._mapping
 
-        # 3. SE FOI PASSADO UM NÚMERO DE DOCUMENTO (Modo Alteração/Edição), CARREGA O MOVIMENTO DO BANCO
-        if numerodocumento:
-            nota_query = db.execute(
+                    codigo_cliente_padrao = str(
+                        cliente.get("codigo", "")
+                    ).strip()
+
+                    nome_cliente_padrao = str(
+                        cliente.get(
+                            "nome",
+                            "Cliente Sem Nome"
+                        )
+                    ).strip()
+
+                    doc_cliente_padrao = str(
+                        cliente.get(
+                            "cpfcnpj",
+                            "—"
+                        )
+                    ).strip()
+
+                    print("👤 [NOVO PEDIDO] Cliente padrão encontrado:")
+                    print(
+                        f"   código: {codigo_cliente_padrao}"
+                    )
+                    print(
+                        f"   nome: {nome_cliente_padrao}"
+                    )
+                else:
+                    print(
+                        "⚠️ [NOVO PEDIDO] Cliente padrão "
+                        f"não encontrado: {cod_cliente_param}"
+                    )
+        else:
+            print(
+                "⚠️ [NOVO PEDIDO] Nenhum registro encontrado "
+                f"em cadparametro para empresa {codigo_empresa}"
+            )
+
+        # 3. Novo documento
+        if not numerodocumento:
+            print(
+                "🆕 [NOVO PEDIDO] Nenhum número recebido. "
+                "Calculando próximo número..."
+            )
+
+            numero_query = db.execute(
                 text("""
-                     SELECT n.empresa,
-                            n.numerodocumento,
-                            n.codigocliente,
-                            c.nome    AS nomecliente,
-                            c.cpfcnpj AS doccliente,
-                            n.codigovendedor,
-                            n.codigocondPagamento,
-                            n.valorTotal
-                     FROM movnota n
-                              LEFT JOIN cadcliente c ON c.codigo = n.codigocliente AND c.situacaoregistro <> 'E'
-                     WHERE n.empresa = :empresa
-                       AND n.numerodocumento = :numerodocumento LIMIT 1
-                     """),
-                {"empresa": codigo_empresa, "numerodocumento": numerodocumento}
+                    SELECT COALESCE(
+                        MAX(numerodocumento),
+                        0
+                    ) + 1 AS proximo_numero
+                    FROM movnota
+                    WHERE empresa = :empresa
+                """),
+                {
+                    "empresa": codigo_empresa
+                }
             ).fetchone()
 
-            if nota_query:
-                m = nota_query._mapping
-                pedido_existente = m["numerodocumento"]
-                codigo_cliente_padrao = str(m["codigocliente"] or "").strip()
-                nome_cliente_padrao = str(m["nomecliente"] or "Cliente Sem Nome").strip()
-                doc_cliente_padrao = str(m["doccliente"] or "—").strip()
+            if numero_query:
+                numerodocumento = int(
+                    numero_query._mapping[
+                        "proximo_numero"
+                    ] or 1
+                )
+            else:
+                numerodocumento = 1
 
-                # 📌 Pega os códigos gravados no movimento
-                codigo_vendedor = str(m["codigovendedor"] or codigo_vendedor).strip()
-                codigo_cond_pagamento_padrao = str(m["codigocondPagamento"] or codigo_cond_pagamento_padrao).strip()
+            print(
+                f"🔢 [NOVO PEDIDO] Próximo número calculado: "
+                f"{numerodocumento}"
+            )
+        else:
+            print(
+                f"📌 [NOVO PEDIDO] Número recebido pela URL: "
+                f"{numerodocumento}"
+            )
 
-                # Busca os itens do pedido
-                itens_query = db.execute(
-                    text("""
-                         SELECT codigoproduto,
-                                descricaoproduto,
-                                quantidade,
-                                valorUnitario,
-                                valorunitariovenda,
-                                valorDesconto,
-                                valoracrescimo,
-                                valorTotal
-                         FROM movnotaitem
-                         WHERE empresa = :empresa
-                           AND numerodocumento = :numerodocumento
-                           AND situacaoregistro <> 'E'
-                         """),
-                    {"empresa": codigo_empresa, "numerodocumento": numerodocumento}
-                ).fetchall()
+        # 4. Verifica se esse número já existe
+        print(
+            "🔎 [NOVO PEDIDO] Verificando existência do documento:"
+        )
+        print(f"   empresa: {codigo_empresa}")
+        print(f"   número: {numerodocumento}")
+        print(f"   tipo solicitado: {tipodocumento}")
 
-                t_bruto = 0
-                t_desconto = 0
-                t_acrescimo = 0
-                t_liquido = 0
+        nota_query = db.execute(
+            text("""
+                SELECT
+                    n.id,
+                    n.empresa,
+                    n.numerodocumento,
+                    n.codigocliente,
+                    c.nome AS nomecliente,
+                    c.cpfcnpj AS doccliente,
+                    n.codigovendedor,
+                    n.codigocondPagamento,
+                    n.valorTotal
+                FROM movnota n
+                LEFT JOIN cadcliente c
+                    ON c.codigo = n.codigocliente
+                   AND c.situacaoregistro <> 'E'
+                WHERE n.empresa = :empresa
+                  AND n.numerodocumento = :numerodocumento
+                  AND n.situacaoregistro <> 'E'
+                LIMIT 1
+            """),
+            {
+                "empresa": codigo_empresa,
+                "numerodocumento": numerodocumento
+            }
+        ).fetchone()
 
-                for item in itens_query:
-                    im = item._mapping
-                    qtd = float(im["quantidade"] or 0)
-                    v_unit = float(im["valorUnitario"] or 0)
-                    v_desc = float(im["valorDesconto"] or 0)
-                    v_acres = float(im["valoracrescimo"] or 0)
-                    v_tot = float(im["valorTotal"] or 0)
+        if nota_query:
+            m = nota_query._mapping
 
-                    t_bruto += (qtd * v_unit)
-                    t_desconto += v_desc
-                    t_acrescimo += v_acres
-                    t_liquido += v_tot
+            print("🚨 [NOVO PEDIDO] DOCUMENTO JÁ EXISTE!")
+            print(f"   id: {m['id']}")
+            print(f"   número: {m['numerodocumento']}")
+            print(f"   cliente: {m['codigocliente']}")
+            print(f"   vendedor: {m['codigovendedor']}")
 
-                    itens_pedido.append({
-                        "codigoproduto": im["codigoproduto"],
-                        "descricaoproduto": im["descricaoproduto"],
-                        "quantidade": qtd,
-                        "valorUnitario": v_unit,
-                        "valorDesconto": v_desc,
-                        "valoracrescimo": v_acres,
-                        "valorTotal": v_tot
-                    })
+            pedido_existente = m["numerodocumento"]
 
-                totais_pedido = {
-                    "bruto": t_bruto,
-                    "desconto": t_desconto,
-                    "acrescimo": t_acrescimo,
-                    "liquido": t_liquido
+            codigo_cliente_padrao = str(
+                m["codigocliente"] or ""
+            ).strip()
+
+            nome_cliente_padrao = str(
+                m["nomecliente"] or "Cliente Sem Nome"
+            ).strip()
+
+            doc_cliente_padrao = str(
+                m["doccliente"] or "—"
+            ).strip()
+
+            codigo_vendedor = str(
+                m["codigovendedor"] or codigo_vendedor
+            ).strip()
+
+            codigo_cond_pagamento_padrao = str(
+                m["codigocondPagamento"]
+                or codigo_cond_pagamento_padrao
+            ).strip()
+
+            itens_query = db.execute(
+                text("""
+                    SELECT
+                        tipodocumento,
+                        codigoproduto,
+                        descricaoproduto,
+                        quantidade,
+                        quantidade_pedida,
+                        valorUnitario,
+                        valorunitariovenda,
+                        valorDesconto,
+                        valoracrescimo,
+                        valorTotal
+                    FROM movnotaitem
+                    WHERE empresa = :empresa
+                      AND numerodocumento = :numerodocumento
+                      AND situacaoregistro <> 'E'
+                      AND tipodocumento = :tipodocumento
+                    ORDER BY seq
+                """),
+                {
+                    "empresa": codigo_empresa,
+                    "numerodocumento": numerodocumento,
+                    "tipodocumento": tipodocumento
                 }
+            ).fetchall()
 
-        # 🔹 4. BUSCA OS NOMES NOS CADASTROS A PARTIR DOS CÓDIGOS DEFINIDOS (Seja via movimento ou padrão)
+            print(
+                f"📦 [NOVO PEDIDO] Itens encontrados: "
+                f"{len(itens_query)}"
+            )
 
-        # 4.1 Busca Nome do Vendedor no CADASTRO
+            t_bruto = 0
+            t_desconto = 0
+            t_acrescimo = 0
+            t_liquido = 0
+
+            for item in itens_query:
+                im = item._mapping
+
+                qtd_original = float(
+                    im["quantidade"] or 0
+                )
+
+                qtd_pedida = float(
+                    im["quantidade_pedida"] or 0
+                )
+
+                v_unit = float(
+                    im["valorUnitario"] or 0
+                )
+
+                v_unit_venda = float(
+                    im["valorunitariovenda"] or 0
+                )
+
+                v_desc_original = float(
+                    im["valorDesconto"] or 0
+                )
+
+                v_acres_original = float(
+                    im["valoracrescimo"] or 0
+                )
+
+                if tipodocumento == "PEDIDO":
+                    qtd = qtd_pedida
+
+                    if qtd_original > 0:
+                        fator = qtd_pedida / qtd_original
+                    else:
+                        fator = 0
+
+                    v_desc = round(
+                        v_desc_original * fator,
+                        2
+                    )
+
+                    v_acres = round(
+                        v_acres_original * fator,
+                        2
+                    )
+                else:
+                    qtd = qtd_original
+                    v_desc = v_desc_original
+                    v_acres = v_acres_original
+
+                subtotal = round(
+                    v_unit_venda * qtd,
+                    2
+                )
+
+                v_tot = round(
+                    subtotal - v_desc + v_acres,
+                    2
+                )
+
+                t_bruto += subtotal
+                t_desconto += v_desc
+                t_acrescimo += v_acres
+                t_liquido += v_tot
+
+                itens_pedido.append({
+                    "codigoproduto": im["codigoproduto"],
+                    "descricaoproduto": im["descricaoproduto"],
+                    "quantidade": qtd,
+                    "quantidade_original": qtd_original,
+                    "quantidade_pedida": qtd_pedida,
+                    "tipodocumento": tipodocumento,
+                    "valorUnitario": v_unit,
+                    "valorunitariovenda": v_unit_venda,
+                    "valorDesconto": v_desc,
+                    "valoracrescimo": v_acres,
+                    "valorTotal": v_tot
+                })
+
+            totais_pedido = {
+                "bruto": t_bruto,
+                "desconto": t_desconto,
+                "acrescimo": t_acrescimo,
+                "liquido": t_liquido
+            }
+
+        else:
+            print(
+                "✅ [NOVO PEDIDO] DOCUMENTO NÃO EXISTE. "
+                "Será tratado como NOVO."
+            )
+            print(
+                f"   novo número disponível: {numerodocumento}"
+            )
+
+        # 5. Busca nome do vendedor
         if codigo_vendedor:
             vend_cad = db.execute(
-                text(
-                    "SELECT nome FROM cadvendedor WHERE TRIM(codigo) = :codigo AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
-                {"codigo": codigo_vendedor, "empresa": codigo_empresa}
+                text("""
+                    SELECT nome
+                    FROM cadvendedor
+                    WHERE TRIM(codigo) = :codigo
+                      AND empresa = :empresa
+                      AND situacaoregistro <> 'E'
+                    LIMIT 1
+                """),
+                {
+                    "codigo": codigo_vendedor,
+                    "empresa": codigo_empresa
+                }
             ).fetchone()
+
             if vend_cad and vend_cad._mapping.get("nome"):
                 nome_vendedor = vend_cad._mapping["nome"]
 
-        # 4.2 Busca Nome da Condição de Pagamento no CADASTRO
+        # 6. Busca descrição da condição de pagamento
         if codigo_cond_pagamento_padrao:
             cond_cad = db.execute(
-                text(
-                    "SELECT descricao FROM cadcondicaopagamento WHERE TRIM(codigo) = :codigo AND situacaoregistro <> 'E' LIMIT 1"),
-                {"codigo": codigo_cond_pagamento_padrao}
+                text("""
+                    SELECT descricao
+                    FROM cadcondicaopagamento
+                    WHERE TRIM(codigo) = :codigo
+                      AND situacaoregistro <> 'E'
+                    LIMIT 1
+                """),
+                {
+                    "codigo": codigo_cond_pagamento_padrao
+                }
             ).fetchone()
+
             if cond_cad and cond_cad._mapping.get("descricao"):
-                nome_cond_pagamento_padrao = cond_cad._mapping["descricao"]
+                nome_cond_pagamento_padrao = (
+                    cond_cad._mapping["descricao"]
+                )
+
+    print("\n📤 [NOVO PEDIDO] DADOS ENVIADOS AO TEMPLATE:")
+    print(f"   numerodocumento: {numerodocumento}")
+    print(f"   pedido_existente: {pedido_existente}")
+    print(f"   tipodocumento: {tipodocumento}")
+    print(f"   empresa: {codigo_empresa}")
+    print(f"   vendedor: {codigo_vendedor}")
+    print(f"   cliente: {codigo_cliente_padrao}")
+    print(
+        f"   condição pagamento: "
+        f"{codigo_cond_pagamento_padrao}"
+    )
+    print(f"   quantidade de itens: {len(itens_pedido)}")
+    print("=" * 80 + "\n")
 
     return templates.TemplateResponse(
         "pedido/movimento/lancamento_pedido.html",
         {
             "request": request,
-            "token": token,
+            "token": empresa_token,
             "codigo_vendedor": codigo_vendedor,
-            "nome_vendedor": nome_vendedor,  # 👈 Passando o Nome do Vendedor
+            "nome_vendedor": nome_vendedor,
             "empresa": codigo_empresa,
             "codigo_cliente_padrao": codigo_cliente_padrao,
             "nome_cliente_padrao": nome_cliente_padrao,
             "doc_cliente_padrao": doc_cliente_padrao,
-            "codigo_cond_pagamento_padrao": codigo_cond_pagamento_padrao,
-            "nome_cond_pagamento_padrao": nome_cond_pagamento_padrao,  # 👈 Passando o Nome da Condição
+            "codigo_cond_pagamento_padrao": (
+                codigo_cond_pagamento_padrao
+            ),
+            "nome_cond_pagamento_padrao": (
+                nome_cond_pagamento_padrao
+            ),
             "pedido_existente": pedido_existente,
+            "numerodocumento": numerodocumento,
             "itens_pedido": itens_pedido,
-            "totais_pedido": totais_pedido
+            "totais_pedido": totais_pedido,
+            "tipodocumento": tipodocumento
         }
     )
 
@@ -433,7 +778,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             codigocondPagamento = dados.get("codigocondPagamento")
             idpedido = dados.get("idpedido")
 
-            # 🔹 BLOCO DE VALIDAÇÃO: Bloqueia se o cliente for nulo ou string vazia
+            # 🔹 BLOCO DE VALIDAÇÃO
             if not codigocliente or str(codigocliente).strip() == "":
                 raise HTTPException(
                     status_code=400,
@@ -441,222 +786,629 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 )
 
             item = dados.get("item", {})
+
+            tipodocumento = str(dados.get("tipodocumento") or "COTACAO").strip().upper()
+
+            if tipodocumento not in ("COTACAO", "PEDIDO"):
+                tipodocumento = "COTACAO"
+
             quantidade = float(item.get("quantidade", 0))
+
+            quantidade_pedida = (quantidade if tipodocumento == "PEDIDO"  else 0)
+
             valor_unitario = float(item.get("valorUnitario", 0))
 
-            # 🔹 PREÇO BASE ORIGINAL (cadproduto): Garante a conversão para float e fallback se necessário
+            # 🔹 PREÇO BASE ORIGINAL
             valor_unitario_venda = float(item.get("valorunitariovenda") or valor_unitario)
 
             valor_desconto = float(item.get("valorDesconto", 0))
             valor_acrescimo = float(item.get("valoracrescimo", 0))
-            valor_bruto_item = quantidade * valor_unitario
+            valor_bruto_item = (quantidade * valor_unitario)
 
             try:
-                data_atual = datetime.now(ZoneInfo("America/Sao_Paulo"))
+                data_atual = datetime.now( ZoneInfo("America/Sao_Paulo"))
             except Exception:
                 data_atual = datetime.now()
             data_formatada = data_atual.strftime("%Y-%m-%d %H:%M:%S")
 
-            # 📌 1. VERIFICA SE O MOVIMENTO (MOVNOTA) JÁ EXISTE NO BANCO
+            # ============================================================
+            # 1. VERIFICA SE O MOVIMENTO (MOVNOTA) JÁ EXISTE
+            # ============================================================
+
             resultado_nota = None
+
             if numerodocumento:
                 sql_busca_nota = text("""
-                    SELECT valorTotal, codigovendedor, codigocondPagamento, codigocliente
+                    SELECT
+                        id,
+                        valorTotal,
+                        codigovendedor,
+                        codigocondPagamento,
+                        codigocliente
                     FROM movnota
-                    WHERE empresa = :empresa AND numerodocumento = :numerodocumento LIMIT 1
+                    WHERE empresa = :empresa
+                      AND numerodocumento = :numerodocumento
+                    LIMIT 1
                 """)
-                resultado_nota = db.execute(sql_busca_nota, {
-                    "empresa": empresa,
-                    "numerodocumento": numerodocumento
-                }).mappings().fetchone()
 
-            # 📌 2. REGRAS DE DEFESA/PREENCHIMENTO DE CÓDIGOS
+                resultado_nota = db.execute(
+                    sql_busca_nota,
+                    {
+                        "empresa": empresa,
+                        "numerodocumento": numerodocumento
+                    }
+                ).mappings().fetchone()
+
+            # ============================================================
+            # 2. REGRAS DE DEFESA/PREENCHIMENTO DE CÓDIGOS
+            # ============================================================
+
             if resultado_nota:
-                if not codigovendedor or str(codigovendedor).strip() == "":
-                    codigovendedor = resultado_nota["codigovendedor"]
-                if not codigocondPagamento or str(codigocondPagamento).strip() == "":
-                    codigocondPagamento = resultado_nota["codigocondPagamento"]
+                if (
+                    not codigovendedor or
+                    str(codigovendedor).strip() == ""
+                ):
+                    codigovendedor = (
+                        resultado_nota["codigovendedor"]
+                    )
+
+                if (
+                    not codigocondPagamento or
+                    str(codigocondPagamento).strip() == ""
+                ):
+                    codigocondPagamento = (
+                        resultado_nota["codigocondPagamento"]
+                    )
+
             else:
-                if not codigocondPagamento or str(codigocondPagamento).strip() == "":
+                if (
+                    not codigocondPagamento or
+                    str(codigocondPagamento).strip() == ""
+                ):
                     param_query = db.execute(
-                        text("SELECT condicaopagamentopadrao FROM cadparametro LIMIT 1")
+                        text("""
+                            SELECT condicaopagamentopadrao
+                            FROM cadparametro
+                            LIMIT 1
+                        """)
                     ).fetchone()
-                    if param_query and param_query._mapping.get("condicaopagamentopadrao"):
-                        codigocondPagamento = str(param_query._mapping["condicaopagamentopadrao"]).strip()
 
-            # 📌 3. BUSCA OS NOMES NO CADASTRO USANDO OS CÓDIGOS DEFINIDOS
+                    if (
+                        param_query and
+                        param_query._mapping.get(
+                            "condicaopagamentopadrao"
+                        )
+                    ):
+                        codigocondPagamento = str(
+                            param_query._mapping[
+                                "condicaopagamentopadrao"
+                            ]
+                        ).strip()
 
-            # 3.1 Busca Nome do Cliente
-            nome_cliente = dados.get("nomecliente", "")
+            # ============================================================
+            # 3. BUSCA OS NOMES NO CADASTRO
+            # ============================================================
+
+            # 3.1 Nome do Cliente
+            nome_cliente = dados.get(
+                "nomecliente",
+                ""
+            )
+
             if codigocliente:
                 cli_query = db.execute(
-                    text("SELECT nome FROM cadcliente WHERE codigo = :codigo AND situacaoregistro <> 'E' LIMIT 1"),
-                    {"codigo": str(codigocliente).strip()}
+                    text("""
+                        SELECT nome
+                        FROM cadcliente
+                        WHERE codigo = :codigo
+                          AND situacaoregistro <> 'E'
+                        LIMIT 1
+                    """),
+                    {
+                        "codigo": str(
+                            codigocliente
+                        ).strip()
+                    }
                 ).fetchone()
-                if cli_query and cli_query._mapping.get("nome"):
-                    nome_cliente = cli_query._mapping["nome"]
 
-            # 3.2 Busca Nome do Vendedor
-            nome_vendedor = dados.get("nomevendedor", "")
-            if codigovendedor and str(codigovendedor).strip() != "":
-                cod_v_clean = str(codigovendedor).strip()
+                if (
+                    cli_query and
+                    cli_query._mapping.get("nome")
+                ):
+                    nome_cliente = (
+                        cli_query._mapping["nome"]
+                    )
+
+            # 3.2 Nome do Vendedor
+            nome_vendedor = dados.get(
+                "nomevendedor",
+                ""
+            )
+
+            if (
+                codigovendedor and
+                str(codigovendedor).strip() != ""
+            ):
+                cod_v_clean = str(
+                    codigovendedor
+                ).strip()
+
                 vend_query = db.execute(
-                    text("SELECT nome FROM cadvendedor WHERE TRIM(codigo) = :codigo AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
-                    {"codigo": cod_v_clean, "empresa": empresa}
+                    text("""
+                        SELECT nome
+                        FROM cadvendedor
+                        WHERE TRIM(codigo) = :codigo
+                          AND empresa = :empresa
+                          AND situacaoregistro <> 'E'
+                        LIMIT 1
+                    """),
+                    {
+                        "codigo": cod_v_clean,
+                        "empresa": empresa
+                    }
                 ).fetchone()
-                if vend_query and vend_query._mapping.get("nome"):
-                    nome_vendedor = vend_query._mapping["nome"]
 
-            # 3.3 Busca Nome da Condição de Pagamento
-            nome_cond_pagamento = dados.get("nomecondPagamento", "")
-            if codigocondPagamento and str(codigocondPagamento).strip() != "":
-                cod_c_clean = str(codigocondPagamento).strip()
+                if (
+                    vend_query and
+                    vend_query._mapping.get("nome")
+                ):
+                    nome_vendedor = (
+                        vend_query._mapping["nome"]
+                    )
+
+            # 3.3 Nome da Condição de Pagamento
+            nome_cond_pagamento = dados.get(
+                "nomecondPagamento",
+                ""
+            )
+
+            if (
+                codigocondPagamento and
+                str(codigocondPagamento).strip() != ""
+            ):
+                cod_c_clean = str(
+                    codigocondPagamento
+                ).strip()
+
                 cond_query = db.execute(
-                    text("SELECT descricao FROM cadcondicaopagamento WHERE TRIM(codigo) = :codigo AND situacaoregistro <> 'E' LIMIT 1"),
-                    {"codigo": cod_c_clean}
+                    text("""
+                        SELECT descricao
+                        FROM cadcondicaopagamento
+                        WHERE TRIM(codigo) = :codigo
+                          AND situacaoregistro <> 'E'
+                        LIMIT 1
+                    """),
+                    {
+                        "codigo": cod_c_clean
+                    }
                 ).fetchone()
-                if cond_query and cond_query._mapping.get("descricao"):
-                    nome_cond_pagamento = cond_query._mapping["descricao"]
 
-            # 📌 4. SE NÃO VEIO NUMERODOCUMENTO, GERA O PRÓXIMO
+                if (
+                    cond_query and
+                    cond_query._mapping.get("descricao")
+                ):
+                    nome_cond_pagamento = (
+                        cond_query._mapping["descricao"]
+                    )
+
+            # ============================================================
+            # 4. SE NÃO VEIO NUMERODOCUMENTO, GERA O PRÓXIMO
+            # ============================================================
+
             if not numerodocumento:
                 result_prox = db.execute(
-                    text("SELECT COALESCE(MAX(numerodocumento),0)+1 AS prox FROM movnota WHERE empresa=:empresa"),
-                    {"empresa": empresa}
+                    text("""
+                        SELECT
+                            COALESCE(
+                                MAX(numerodocumento),
+                                0
+                            ) + 1 AS prox
+                        FROM movnota
+                        WHERE empresa = :empresa
+                    """),
+                    {
+                        "empresa": empresa
+                    }
                 ).mappings().fetchone()
-                numerodocumento = result_prox["prox"] if result_prox else 1
+
+                numerodocumento = (
+                    result_prox["prox"]
+                    if result_prox
+                    else 1
+                )
 
             if not idpedido:
                 idpedido = numerodocumento
 
-            # 📌 5. VALIDAÇÃO DE LIMITE DE DESCONTO
+            # ============================================================
+            # 5. VALIDAÇÃO DE LIMITE DE DESCONTO
+            # ============================================================
+
             vendedor_query = db.execute(
-                text("SELECT limitedesconto FROM cadvendedor WHERE codigo = :vendedor AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
-                {"vendedor": codigovendedor, "empresa": empresa}
+                text("""
+                    SELECT limitedesconto
+                    FROM cadvendedor
+                    WHERE codigo = :vendedor
+                      AND empresa = :empresa
+                      AND situacaoregistro <> 'E'
+                    LIMIT 1
+                """),
+                {
+                    "vendedor": codigovendedor,
+                    "empresa": empresa
+                }
             ).fetchone()
-            limite_vendedor = float(vendedor_query._mapping["limitedesconto"] or 0) if vendedor_query and vendedor_query._mapping.get("limitedesconto") is not None else None
+
+            limite_vendedor = (
+                float(
+                    vendedor_query._mapping[
+                        "limitedesconto"
+                    ] or 0
+                )
+                if (
+                    vendedor_query and
+                    vendedor_query._mapping.get(
+                        "limitedesconto"
+                    ) is not None
+                )
+                else None
+            )
 
             produto_query = db.execute(
-                text("SELECT percentualDesconto FROM cadproduto WHERE codigo = :produto AND empresa = :empresa AND situacaoregistro <> 'E' LIMIT 1"),
-                {"produto": item.get("codigoproduto"), "empresa": empresa}
+                text("""
+                    SELECT percentualDesconto
+                    FROM cadproduto
+                    WHERE codigo = :produto
+                      AND empresa = :empresa
+                      AND situacaoregistro <> 'E'
+                    LIMIT 1
+                """),
+                {
+                    "produto": item.get(
+                        "codigoproduto"
+                    ),
+                    "empresa": empresa
+                }
             ).fetchone()
-            limite_produto = float(produto_query._mapping["percentualDesconto"] or 0) if produto_query and produto_query._mapping.get("percentualDesconto") is not None else None
 
-            limite_maximo_permitido = limite_vendedor if limite_vendedor is not None else limite_produto
+            limite_produto = (
+                float(
+                    produto_query._mapping[
+                        "percentualDesconto"
+                    ] or 0
+                )
+                if (
+                    produto_query and
+                    produto_query._mapping.get(
+                        "percentualDesconto"
+                    ) is not None
+                )
+                else None
+            )
 
-            if valor_bruto_item > 0 and limite_maximo_permitido is not None:
-                percentual_aplicado = (valor_desconto / valor_bruto_item) * 100
-                if percentual_aplicado > limite_maximo_permitido:
+            limite_maximo_permitido = (
+                limite_vendedor
+                if limite_vendedor is not None
+                else limite_produto
+            )
+
+            if (
+                valor_bruto_item > 0 and
+                limite_maximo_permitido is not None
+            ):
+                percentual_aplicado = (
+                    valor_desconto /
+                    valor_bruto_item
+                ) * 100
+
+                if (
+                    percentual_aplicado >
+                    limite_maximo_permitido
+                ):
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Desconto de {percentual_aplicado:.2f}% excede o limite máximo permitido de {limite_maximo_permitido:.2f}%."
+                        detail=(
+                            f"Desconto de "
+                            f"{percentual_aplicado:.2f}% "
+                            f"excede o limite máximo permitido "
+                            f"de "
+                            f"{limite_maximo_permitido:.2f}%."
+                        )
                     )
 
-            # 📌 6. CÁLCULO DO TOTAL LÍQUIDO DO ITEM
-            total_item = valor_bruto_item - valor_desconto + valor_acrescimo
+            # ============================================================
+            # 6. CÁLCULO DO TOTAL LÍQUIDO DO ITEM
+            # ============================================================
+
+            total_item = (
+                valor_bruto_item -
+                valor_desconto +
+                valor_acrescimo
+            )
+
             if total_item < 0:
                 total_item = 0.0
 
-            # 📌 7. INSERE OU ATUALIZA O CABEÇALHO (MOVNOTA)
+            # ============================================================
+            # 7. INSERE OU ATUALIZA O CABEÇALHO (MOVNOTA)
+            # ============================================================
+
             if not resultado_nota:
                 sql_insert_nota = text("""
                     INSERT INTO movnota
-                    (empresa, numerodocumento, codigocondPagamento, codigovendedor, codigocliente,
-                     nomecliente, idpedido, valorDesconto, valorDespesas, valorFrete,
-                     valorTotal, pesoTotal, observacao, status, dataLancamento, situacaoRegistro,
-                     dataRegistro, pedido_hash)
-                    VALUES (:empresa, :numerodocumento, :codigocondPagamento, :codigovendedor,
-                            :codigocliente, :nomecliente, :idpedido, :valorDesconto, :valorDespesas, :valorFrete,
-                            :valorTotal, :pesoTotal, :observacao, :status, :dataLancamento,
-                            :situacaoRegistro, :dataRegistro, :pedido_hash)
+                    (
+                        empresa,
+                        numerodocumento,
+                        codigocondPagamento,
+                        codigovendedor,
+                        codigocliente,
+                        nomecliente,
+                        idpedido,
+                        valorDesconto,
+                        valorDespesas,
+                        valorFrete,
+                        valorTotal,
+                        pesoTotal,
+                        observacao,
+                        status,
+                        dataLancamento,
+                        situacaoRegistro,
+                        dataRegistro,
+                        pedido_hash
+                    )
+                    VALUES
+                    (
+                        :empresa,
+                        :numerodocumento,
+                        :codigocondPagamento,
+                        :codigovendedor,
+                        :codigocliente,
+                        :nomecliente,
+                        :idpedido,
+                        :valorDesconto,
+                        :valorDespesas,
+                        :valorFrete,
+                        :valorTotal,
+                        :pesoTotal,
+                        :observacao,
+                        :status,
+                        :dataLancamento,
+                        :situacaoRegistro,
+                        :dataRegistro,
+                        :pedido_hash
+                    )
                 """)
 
-                db.execute(sql_insert_nota, {
-                    "empresa": empresa,
-                    "numerodocumento": numerodocumento,
-                    "codigocondPagamento": codigocondPagamento,
-                    "codigovendedor": codigovendedor,
-                    "codigocliente": codigocliente,
-                    "nomecliente": nome_cliente,
-                    "idpedido": idpedido,
-                    "valorDesconto": dados.get("valorDesconto", 0),
-                    "valorDespesas": dados.get("valorDespesas", 0),
-                    "valorFrete": dados.get("valorFrete", 0),
-                    "valorTotal": total_item,
-                    "pesoTotal": dados.get("pesoTotal", 0),
-                    "observacao": dados.get("observacao", ""),
-                    "status": dados.get("status", "P"),
-                    "dataLancamento": dados.get("dataLancamento") or data_formatada,
-                    "situacaoRegistro": dados.get("situacaoRegistro", "I"),
-                    "dataRegistro": data_formatada,
-                    "pedido_hash": dados.get("pedido_hash")
-                })
+                db.execute(
+                    sql_insert_nota,
+                    {
+                        "empresa": empresa,
+                        "numerodocumento": numerodocumento,
+                        "codigocondPagamento": codigocondPagamento,
+                        "codigovendedor": codigovendedor,
+                        "codigocliente": codigocliente,
+                        "nomecliente": nome_cliente,
+                        "idpedido": idpedido,
+                        "valorDesconto": dados.get(
+                            "valorDesconto",
+                            0
+                        ),
+                        "valorDespesas": dados.get(
+                            "valorDespesas",
+                            0
+                        ),
+                        "valorFrete": dados.get(
+                            "valorFrete",
+                            0
+                        ),
+                        "valorTotal": total_item,
+                        "pesoTotal": dados.get(
+                            "pesoTotal",
+                            0
+                        ),
+                        "observacao": dados.get(
+                            "observacao",
+                            ""
+                        ),
+                        "status": dados.get(
+                            "status",
+                            "P"
+                        ),
+                        "dataLancamento": data_formatada,
+                        "situacaoRegistro": dados.get(
+                            "situacaoRegistro",
+                            "I"
+                        ),
+                        "dataRegistro": data_formatada,
+                        "pedido_hash": dados.get(
+                            "pedido_hash"
+                        )
+                    }
+                )
+
+                # 🔹 Busca o ID real gerado no MOVNOTA
+                resultado_movnota = db.execute(
+                    text("""
+                        SELECT id
+                        FROM movnota
+                        WHERE empresa = :empresa
+                          AND numerodocumento = :numerodocumento
+                        LIMIT 1
+                    """),
+                    {
+                        "empresa": empresa,
+                        "numerodocumento": numerodocumento
+                    }
+                ).mappings().fetchone()
+
             else:
-                novo_valor_total = float(resultado_nota["valorTotal"]) + total_item
+                novo_valor_total = (
+                    float(
+                        resultado_nota["valorTotal"]
+                    ) +
+                    total_item
+                )
 
                 sql_update_nota = text("""
                     UPDATE movnota
-                    SET valorTotal          = :novo_valor_total,
-                        codigocliente       = :codigocliente,
-                        nomecliente         = :nomecliente,
-                        codigovendedor      = :codigovendedor,
+                    SET valorTotal = :novo_valor_total,
+                        codigocliente = :codigocliente,
+                        nomecliente = :nomecliente,
+                        codigovendedor = :codigovendedor,
                         codigocondPagamento = :codigocondPagamento
                     WHERE empresa = :empresa
                       AND numerodocumento = :numerodocumento
                 """)
-                db.execute(sql_update_nota, {
-                    "novo_valor_total": novo_valor_total,
-                    "codigocliente": codigocliente,
-                    "nomecliente": nome_cliente,
-                    "codigovendedor": codigovendedor,
-                    "codigocondPagamento": codigocondPagamento,
+
+                db.execute(
+                    sql_update_nota,
+                    {
+                        "novo_valor_total": novo_valor_total,
+                        "codigocliente": codigocliente,
+                        "nomecliente": nome_cliente,
+                        "codigovendedor": codigovendedor,
+                        "codigocondPagamento": codigocondPagamento,
+                        "empresa": empresa,
+                        "numerodocumento": numerodocumento
+                    }
+                )
+
+                # 🔹 O ID já veio da consulta inicial
+                resultado_movnota = {
+                    "id": resultado_nota["id"]
+                }
+
+            # ============================================================
+            # 🔹 ID REAL DO MOVNOTA
+            # ============================================================
+
+            if not resultado_movnota:
+                raise HTTPException(
+                    status_code=500,
+                    detail=(
+                        "Não foi possível localizar o ID "
+                        "do movimento (movnota)."
+                    )
+                )
+
+            movnota_id = resultado_movnota["id"]
+
+            logging.info(
+                "🔗 MOVNOTA localizado: id=%s, empresa=%s, numerodocumento=%s",
+                movnota_id,
+                empresa,
+                numerodocumento
+            )
+
+            # ============================================================
+            # 8. DESCOBRE O PRÓXIMO SEQ E INSERE O ITEM
+            # ============================================================
+
+            result_seq = db.execute(
+                text("""
+                    SELECT
+                        COALESCE(MAX(seq), 0) + 1 AS proq_seq
+                    FROM movnotaitem
+                    WHERE empresa = :empresa
+                      AND numerodocumento = :numerodocumento
+                """),
+                {
                     "empresa": empresa,
                     "numerodocumento": numerodocumento
-                })
-
-            # 📌 8. DESCOBRE O PRÓXIMO 'SEQ' E INSERE O ITEM (MOVNOTAITEM)
-            result_seq = db.execute(
-                text("SELECT COALESCE(MAX(seq), 0) + 1 AS proq_seq FROM movnotaitem WHERE empresa = :empresa AND numerodocumento = :numerodocumento"),
-                {"empresa": empresa, "numerodocumento": numerodocumento}
+                }
             ).mappings().fetchone()
 
-            proxima_seq = result_seq["proq_seq"] if result_seq else 1
+            proxima_seq = (
+                result_seq["proq_seq"]
+                if result_seq
+                else 1
+            )
 
             sql_insert_item = text("""
                 INSERT INTO movnotaitem
-                (empresa, numerodocumento, seq, codigovendedor, codigoproduto, idpedido,
-                 descricaoproduto, valorUnitario, valorunitariovenda, valorDesconto, 
-                 valoracrescimo, valorTotal, quantidade, codigocliente, dataRegistro, 
-                 situacaoRegistro, movnota_id)
-                VALUES (:empresa, :numerodocumento, :seq, :codigovendedor, :codigoproduto, :idpedido,
-                        :descricaoproduto, :valorUnitario, :valorunitariovenda, :valorDesconto, 
-                        :valoracrescimo, :valorTotal, :quantidade, :codigocliente, :dataRegistro, 
-                        :situacaoRegistro, :movnota_id)
+                (
+                    empresa,
+                    numerodocumento,
+                    seq,
+                    codigovendedor,
+                    codigoproduto,
+                    idpedido,
+                    descricaoproduto,
+                    valorUnitario,
+                    valorunitariovenda,
+                    valorDesconto,
+                    valoracrescimo,
+                    valorTotal,
+                    quantidade,
+                    quantidade_pedida,
+                    tipodocumento,
+                    codigocliente,
+                    dataRegistro,
+                    situacaoRegistro,
+                    movnota_id
+                )
+                VALUES
+                (
+                    :empresa,
+                    :numerodocumento,
+                    :seq,
+                    :codigovendedor,
+                    :codigoproduto,
+                    :idpedido,
+                    :descricaoproduto,
+                    :valorUnitario,
+                    :valorunitariovenda,
+                    :valorDesconto,
+                    :valoracrescimo,
+                    :valorTotal,
+                    :quantidade,
+                    :quantidade_pedida,
+                    :tipodocumento,
+                    :codigocliente,
+                    :dataRegistro,
+                    :situacaoRegistro,
+                    :movnota_id
+                )
             """)
 
-            db.execute(sql_insert_item, {
-                "empresa": empresa,
-                "numerodocumento": numerodocumento,
-                "seq": proxima_seq,
-                "codigovendedor": codigovendedor,
-                "codigoproduto": item.get("codigoproduto"),
-                "idpedido": idpedido,
-                "descricaoproduto": item.get("descricaoproduto"),
-                "valorUnitario": valor_unitario,             # Preço final negociado
-                "valorunitariovenda": valor_unitario_venda,  # 👈 Preço base da tabela de preços
-                "valorDesconto": valor_desconto,
-                "valoracrescimo": valor_acrescimo,
-                "valorTotal": total_item,
-                "quantidade": quantidade,
-                "codigocliente": codigocliente,
-                "dataRegistro": data_formatada,
-                "situacaoRegistro": item.get("situacaoRegistro", "I"),
-                "movnota_id": numerodocumento
-            })
+            db.execute(
+                sql_insert_item,
+                {
+                    "empresa": empresa,
+                    "numerodocumento": numerodocumento,
+                    "seq": proxima_seq,
+                    "codigovendedor": codigovendedor,
+                    "codigoproduto": item.get(
+                        "codigoproduto"
+                    ),
+                    "idpedido": idpedido,
+                    "descricaoproduto": item.get(
+                        "descricaoproduto"
+                    ),
+                    "valorUnitario": valor_unitario,
+                    "valorunitariovenda": valor_unitario_venda,
+                    "valorDesconto": valor_desconto,
+                    "valoracrescimo": valor_acrescimo,
+                    "valorTotal": total_item,
+                    "quantidade": quantidade,
+                    "quantidade_pedida": quantidade_pedida,
+                    "tipodocumento": tipodocumento,
+                    "codigocliente": codigocliente,
+                    "dataRegistro": data_formatada,
+                    "situacaoRegistro": item.get(
+                        "situacaoRegistro",
+                        "I"
+                    ),
+                    "movnota_id": movnota_id
+                }
+            )
 
             db.commit()
 
-            # 📌 9. RETORNO COMPLETO DOS CÓDIGOS E NOMES ATUALIZADOS
+            # ============================================================
+            # 9. RETORNO COMPLETO
+            # ============================================================
+
             return {
                 "success": True,
                 "message": "Item adicionado com sucesso!",
@@ -670,13 +1422,25 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 "nomecondPagamento": nome_cond_pagamento
             }
 
+        except HTTPException:
+            db.rollback()
+            raise
+
         except Exception as e:
             db.rollback()
+
             import traceback
             traceback.print_exc()
-            logging.error("❌ Erro ao adicionar item no pedido: %s", str(e))
-            raise HTTPException(status_code=500, detail=f"Erro ao salvar item: {str(e)}")
 
+            logging.error(
+                "❌ Erro ao adicionar item no pedido: %s",
+                str(e)
+            )
+
+            raise HTTPException(
+                status_code=500,
+                detail=f"Erro ao salvar item: {str(e)}"
+            )
 
 @mov_pedido_router.get("/listar-itens")
 async def listar_itens_pedido(token: str = Query(...), empresa: int = Query(...), numerodocumento: int = Query(...)):
