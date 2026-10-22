@@ -70,10 +70,7 @@ async def tela_novo_pedido(
 
     if not nome_banco:
         print("❌ [NOVO PEDIDO] Empresa não encontrada pelo token.")
-        raise HTTPException(
-            status_code=403,
-            detail="Empresa não encontrada."
-        )
+        raise HTTPException(status_code=403, detail="Empresa não encontrada.")
 
     session_empresa = get_empresa_session(nome_banco)
 
@@ -210,42 +207,17 @@ async def tela_novo_pedido(
 
                 if cliente_query:
                     cliente = cliente_query._mapping
-
-                    codigo_cliente_padrao = str(
-                        cliente.get("codigo", "")
-                    ).strip()
-
-                    nome_cliente_padrao = str(
-                        cliente.get(
-                            "nome",
-                            "Cliente Sem Nome"
-                        )
-                    ).strip()
-
-                    doc_cliente_padrao = str(
-                        cliente.get(
-                            "cpfcnpj",
-                            "—"
-                        )
-                    ).strip()
+                    codigo_cliente_padrao = str(cliente.get("codigo", "")).strip()
+                    nome_cliente_padrao = str( cliente.get("nome", "Cliente Sem Nome" )).strip()
+                    doc_cliente_padrao = str( cliente.get("cpfcnpj", "—")).strip()
 
                     print("👤 [NOVO PEDIDO] Cliente padrão encontrado:")
-                    print(
-                        f"   código: {codigo_cliente_padrao}"
-                    )
-                    print(
-                        f"   nome: {nome_cliente_padrao}"
-                    )
+                    print(f"   código: {codigo_cliente_padrao}")
+                    print(f"   nome: {nome_cliente_padrao}")
                 else:
-                    print(
-                        "⚠️ [NOVO PEDIDO] Cliente padrão "
-                        f"não encontrado: {cod_cliente_param}"
-                    )
+                    print("⚠️ [NOVO PEDIDO] Cliente padrão " f"não encontrado: {cod_cliente_param}" )
         else:
-            print(
-                "⚠️ [NOVO PEDIDO] Nenhum registro encontrado "
-                f"em cadparametro para empresa {codigo_empresa}"
-            )
+            print( "⚠️ [NOVO PEDIDO] Nenhum registro encontrado " f"em cadparametro para empresa {codigo_empresa}")
 
         # 3. Novo documento
         if not numerodocumento:
@@ -793,9 +765,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 tipodocumento = "COTACAO"
 
             quantidade = float(item.get("quantidade", 0))
-
-            quantidade_pedida = (quantidade if tipodocumento == "PEDIDO"  else 0)
-
+            quantidade_pedida = (quantidade if tipodocumento == "PEDIDO" else 0)
             valor_unitario = float(item.get("valorUnitario", 0))
 
             # 🔹 PREÇO BASE ORIGINAL
@@ -805,8 +775,15 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             valor_acrescimo = float(item.get("valoracrescimo", 0))
             valor_bruto_item = (quantidade * valor_unitario)
 
+            # 🔹 NOVOS CAMPOS DO MODAL
+            data_pedido_previsto = item.get("data_pedido_previsto") or item.get("dataPedidoPrevisto")
+            ordem_compra = item.get("ordem_compra") or item.get("ordemCompra")
+            item_ordem_compra = item.get("item_ordem_compra") or item.get("itemOrdemCompra")
+            material = item.get("material")
+            referencia = item.get("referencia")
+
             try:
-                data_atual = datetime.now( ZoneInfo("America/Sao_Paulo"))
+                data_atual = datetime.now(ZoneInfo("America/Sao_Paulo"))
             except Exception:
                 data_atual = datetime.now()
             data_formatada = data_atual.strftime("%Y-%m-%d %H:%M:%S")
@@ -844,27 +821,14 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             # ============================================================
 
             if resultado_nota:
-                if (
-                    not codigovendedor or
-                    str(codigovendedor).strip() == ""
-                ):
-                    codigovendedor = (
-                        resultado_nota["codigovendedor"]
-                    )
+                if not codigovendedor or str(codigovendedor).strip() == "":
+                    codigovendedor = resultado_nota["codigovendedor"]
 
-                if (
-                    not codigocondPagamento or
-                    str(codigocondPagamento).strip() == ""
-                ):
-                    codigocondPagamento = (
-                        resultado_nota["codigocondPagamento"]
-                    )
+                if not codigocondPagamento or str(codigocondPagamento).strip() == "":
+                    codigocondPagamento = resultado_nota["codigocondPagamento"]
 
             else:
-                if (
-                    not codigocondPagamento or
-                    str(codigocondPagamento).strip() == ""
-                ):
+                if not codigocondPagamento or str(codigocondPagamento).strip() == "":
                     param_query = db.execute(
                         text("""
                             SELECT condicaopagamentopadrao
@@ -873,27 +837,16 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                         """)
                     ).fetchone()
 
-                    if (
-                        param_query and
-                        param_query._mapping.get(
-                            "condicaopagamentopadrao"
-                        )
-                    ):
+                    if param_query and param_query._mapping.get("condicaopagamentopadrao"):
                         codigocondPagamento = str(
-                            param_query._mapping[
-                                "condicaopagamentopadrao"
-                            ]
+                            param_query._mapping["condicaopagamentopadrao"]
                         ).strip()
 
             # ============================================================
             # 3. BUSCA OS NOMES NO CADASTRO
             # ============================================================
 
-            # 3.1 Nome do Cliente
-            nome_cliente = dados.get(
-                "nomecliente",
-                ""
-            )
+            nome_cliente = dados.get("nomecliente", "")
 
             if codigocliente:
                 cli_query = db.execute(
@@ -905,33 +858,17 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                         LIMIT 1
                     """),
                     {
-                        "codigo": str(
-                            codigocliente
-                        ).strip()
+                        "codigo": str(codigocliente).strip()
                     }
                 ).fetchone()
 
-                if (
-                    cli_query and
-                    cli_query._mapping.get("nome")
-                ):
-                    nome_cliente = (
-                        cli_query._mapping["nome"]
-                    )
+                if cli_query and cli_query._mapping.get("nome"):
+                    nome_cliente = cli_query._mapping["nome"]
 
-            # 3.2 Nome do Vendedor
-            nome_vendedor = dados.get(
-                "nomevendedor",
-                ""
-            )
+            nome_vendedor = dados.get("nomevendedor", "")
 
-            if (
-                codigovendedor and
-                str(codigovendedor).strip() != ""
-            ):
-                cod_v_clean = str(
-                    codigovendedor
-                ).strip()
+            if codigovendedor and str(codigovendedor).strip() != "":
+                cod_v_clean = str(codigovendedor).strip()
 
                 vend_query = db.execute(
                     text("""
@@ -948,27 +885,13 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     }
                 ).fetchone()
 
-                if (
-                    vend_query and
-                    vend_query._mapping.get("nome")
-                ):
-                    nome_vendedor = (
-                        vend_query._mapping["nome"]
-                    )
+                if vend_query and vend_query._mapping.get("nome"):
+                    nome_vendedor = vend_query._mapping["nome"]
 
-            # 3.3 Nome da Condição de Pagamento
-            nome_cond_pagamento = dados.get(
-                "nomecondPagamento",
-                ""
-            )
+            nome_cond_pagamento = dados.get("nomecondPagamento", "")
 
-            if (
-                codigocondPagamento and
-                str(codigocondPagamento).strip() != ""
-            ):
-                cod_c_clean = str(
-                    codigocondPagamento
-                ).strip()
+            if codigocondPagamento and str(codigocondPagamento).strip() != "":
+                cod_c_clean = str(codigocondPagamento).strip()
 
                 cond_query = db.execute(
                     text("""
@@ -983,13 +906,8 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     }
                 ).fetchone()
 
-                if (
-                    cond_query and
-                    cond_query._mapping.get("descricao")
-                ):
-                    nome_cond_pagamento = (
-                        cond_query._mapping["descricao"]
-                    )
+                if cond_query and cond_query._mapping.get("descricao"):
+                    nome_cond_pagamento = cond_query._mapping["descricao"]
 
             # ============================================================
             # 4. SE NÃO VEIO NUMERODOCUMENTO, GERA O PRÓXIMO
@@ -1011,11 +929,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     }
                 ).mappings().fetchone()
 
-                numerodocumento = (
-                    result_prox["prox"]
-                    if result_prox
-                    else 1
-                )
+                numerodocumento = result_prox["prox"] if result_prox else 1
 
             if not idpedido:
                 idpedido = numerodocumento
@@ -1040,17 +954,8 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             ).fetchone()
 
             limite_vendedor = (
-                float(
-                    vendedor_query._mapping[
-                        "limitedesconto"
-                    ] or 0
-                )
-                if (
-                    vendedor_query and
-                    vendedor_query._mapping.get(
-                        "limitedesconto"
-                    ) is not None
-                )
+                float(vendedor_query._mapping["limitedesconto"] or 0)
+                if (vendedor_query and vendedor_query._mapping.get("limitedesconto") is not None)
                 else None
             )
 
@@ -1064,55 +969,30 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     LIMIT 1
                 """),
                 {
-                    "produto": item.get(
-                        "codigoproduto"
-                    ),
+                    "produto": item.get("codigoproduto"),
                     "empresa": empresa
                 }
             ).fetchone()
 
             limite_produto = (
-                float(
-                    produto_query._mapping[
-                        "percentualDesconto"
-                    ] or 0
-                )
-                if (
-                    produto_query and
-                    produto_query._mapping.get(
-                        "percentualDesconto"
-                    ) is not None
-                )
+                float(produto_query._mapping["percentualDesconto"] or 0)
+                if (produto_query and produto_query._mapping.get("percentualDesconto") is not None)
                 else None
             )
 
             limite_maximo_permitido = (
-                limite_vendedor
-                if limite_vendedor is not None
-                else limite_produto
+                limite_vendedor if limite_vendedor is not None else limite_produto
             )
 
-            if (
-                valor_bruto_item > 0 and
-                limite_maximo_permitido is not None
-            ):
-                percentual_aplicado = (
-                    valor_desconto /
-                    valor_bruto_item
-                ) * 100
+            if valor_bruto_item > 0 and limite_maximo_permitido is not None:
+                percentual_aplicado = (valor_desconto / valor_bruto_item) * 100
 
-                if (
-                    percentual_aplicado >
-                    limite_maximo_permitido
-                ):
+                if percentual_aplicado > limite_maximo_permitido:
                     raise HTTPException(
                         status_code=400,
                         detail=(
-                            f"Desconto de "
-                            f"{percentual_aplicado:.2f}% "
-                            f"excede o limite máximo permitido "
-                            f"de "
-                            f"{limite_maximo_permitido:.2f}%."
+                            f"Desconto de {percentual_aplicado:.2f}% "
+                            f"excede o limite máximo permitido de {limite_maximo_permitido:.2f}%."
                         )
                     )
 
@@ -1120,11 +1000,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
             # 6. CÁLCULO DO TOTAL LÍQUIDO DO ITEM
             # ============================================================
 
-            total_item = (
-                valor_bruto_item -
-                valor_desconto +
-                valor_acrescimo
-            )
+            total_item = valor_bruto_item - valor_desconto + valor_acrescimo
 
             if total_item < 0:
                 total_item = 0.0
@@ -1189,44 +1065,20 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                         "codigocliente": codigocliente,
                         "nomecliente": nome_cliente,
                         "idpedido": idpedido,
-                        "valorDesconto": dados.get(
-                            "valorDesconto",
-                            0
-                        ),
-                        "valorDespesas": dados.get(
-                            "valorDespesas",
-                            0
-                        ),
-                        "valorFrete": dados.get(
-                            "valorFrete",
-                            0
-                        ),
+                        "valorDesconto": dados.get("valorDesconto", 0),
+                        "valorDespesas": dados.get("valorDespesas", 0),
+                        "valorFrete": dados.get("valorFrete", 0),
                         "valorTotal": total_item,
-                        "pesoTotal": dados.get(
-                            "pesoTotal",
-                            0
-                        ),
-                        "observacao": dados.get(
-                            "observacao",
-                            ""
-                        ),
-                        "status": dados.get(
-                            "status",
-                            "P"
-                        ),
+                        "pesoTotal": dados.get("pesoTotal", 0),
+                        "observacao": dados.get("observacao", ""),
+                        "status": dados.get("status", "P"),
                         "dataLancamento": data_formatada,
-                        "situacaoRegistro": dados.get(
-                            "situacaoRegistro",
-                            "I"
-                        ),
+                        "situacaoRegistro": dados.get("situacaoRegistro", "I"),
                         "dataRegistro": data_formatada,
-                        "pedido_hash": dados.get(
-                            "pedido_hash"
-                        )
+                        "pedido_hash": dados.get("pedido_hash")
                     }
                 )
 
-                # 🔹 Busca o ID real gerado no MOVNOTA
                 resultado_movnota = db.execute(
                     text("""
                         SELECT id
@@ -1242,12 +1094,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 ).mappings().fetchone()
 
             else:
-                novo_valor_total = (
-                    float(
-                        resultado_nota["valorTotal"]
-                    ) +
-                    total_item
-                )
+                novo_valor_total = float(resultado_nota["valorTotal"]) + total_item
 
                 sql_update_nota = text("""
                     UPDATE movnota
@@ -1273,35 +1120,20 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     }
                 )
 
-                # 🔹 O ID já veio da consulta inicial
                 resultado_movnota = {
                     "id": resultado_nota["id"]
                 }
 
-            # ============================================================
-            # 🔹 ID REAL DO MOVNOTA
-            # ============================================================
-
             if not resultado_movnota:
                 raise HTTPException(
                     status_code=500,
-                    detail=(
-                        "Não foi possível localizar o ID "
-                        "do movimento (movnota)."
-                    )
+                    detail="Não foi possível localizar o ID do movimento (movnota)."
                 )
 
             movnota_id = resultado_movnota["id"]
 
-            logging.info(
-                "🔗 MOVNOTA localizado: id=%s, empresa=%s, numerodocumento=%s",
-                movnota_id,
-                empresa,
-                numerodocumento
-            )
-
             # ============================================================
-            # 8. DESCOBRE O PRÓXIMO SEQ E INSERE O ITEM
+            # 8. DESCOBRE O PRÓXIMO SEQ E INSERE O ITEM COM OS NOVOS CAMPOS
             # ============================================================
 
             result_seq = db.execute(
@@ -1318,11 +1150,7 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                 }
             ).mappings().fetchone()
 
-            proxima_seq = (
-                result_seq["proq_seq"]
-                if result_seq
-                else 1
-            )
+            proxima_seq = result_seq["proq_seq"] if result_seq else 1
 
             sql_insert_item = text("""
                 INSERT INTO movnotaitem
@@ -1345,7 +1173,12 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     codigocliente,
                     dataRegistro,
                     situacaoRegistro,
-                    movnota_id
+                    movnota_id,
+                    data_pedido_previsto,
+                    ordem_compra,
+                    item_ordem_compra,
+                    material,
+                    referencia
                 )
                 VALUES
                 (
@@ -1367,7 +1200,12 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     :codigocliente,
                     :dataRegistro,
                     :situacaoRegistro,
-                    :movnota_id
+                    :movnota_id,
+                    :data_pedido_previsto,
+                    :ordem_compra,
+                    :item_ordem_compra,
+                    :material,
+                    :referencia
                 )
             """)
 
@@ -1378,13 +1216,9 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "numerodocumento": numerodocumento,
                     "seq": proxima_seq,
                     "codigovendedor": codigovendedor,
-                    "codigoproduto": item.get(
-                        "codigoproduto"
-                    ),
+                    "codigoproduto": item.get("codigoproduto"),
                     "idpedido": idpedido,
-                    "descricaoproduto": item.get(
-                        "descricaoproduto"
-                    ),
+                    "descricaoproduto": item.get("descricaoproduto"),
                     "valorUnitario": valor_unitario,
                     "valorunitariovenda": valor_unitario_venda,
                     "valorDesconto": valor_desconto,
@@ -1395,19 +1229,17 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
                     "tipodocumento": tipodocumento,
                     "codigocliente": codigocliente,
                     "dataRegistro": data_formatada,
-                    "situacaoRegistro": item.get(
-                        "situacaoRegistro",
-                        "I"
-                    ),
-                    "movnota_id": movnota_id
+                    "situacaoRegistro": item.get("situacaoRegistro", "I"),
+                    "movnota_id": movnota_id,
+                    "data_pedido_previsto": data_pedido_previsto,
+                    "ordem_compra": ordem_compra,
+                    "item_ordem_compra": item_ordem_compra,
+                    "material": material,
+                    "referencia": referencia
                 }
             )
 
             db.commit()
-
-            # ============================================================
-            # 9. RETORNO COMPLETO
-            # ============================================================
 
             return {
                 "success": True,
@@ -1428,15 +1260,8 @@ async def adicionar_item_pedido(dados: dict, token: str = Query(...)):
 
         except Exception as e:
             db.rollback()
-
             import traceback
             traceback.print_exc()
-
-            logging.error(
-                "❌ Erro ao adicionar item no pedido: %s",
-                str(e)
-            )
-
             raise HTTPException(
                 status_code=500,
                 detail=f"Erro ao salvar item: {str(e)}"

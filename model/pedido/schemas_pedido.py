@@ -1,11 +1,11 @@
-from pydantic import BaseModel, condecimal, constr
+from pydantic import BaseModel, constr, condecimal
 from typing import List, Optional
 from decimal import Decimal
-from datetime import datetime
+from datetime import date, datetime
 
 class ItemSchema(BaseModel):
     tipo: constr(max_length=20) = "MovNotaItem"  # Identificador fixo
-    tipodocumento: constr(max_length=10) = "COTACAO"
+    tipodocumento: constr(max_length=10) = "PEDIDO"
     codigoproduto: constr(max_length=5)
     idpedido: Optional[int] = None
     descricaoproduto: Optional[constr(max_length=200)] = None
@@ -19,10 +19,16 @@ class ItemSchema(BaseModel):
     situacaoRegistro: Optional[constr(max_length=1)] = "I"
     dataRegistro: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True # substitui orm_mode no Pydantic v2
-        json_encoders = {Decimal: float, datetime: str}
+    # 🔹 Novos campos do modal
+    data_pedido_previsto: Optional[date] = None
+    ordem_compra: Optional[constr(max_length=50)] = None
+    item_ordem_compra: Optional[constr(max_length=20)] = None
+    material: Optional[constr(max_length=100)] = None
+    referencia: Optional[constr(max_length=100)] = None
 
+    class Config:
+        from_attributes = True  # substitui orm_mode no Pydantic v2
+        json_encoders = {Decimal: float, datetime: str, date: str}
 
 class PedidoSchema(BaseModel):
     tipo: constr(max_length=20) = "MovNota"  # Identificador fixo

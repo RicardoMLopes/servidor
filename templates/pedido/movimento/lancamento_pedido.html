@@ -68,6 +68,9 @@
 <!-- MODAL: Desconto e Acréscimo do Item -->
 {% include 'pedido/movimento/modal/tipo_acresc_desc.html' %}
 
+<!-- Informações Adicionais -->
+{% include 'pedido/movimento/modal/informacoes_adicionais.html ' %}
+
 <!-- MODAL: Pagamento -->
 {% include 'pedido/movimento/modal/pagamento.html' %}
 
@@ -86,15 +89,15 @@
 </script>
 
 <!-- Scripts de regras, funções globais e suporte -->
-<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}?v=4"></script>
-<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}?v=4"></script>
-<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}?v=4"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_cliente.js') }}?v=7"></script>
+<script src="{{ url_for('static', path='js/movimento/pesquisar_produto.js') }}?v=7"></script>
+<script src="{{ url_for('static', path='js/movimento/desconto_acresc.js') }}?v=7"></script>
 
 <!-- Scripts de manipulação dos itens -->
-<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}?v=5"></script>
-<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}?v=5"></script>
+<script src="{{ url_for('static', path='js/movimento/lancamento_itens.js') }}?v=7"></script>
+<script src="{{ url_for('static', path='js/movimento/tabela_itens.js') }}?v=7"></script>
 
 <!-- Script principal do Pedido de Venda -->
-<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}?v=5.2"></script>
+<script src="{{ url_for('static', path='js/movimento/pedidovenda.js') }}?v=7"></script>
 
 {% endblock %}

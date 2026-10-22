@@ -1,0 +1,48 @@
+<!-- Modal de Informações Adicionais do Item -->
+<div class="modal fade" id="modalItemDetalhes" tabindex="-1" aria-labelledby="modalItemDetalhesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalItemDetalhesLabel">
+                    <i class="bi bi-card-checklist me-2"></i>Informações Adicionais do Item
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formItemDetalhes">
+                    <div class="mb-3">
+                        <label for="modalDataPrevista" class="form-label font-weight-bold">Data Pedido Previsto</label>
+                        <input type="date" class="form-control" id="modalDataPrevista">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-7 mb-3">
+                            <label for="modalOrdemCompra" class="form-label font-weight-bold">Ordem de Compra</label>
+                            <input type="text" class="form-control" id="modalOrdemCompra" maxlength="50" placeholder="Ex: OC-2026-001">
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label for="modalItemOrdem" class="form-label font-weight-bold">Item O.C.</label>
+                            <input type="text" class="form-control" id="modalItemOrdem" maxlength="20" placeholder="Ex: 01">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modalMaterial" class="form-label font-weight-bold">Material</label>
+                        <input type="text" class="form-control" id="modalMaterial" maxlength="100" placeholder="Ex: Aço Inox 304 / Chapa 1/8">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modalReferencia" class="form-label font-weight-bold">Referência</label>
+                        <input type="text" class="form-control" id="modalReferencia" maxlength="100" placeholder="Ex: REF-PROD-99">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnSalvarModalItem">
+                    <i class="bi bi-check-circle me-1"></i> Confirmar e Adicionar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

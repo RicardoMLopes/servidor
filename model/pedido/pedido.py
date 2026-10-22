@@ -108,11 +108,13 @@ colunas_movnotaitem = {
     "movnota_id": "INT NOT NULL",
     "empresa": "INT NOT NULL",
     "numerodocumento": "INT NOT NULL",
+    "tipodocumento": "VARCHAR(10) DEFAULT 'PEDIDO'",
     "codigovendedor": "CHAR(5) NOT NULL",
     "codigoproduto": "CHAR(5) NOT NULL",
     "idpedido": "INT DEFAULT NULL",
     "descricaoproduto": "VARCHAR(200) DEFAULT NULL",
     "quantidade": "DECIMAL(12,6) DEFAULT 0.000000",
+    "quantidade_pedida": "DECIMAL(12,6) DEFAULT 0.000000",
     "valorUnitario": "DECIMAL(12,6) DEFAULT 0.000000",
     "valorunitariovenda": "DECIMAL(12,6) DEFAULT 0.000000",
     "valorDesconto": "DECIMAL(12,2) DEFAULT 0.00",
@@ -120,7 +122,12 @@ colunas_movnotaitem = {
     "valorTotal": "DECIMAL(12,2) DEFAULT 0.00",
     "codigocliente": "CHAR(5) DEFAULT NULL",
     "situacaoRegistro": "VARCHAR(1) DEFAULT 'I'",
-    "dataRegistro": "DATETIME DEFAULT NULL"
+    "dataRegistro": "DATETIME DEFAULT NULL",
+    "data_pedido_previsto": "DATE DEFAULT NULL",
+    "ordem_compra": "VARCHAR(50) DEFAULT NULL",
+    "item_ordem_compra": "VARCHAR(20) DEFAULT NULL",
+    "material": "VARCHAR(100) DEFAULT NULL",
+    "referencia": "VARCHAR(100) DEFAULT NULL"
 }
 
 

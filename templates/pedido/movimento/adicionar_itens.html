@@ -39,9 +39,16 @@
       </div>
 
       <div class="col-12 d-flex flex-wrap justify-content-between align-items-center mt-4 pt-3 border-top border-2 gap-2">
-        <button type="button" class="btn btn-white text-dark border btn-sm fw-semibold rounded-pill px-3 py-2 shadow-sm bg-white" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
-          <i class="bi bi-percent text-primary me-1"></i> Desconto / Acréscimo: <span id="lblTipoDescontoInfo" class="text-primary">Valor</span>
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+          <button type="button" class="btn btn-white text-dark border btn-sm fw-semibold rounded-pill px-3 py-2 shadow-sm bg-white" data-bs-toggle="modal" data-bs-target="#modalDescontoAcrescimoItem">
+            <i class="bi bi-percent text-primary me-1"></i> Desconto / Acréscimo: <span id="lblTipoDescontoInfo" class="text-primary">Valor</span>
+          </button>
+
+          <!-- 🔹 Novo botão de Informações Adicionais posicionado ao lado -->
+          <button type="button" class="btn btn-white text-dark border btn-sm fw-semibold rounded-pill px-3 py-2 shadow-sm bg-white" onclick="abrirModalInfAdicionais()">
+            <i class="bi bi-file-earmark-text text-primary me-1"></i> Inf. Adicionais <span id="badgeInfAdicionais" class="badge bg-secondary ms-1" style="display:none;">Preenchido</span>
+          </button>
+        </div>
 
         <button type="button" class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow" onclick="adicionarItemNaTabela()">
           <i class="bi bi-plus-lg me-1"></i> Adicionar Item
